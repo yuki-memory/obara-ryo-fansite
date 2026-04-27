@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: #ffe8e8;
+  color: #111;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.03), transparent 35%),
+    #ffe8e8;
+}
+
+#webgl-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  text-align: center;
+  pointer-events: none;
+  padding: 24px;
+  color: #111;
+}
+
+.hero__eyebrow {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: #121212;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  opacity: 0.7;
+}
+
+.hero__title {
+  margin: 0;
+  transform: translateY(-220px);
+  font-size: clamp(28px, 4.6vw, 72px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+.hero__desc {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+  letter-spacing: 0.08em;
+}
+
+.hero__controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hero__controls button {
+  border: 1px solid #111;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  transition: 0.2s ease;
+}
+
+.hero__controls button:hover {
+  background: #111;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .hero__controls {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .hero__controls button {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .hero__eyebrow {
+    top: 28px;
+    font-size: 10px;
+  }
+
+  .hero__desc {
+    bottom: 92px;
+    font-size: 11px;
+    width: calc(100% - 32px);
+  }
+}
