@@ -1,4 +1,40 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
 node_modules/
-dist/
+jspm_packages/
+
+# Environment
 .env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.output/
+.cache/
+.parcel-cache/
+.vite/
+
+# Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# OS / Editor
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Package artifacts
+*.tgz
