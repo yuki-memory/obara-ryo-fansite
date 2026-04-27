@@ -13,7 +13,7 @@ body {
 }
 
 body {
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .hero {
@@ -96,6 +96,166 @@ body {
   color: #fff;
 }
 
+.album-section {
+  background: #ffe8e8;
+  padding: 104px 24px 112px;
+  color: #111;
+}
+
+.album-section__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  align-items: center;
+  gap: 64px;
+  width: min(100%, 1080px);
+  margin: 0 auto;
+}
+
+.album-section__carousel {
+  display: grid;
+  grid-template-columns: 64px minmax(360px, 520px) 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.album-section__nav-button {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+  font-size: 0;
+  opacity: 0.92;
+  transition: opacity 0.2s ease;
+}
+
+.album-section__nav-button::before {
+  font-size: 48px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.album-section__nav-button--prev::before {
+  content: "<";
+}
+
+.album-section__nav-button--next::before {
+  content: ">";
+}
+
+.album-section__nav-button:hover {
+  opacity: 0.54;
+}
+
+.album-section__covers {
+  position: relative;
+  width: min(100%, 430px);
+  height: 320px;
+  margin: 0 auto;
+}
+
+.album-section__cover {
+  position: absolute;
+  top: 50%;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: #d7d7d7;
+}
+
+.album-section__cover--active {
+  left: 50%;
+  z-index: 3;
+  width: 280px;
+  height: 280px;
+  background: #b78d90;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, calc(-50% - 14px));
+}
+
+.album-section__cover--prev,
+.album-section__cover--next {
+  z-index: 1;
+  width: 230px;
+  height: 230px;
+  background: #d9d9d9;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.album-section__cover--prev {
+  left: 50%;
+  transform: translate(-110%, -50%) scale(0.9);
+}
+
+.album-section__cover--next {
+  right: 50%;
+  transform: translate(110%, -50%) scale(0.9);
+}
+
+.album-section__side {
+  display: grid;
+  gap: 12px;
+}
+
+.album-section__track-panel {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: inset -1px 0 0 rgba(17, 17, 17, 0.35);
+  padding: 24px 24px 28px;
+}
+
+.album-section__track-title {
+  margin: 0 0 18px;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.album-section__track-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.album-section__track-item {
+  border-bottom: 1px solid rgba(17, 17, 17, 0.28);
+  padding: 8px 0;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.album-section__track-item:first-child {
+  padding-top: 0;
+}
+
+.album-section__actions {
+  width: 100%;
+}
+
+.album-section__post-button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #111;
+  padding: 14px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.album-section__post-button:hover {
+  background: #fff;
+  transform: translateY(-2px);
+}
+
 @media (max-width: 768px) {
   .hero__controls {
     left: 16px;
@@ -110,5 +270,60 @@ body {
   .hero__eyebrow {
     top: 28px;
     font-size: 10px;
+  }
+
+  .album-section {
+    padding: 72px 16px 88px;
+  }
+
+  .album-section__body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .album-section__carousel {
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    gap: 4px;
+  }
+
+  .album-section__nav-button {
+    width: 42px;
+    height: 52px;
+  }
+
+  .album-section__nav-button::before {
+    font-size: 42px;
+  }
+
+  .album-section__covers {
+    width: min(100%, 280px);
+    height: 250px;
+  }
+
+  .album-section__cover--active {
+    width: 220px;
+    height: 220px;
+  }
+
+  .album-section__cover--prev,
+  .album-section__cover--next {
+    width: 180px;
+    height: 180px;
+  }
+
+  .album-section__cover--prev {
+    transform: translate(-96%, -50%) scale(0.9);
+  }
+
+  .album-section__cover--next {
+    transform: translate(96%, -50%) scale(0.9);
+  }
+
+  .album-section__track-panel {
+    padding: 22px 20px 26px;
+  }
+
+  .album-section__post-button {
+    width: 100%;
   }
 }

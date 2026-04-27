@@ -1,4 +1,5 @@
 import logoImageUrl from '../../assets/logo.png';
+import { albums } from './albums.js';
 import { FluidSimulation } from './fluid.js';
 import { ParticleSystem, PARTICLE_MOTION_MODES } from './particleSystem.js';
 import { Renderer } from './renderer.js';
@@ -96,6 +97,11 @@ const state = {
     smoothDy: 0,
     influence: 0,
   },
+};
+
+const albumState = {
+  albumIndex: 0,
+  isInitialized: false,
 };
 
 function reportAppError(context, error) {
@@ -391,6 +397,107 @@ function setupTargetControls() {
   }
 }
 
+function normalizeAlbumIndex(index) {
+  if (albums.length === 0) {
+    return 0;
+  }
+
+  return ((index % albums.length) + albums.length) % albums.length;
+}
+
+function applyAlbumCover(coverElement, album) {
+  if (!coverElement || !album) {
+    return;
+  }
+
+  coverElement.dataset.albumId = album.id;
+  coverElement.setAttribute('aria-label', album.title);
+
+  if (album.image) {
+    coverElement.style.backgroundImage = `url("${album.image}")`;
+    coverElement.style.backgroundSize = 'cover';
+    coverElement.style.backgroundPosition = 'center';
+  } else {
+    coverElement.style.backgroundImage = '';
+    coverElement.style.backgroundSize = '';
+    coverElement.style.backgroundPosition = '';
+  }
+}
+
+function renderAlbumSection(elements) {
+  if (!elements || !elements.trackList || albums.length === 0) {
+    return;
+  }
+
+  albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex);
+
+  const activeAlbum = albums[albumState.albumIndex];
+  const prevAlbum = albums[normalizeAlbumIndex(albumState.albumIndex - 1)];
+  const nextAlbum = albums[normalizeAlbumIndex(albumState.albumIndex + 1)];
+
+  if (!activeAlbum) {
+    return;
+  }
+
+  applyAlbumCover(elements.prevCover, prevAlbum);
+  applyAlbumCover(elements.activeCover, activeAlbum);
+  applyAlbumCover(elements.nextCover, nextAlbum);
+
+  elements.trackList.replaceChildren();
+
+  activeAlbum.tracks.forEach((trackTitle) => {
+    const item = document.createElement('li');
+    item.className = 'album-section__track-item';
+    item.textContent = trackTitle;
+    elements.trackList.appendChild(item);
+  });
+
+  if (elements.postButton) {
+    elements.postButton.dataset.albumId = activeAlbum.id;
+    elements.postButton.dataset.albumTitle = activeAlbum.title;
+  }
+}
+
+function initAlbumSection() {
+  if (albumState.isInitialized) {
+    return;
+  }
+
+  const section = document.querySelector('.album-section');
+
+  if (!section || albums.length === 0) {
+    return;
+  }
+
+  const elements = {
+    prevButton: section.querySelector('.album-section__nav-button--prev'),
+    nextButton: section.querySelector('.album-section__nav-button--next'),
+    prevCover: section.querySelector('.album-section__cover--prev'),
+    activeCover: section.querySelector('.album-section__cover--active'),
+    nextCover: section.querySelector('.album-section__cover--next'),
+    trackList: section.querySelector('.album-section__track-list'),
+    postButton: section.querySelector('.album-section__post-button'),
+  };
+
+  if (!elements.trackList) {
+    return;
+  }
+
+  albumState.isInitialized = true;
+
+  elements.prevButton?.addEventListener('click', () => {
+    albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex - 1);
+    renderAlbumSection(elements);
+  });
+
+  elements.nextButton?.addEventListener('click', () => {
+    albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex + 1);
+    renderAlbumSection(elements);
+  });
+
+  renderAlbumSection(elements);
+}
+
 function setupJstMidnightUpdate() {
   if (state.cancelMidnightUpdate) {
     state.cancelMidnightUpdate();
@@ -602,6 +709,7 @@ async function init() {
   state.fluid.setPointerDown(false);
   setupResizeHandler();
   setupTargetControls();
+  initAlbumSection();
   setupPointerInput(canvas);
 
   window.playLoginSequence = () =>

@@ -22,6 +22,62 @@
       </div>
     </main>
 
+    <section class="album-section" aria-label="アルバム選択">
+      <!--
+        <header class="album-section__header">
+          <p class="album-section__eyebrow">
+            小原涼お誕生日当日 × NEW album レコ発ワンマンLIVE
+          </p>
+          <h2 id="album-section-title" class="album-section__title">
+            My Live Life -STORY-
+          </h2>
+        </header>
+      -->
+
+      <div class="album-section__body">
+        <div class="album-section__carousel" aria-label="アルバム選択">
+          <button
+            class="album-section__nav-button album-section__nav-button--prev"
+            type="button"
+            aria-label="前のアルバム"
+          >
+            前へ
+          </button>
+
+          <div class="album-section__covers" aria-hidden="true">
+            <div class="album-section__cover album-section__cover--prev"></div>
+            <div class="album-section__cover album-section__cover--active"></div>
+            <div class="album-section__cover album-section__cover--next"></div>
+          </div>
+
+          <button
+            class="album-section__nav-button album-section__nav-button--next"
+            type="button"
+            aria-label="次のアルバム"
+          >
+            次へ
+          </button>
+        </div>
+
+        <div class="album-section__side">
+          <aside class="album-section__track-panel" aria-label="楽曲リスト">
+            <h3 class="album-section__track-title">Track List</h3>
+            <ol class="album-section__track-list">
+              <li class="album-section__track-item">Track 01</li>
+              <li class="album-section__track-item">Track 02</li>
+              <li class="album-section__track-item">Track 03</li>
+            </ol>
+          </aside>
+
+          <div class="album-section__actions">
+            <button class="album-section__post-button" type="button">
+              お気に入り楽曲をXにポストする
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <script type="module" src="./src/js/app.js"></script>
   </body>
 </html>
