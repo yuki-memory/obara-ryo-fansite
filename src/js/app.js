@@ -46,11 +46,11 @@ const TARGET_LAYOUT = {
 };
 
 const DAYS_TARGET_LAYOUT = {
-  sampleStepDesktop: 5,
-  sampleStepMobile: 6,
+  sampleStepDesktop: 2,
+  sampleStepMobile: 3,
   alphaThreshold: 20,
   fontFamily: '"Helvetica Neue", Arial, sans-serif',
-  fontWeight: 700,
+  fontWeight: 800,
   maxWidthRatioDesktop: 0.58,
   maxWidthRatioMobile: 0.88,
   maxHeightRatioDesktop: 0.24,
@@ -60,6 +60,7 @@ const DAYS_TARGET_LAYOUT = {
   wideMaxHeightAdjust: -0.03,
   offsetY: 18,
 };
+const DAYS_PARTICLE_SIZE_SCALE = 1.03;
 
 // App-level orchestration state. Rendering/physics internals live in dedicated modules.
 const state = {
@@ -172,6 +173,9 @@ function applyTarget(targetType) {
   const targetPoints =
     targetType === 'days' ? buildCurrentDaysTarget() : buildCurrentLogoTarget();
 
+  state.particleSystem.setSizeScale(
+    targetType === 'days' ? DAYS_PARTICLE_SIZE_SCALE : 1,
+  );
   state.particleSystem.setTargets(targetPoints);
   state.activeTarget = targetType;
 }

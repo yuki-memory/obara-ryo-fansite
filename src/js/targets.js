@@ -75,8 +75,12 @@ function resolveLogoLayout(options) {
     resolvedSidePadding = Math.max(8, resolvedSidePadding * wideSidePaddingScale);
   }
 
+  const sampleStep = width < MOBILE_BREAKPOINT
+    ? Math.max(1, Math.floor(sampleStepMobile))
+    : 1;
+
   return {
-    sampleStep: width < MOBILE_BREAKPOINT ? sampleStepMobile : sampleStepDesktop,
+    sampleStep,
     fitWidthRatio: resolvedFitWidthRatio,
     fitHeightRatio: resolvedFitHeightRatio,
     sidePadding: resolvedSidePadding,
@@ -87,8 +91,8 @@ function resolveDaysLayout(options) {
   const {
     width,
     height,
-    sampleStepDesktop = 5,
-    sampleStepMobile = 6,
+    sampleStepDesktop = 2,
+    sampleStepMobile = 3,
     maxWidthRatio,
     maxWidthRatioDesktop,
     maxWidthRatioMobile,
@@ -206,7 +210,7 @@ export function samplePointsFromText(text, options) {
     sampleStep = 5,
     alphaThreshold = 20,
     fontFamily = '"Helvetica Neue", Arial, sans-serif',
-    fontWeight = 700,
+    fontWeight = 800,
     maxWidthRatio = 0.58,
     maxHeightRatio = 0.24,
     offsetY = 18,
@@ -227,7 +231,7 @@ export function samplePointsFromText(text, options) {
   while (fontSize > minFontSize) {
     ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
     const measuredWidth = ctx.measureText(text).width;
-    if (measuredWidth <= maxTextWidth && fontSize <= maxTextHeight) {
+    if (measuredWidth + fontSize * 0.035 <= maxTextWidth && fontSize <= maxTextHeight) {
       break;
     }
     fontSize -= 2;
@@ -238,6 +242,13 @@ export function samplePointsFromText(text, options) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  ctx.lineJoin = 'round';
+  const strokeWidth = fontSize * 0.035;
+  if (strokeWidth > 0) {
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = '#000';
+    ctx.strokeText(text, width * 0.5, height * 0.5 + offsetY);
+  }
   ctx.fillText(text, width * 0.5, height * 0.5 + offsetY);
 
   const imageData = ctx.getImageData(0, 0, width, height).data;
