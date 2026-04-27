@@ -75,6 +75,7 @@ body {
   right: 16px;
   bottom: 16px;
   z-index: 3;
+  /* Development-only controls are kept in markup but hidden in production. */
   display: none;
   gap: 8px;
   flex-wrap: wrap;
@@ -97,8 +98,10 @@ body {
 }
 
 .album-section {
-  background: #ffe8e8;
-  padding: 104px 24px 112px;
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffe8e8 34%),
+    #ffe8e8;
+  padding: 120px 24px 116px;
   color: #111;
 }
 
@@ -131,7 +134,9 @@ body {
   cursor: pointer;
   font-size: 0;
   opacity: 0.92;
-  transition: opacity 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .album-section__nav-button::before {
@@ -152,6 +157,10 @@ body {
   opacity: 0.54;
 }
 
+.album-section__nav-button:active {
+  transform: scale(0.94);
+}
+
 .album-section__covers {
   position: relative;
   width: min(100%, 430px);
@@ -165,6 +174,10 @@ body {
   aspect-ratio: 1;
   border-radius: 2px;
   background: #d7d7d7;
+  transition:
+    transform 0.35s ease,
+    opacity 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .album-section__cover--active {
@@ -204,7 +217,9 @@ body {
 .album-section__track-panel {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.74);
-  box-shadow: inset -1px 0 0 rgba(17, 17, 17, 0.35);
+  box-shadow:
+    inset -1px 0 0 rgba(17, 17, 17, 0.22),
+    0 16px 34px rgba(80, 40, 48, 0.08);
   padding: 24px 24px 28px;
 }
 
@@ -218,10 +233,14 @@ body {
   margin: 0;
   padding: 0;
   list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 17, 17, 0.25) transparent;
 }
 
 .album-section__track-item {
-  border-bottom: 1px solid rgba(17, 17, 17, 0.28);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.18);
   font-size: 18px;
   line-height: 1.25;
 }
@@ -235,9 +254,11 @@ body {
   display: block;
   width: 100%;
   border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
   background: transparent;
   color: inherit;
-  padding: 8px 10px;
+  padding: 10px 12px;
   cursor: pointer;
   font: inherit;
   text-align: left;
@@ -247,12 +268,14 @@ body {
 }
 
 .album-section__track-button:hover {
-  background: rgba(255, 255, 255, 0.56);
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .album-section__track-button.is-active {
-  background: rgba(17, 17, 17, 0.88);
-  color: #fff;
+  border-left-color: #eb6ef9;
+  background: rgba(235, 110, 249, 0.12);
+  color: #111;
+  font-weight: 600;
 }
 
 .album-section__actions {
@@ -270,19 +293,27 @@ body {
   font-size: 14px;
   font-weight: 700;
   line-height: 1.35;
+  box-shadow: 0 6px 14px rgba(80, 40, 48, 0.08);
   transition:
     background 0.2s ease,
+    box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .album-section__post-button:hover {
   background: #fff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
+}
+
+.album-section__post-button:active {
+  transform: translateY(0);
 }
 
 .album-section__post-button:disabled {
   cursor: not-allowed;
   opacity: 0.48;
+  box-shadow: none;
   transform: none;
 }
 
@@ -303,54 +334,80 @@ body {
   }
 
   .album-section {
-    padding: 72px 16px 88px;
+    padding: 84px 16px 88px;
   }
 
   .album-section__body {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 28px;
+    width: 100%;
   }
 
   .album-section__carousel {
-    grid-template-columns: 42px minmax(0, 1fr) 42px;
-    gap: 4px;
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: center;
   }
 
   .album-section__nav-button {
-    width: 42px;
-    height: 52px;
+    position: absolute;
+    top: 50%;
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(6px);
+    transform: translateY(-50%);
+  }
+
+  .album-section__nav-button--prev {
+    left: 8px;
+  }
+
+  .album-section__nav-button--next {
+    right: 8px;
+  }
+
+  .album-section__nav-button:active {
+    transform: translateY(-50%) scale(0.94);
   }
 
   .album-section__nav-button::before {
-    font-size: 42px;
+    font-size: 34px;
   }
 
   .album-section__covers {
-    width: min(100%, 280px);
-    height: 250px;
+    width: min(82vw, 320px);
+    height: 236px;
   }
 
   .album-section__cover--active {
-    width: 220px;
-    height: 220px;
+    width: 204px;
+    height: 204px;
   }
 
   .album-section__cover--prev,
   .album-section__cover--next {
-    width: 180px;
-    height: 180px;
+    width: 166px;
+    height: 166px;
   }
 
   .album-section__cover--prev {
-    transform: translate(-96%, -50%) scale(0.9);
+    transform: translate(-76%, -50%) scale(0.88);
   }
 
   .album-section__cover--next {
-    transform: translate(96%, -50%) scale(0.9);
+    transform: translate(76%, -50%) scale(0.88);
   }
 
   .album-section__track-panel {
+    width: 100%;
     padding: 22px 20px 26px;
+  }
+
+  .album-section__track-list {
+    max-height: 280px;
   }
 
   .album-section__post-button {
