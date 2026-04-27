@@ -101,6 +101,7 @@ const state = {
 
 const albumState = {
   albumIndex: 0,
+  selectedTrackIndex: 0,
   isInitialized: false,
 };
 
@@ -439,23 +440,75 @@ function renderAlbumSection(elements) {
     return;
   }
 
+  const activeTracks = Array.isArray(activeAlbum.tracks) ? activeAlbum.tracks : [];
+
   applyAlbumCover(elements.prevCover, prevAlbum);
   applyAlbumCover(elements.activeCover, activeAlbum);
   applyAlbumCover(elements.nextCover, nextAlbum);
 
   elements.trackList.replaceChildren();
 
-  activeAlbum.tracks.forEach((trackTitle) => {
+  if (activeTracks.length === 0) {
+    const item = document.createElement('li');
+    item.className = 'album-section__track-item album-section__track-item--empty';
+    item.textContent = '楽曲情報を準備中です';
+    elements.trackList.appendChild(item);
+
+    if (elements.postButton) {
+      elements.postButton.dataset.albumId = activeAlbum.id;
+      elements.postButton.dataset.albumTitle = activeAlbum.title;
+      delete elements.postButton.dataset.trackTitle;
+      delete elements.postButton.dataset.trackIndex;
+      elements.postButton.disabled = true;
+    }
+
+    return;
+  }
+
+  albumState.selectedTrackIndex = normalizeTrackIndex(
+    albumState.selectedTrackIndex,
+    activeTracks,
+  );
+
+  activeTracks.forEach((trackTitle, trackIndex) => {
     const item = document.createElement('li');
     item.className = 'album-section__track-item';
-    item.textContent = trackTitle;
+
+    const button = document.createElement('button');
+    button.className = 'album-section__track-button';
+    button.type = 'button';
+    button.textContent = trackTitle;
+
+    if (trackIndex === albumState.selectedTrackIndex) {
+      button.classList.add('is-active');
+    }
+
+    button.addEventListener('click', () => {
+      albumState.selectedTrackIndex = trackIndex;
+      renderAlbumSection(elements);
+    });
+
+    item.appendChild(button);
     elements.trackList.appendChild(item);
   });
 
   if (elements.postButton) {
+    const selectedTrackTitle = activeTracks[albumState.selectedTrackIndex];
+
     elements.postButton.dataset.albumId = activeAlbum.id;
     elements.postButton.dataset.albumTitle = activeAlbum.title;
+    elements.postButton.dataset.trackTitle = selectedTrackTitle;
+    elements.postButton.dataset.trackIndex = String(albumState.selectedTrackIndex);
+    elements.postButton.disabled = false;
   }
+}
+
+function normalizeTrackIndex(index, tracks) {
+  if (!tracks || tracks.length === 0) {
+    return 0;
+  }
+
+  return Math.min(Math.max(index, 0), tracks.length - 1);
 }
 
 function initAlbumSection() {
@@ -487,11 +540,13 @@ function initAlbumSection() {
 
   elements.prevButton?.addEventListener('click', () => {
     albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex - 1);
+    albumState.selectedTrackIndex = 0;
     renderAlbumSection(elements);
   });
 
   elements.nextButton?.addEventListener('click', () => {
     albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex + 1);
+    albumState.selectedTrackIndex = 0;
     renderAlbumSection(elements);
   });
 
