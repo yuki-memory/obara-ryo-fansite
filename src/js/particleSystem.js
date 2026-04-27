@@ -58,7 +58,7 @@ class Particle {
     this.vy += (Math.random() - 0.5) * power;
   }
 
-  update(dt, time, config, flowField, interaction, motionMode) {
+  update(dt, time, config, flowField, interaction, motionMode, sizeScale = 1) {
     const step = Math.min(2, dt * 60);
     const dx = this.tx - this.x;
     const dy = this.ty - this.y;
@@ -234,7 +234,7 @@ class Particle {
     this.depth += this.depthVelocity * step;
     this.depth = Math.max(-config.depthClamp, Math.min(config.depthClamp, this.depth));
 
-    const sizeTarget = this.basePointSize * this.sizeVariance * (1 + sizeBoost);
+    const sizeTarget = this.basePointSize * this.sizeVariance * sizeScale * (1 + sizeBoost);
     this.size += (sizeTarget - this.size) * Math.min(1, 0.24 * step);
 
     this.x += this.vx * step;
@@ -248,6 +248,7 @@ export class ParticleSystem {
     this.currentParticleCount = 0;
     this.viewportWidth = 0;
     this.viewportHeight = 0;
+    this.sizeScale = 1;
 
     this.motionConfigs = {
       [PARTICLE_MOTION_MODES.IDLE]: {
@@ -367,6 +368,10 @@ export class ParticleSystem {
     }
   }
 
+  setSizeScale(sizeScale = 1) {
+    this.sizeScale = Math.max(0.1, sizeScale);
+  }
+
   scatter(power = 14) {
     for (let i = 0; i < this.particles.length; i += 1) {
       this.particles[i].scatter(power);
@@ -416,7 +421,15 @@ export class ParticleSystem {
       : null;
 
     for (let i = 0; i < this.particles.length; i += 1) {
-      this.particles[i].update(dt, time, config, flowField, interaction, motionMode);
+      this.particles[i].update(
+        dt,
+        time,
+        config,
+        flowField,
+        interaction,
+        motionMode,
+        this.sizeScale,
+      );
     }
   }
 
