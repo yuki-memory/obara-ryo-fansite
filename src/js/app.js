@@ -28,6 +28,12 @@ const LOGIN_SEQUENCE_TIMINGS = Object.freeze({
   morphSettleMs: 780,
 });
 
+const INTRO_SEQUENCE_TIMINGS = Object.freeze({
+  logoHoldDuration: 2000,
+  morphToDaysDelay: 600,
+  scatterPower: 4.5,
+});
+
 const TARGET_LAYOUT = {
   fitWidthRatioDesktop: 0.86,
   fitWidthRatioMobile: 0.92,
@@ -72,6 +78,8 @@ const state = {
   particleMotionMode: PARTICLE_MOTION_MODES.IDLE,
   activeTarget: 'logo',
   pointerDown: false,
+  introSequenceId: 0,
+  isIntroSequenceRunning: false,
   loginSequenceId: 0,
   isLoginSequenceRunning: false,
   cancelMidnightUpdate: null,
@@ -198,6 +206,21 @@ function showDaysTarget() {
   setAppState(APP_STATES.COUNTDOWN);
   setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   applyTarget('days');
+  setupJstMidnightUpdate();
+}
+
+function scatterAll(power = INTRO_SEQUENCE_TIMINGS.scatterPower) {
+  state.particleSystem.scatter(power);
+  setParticleMotionMode(PARTICLE_MOTION_MODES.INTERACT);
+}
+
+function cancelIntroSequence() {
+  if (!state.isIntroSequenceRunning) {
+    return;
+  }
+
+  state.introSequenceId += 1;
+  state.isIntroSequenceRunning = false;
 }
 
 function cancelLoginSequence() {
@@ -221,10 +244,52 @@ function cancelLoginSequence() {
   }
 }
 
+function cancelAutoSequences() {
+  cancelIntroSequence();
+  cancelLoginSequence();
+}
+
 function wait(ms) {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms);
   });
+}
+
+async function playIntroSequence() {
+  if (state.isIntroSequenceRunning) {
+    return;
+  }
+
+  state.isIntroSequenceRunning = true;
+  const sequenceId = state.introSequenceId + 1;
+  state.introSequenceId = sequenceId;
+
+  const isCancelled = () =>
+    sequenceId !== state.introSequenceId || !state.isIntroSequenceRunning;
+
+  try {
+    showLogoTarget();
+    await wait(INTRO_SEQUENCE_TIMINGS.logoHoldDuration);
+    if (isCancelled()) {
+      return;
+    }
+
+    scatterAll();
+    await wait(INTRO_SEQUENCE_TIMINGS.morphToDaysDelay);
+    if (isCancelled()) {
+      return;
+    }
+
+    setAppState(APP_STATES.MORPH_TO_DAYS);
+    setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
+    applyTarget('days');
+    setAppState(APP_STATES.COUNTDOWN);
+    setupJstMidnightUpdate();
+  } finally {
+    if (sequenceId === state.introSequenceId) {
+      state.isIntroSequenceRunning = false;
+    }
+  }
 }
 
 async function playLoginSequence() {
@@ -304,20 +369,21 @@ function setupTargetControls() {
 
   if (logoButton) {
     logoButton.addEventListener('click', () => {
-      cancelLoginSequence();
+      cancelAutoSequences();
       showLogoTarget();
     });
   }
 
   if (daysButton) {
     daysButton.addEventListener('click', () => {
-      cancelLoginSequence();
+      cancelAutoSequences();
       showDaysTarget();
     });
   }
 
   if (loginButton) {
     loginButton.addEventListener('click', () => {
+      cancelIntroSequence();
       playLoginSequence().catch((error) => {
         reportAppError('playLoginSequence(button)', error);
       });
@@ -532,14 +598,11 @@ async function init() {
   state.logoImage = await loadImage(logoImageUrl);
 
   rebuildScene();
-  setAppState(APP_STATES.LOGO);
-  setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   state.pointerDown = false;
   state.fluid.setPointerDown(false);
   setupResizeHandler();
   setupTargetControls();
   setupPointerInput(canvas);
-  setupJstMidnightUpdate();
 
   window.playLoginSequence = () =>
     playLoginSequence().catch((error) => {
@@ -552,11 +615,14 @@ async function init() {
       state.cancelMidnightUpdate = null;
     }
 
-    cancelLoginSequence();
+    cancelAutoSequences();
     state.fluid.dispose();
   });
 
   requestAnimationFrame(animate);
+  playIntroSequence().catch((error) => {
+    reportAppError('playIntroSequence', error);
+  });
 }
 
 init().catch((error) => {

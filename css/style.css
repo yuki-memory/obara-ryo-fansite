@@ -70,23 +70,12 @@ body {
   line-height: 1.1;
 }
 
-.hero__desc {
-  position: absolute;
-  bottom: 52px;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  font-size: 13px;
-  opacity: 0.75;
-  letter-spacing: 0.08em;
-}
-
 .hero__controls {
   position: absolute;
   right: 16px;
   bottom: 16px;
   z-index: 3;
-  display: flex;
+  display: none;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -121,11 +110,5 @@ body {
   .hero__eyebrow {
     top: 28px;
     font-size: 10px;
-  }
-
-  .hero__desc {
-    bottom: 92px;
-    font-size: 11px;
-    width: calc(100% - 32px);
   }
 }
