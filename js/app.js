@@ -1,3 +1,6 @@
+// 旧実装・現在未使用です。
+// 現在のエントリーポイントは index.html で読み込む ./src/js/app.js です。
+
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
 const LOGO_IMAGE_PATH = '../assets/logo.png';
 

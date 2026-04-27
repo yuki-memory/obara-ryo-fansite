@@ -172,8 +172,12 @@ function buildCurrentLogoTarget() {
   });
 }
 
+function getLiveDaysLeft() {
+  return getDaysLeftJST(LIVE_DATE);
+}
+
 function buildCurrentDaysTarget() {
-  const days = getDaysLeftJST(LIVE_DATE);
+  const days = getLiveDaysLeft();
 
   return buildDaysTargetPoints({
     text: `${days}DAYS`,
@@ -511,6 +515,65 @@ function normalizeTrackIndex(index, tracks) {
   return Math.min(Math.max(index, 0), tracks.length - 1);
 }
 
+function getCurrentAlbumSelection() {
+  if (albums.length === 0) {
+    return null;
+  }
+
+  const currentAlbum = albums[normalizeAlbumIndex(albumState.albumIndex)];
+  if (!currentAlbum) {
+    return null;
+  }
+
+  const tracks = Array.isArray(currentAlbum.tracks) ? currentAlbum.tracks : [];
+  if (tracks.length === 0) {
+    return null;
+  }
+
+  const selectedTrackIndex = normalizeTrackIndex(
+    albumState.selectedTrackIndex,
+    tracks,
+  );
+  const selectedTrack = tracks[selectedTrackIndex];
+
+  if (!selectedTrack) {
+    return null;
+  }
+
+  return {
+    currentAlbum,
+    selectedTrack,
+    selectedTrackIndex,
+  };
+}
+
+function buildTweetText({ albumTitle, trackTitle, daysLeft }) {
+  return [
+    `お気に入り楽曲: 「${trackTitle}」`,
+    `Album: ${albumTitle}`,
+    '',
+    `#小原涼 #小原涼生誕ワンマン2026 まであと${daysLeft}日`,
+  ].join('\n');
+}
+
+function openSelectedTrackTweet() {
+  const selection = getCurrentAlbumSelection();
+
+  if (!selection) {
+    return;
+  }
+
+  const daysLeft = getLiveDaysLeft();
+  const tweetText = buildTweetText({
+    albumTitle: selection.currentAlbum.title,
+    trackTitle: selection.selectedTrack,
+    daysLeft,
+  });
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+
+  window.open(tweetUrl, '_blank', 'noopener,noreferrer');
+}
+
 function initAlbumSection() {
   if (albumState.isInitialized) {
     return;
@@ -548,6 +611,10 @@ function initAlbumSection() {
     albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex + 1);
     albumState.selectedTrackIndex = 0;
     renderAlbumSection(elements);
+  });
+
+  elements.postButton?.addEventListener('click', () => {
+    openSelectedTrackTweet();
   });
 
   renderAlbumSection(elements);
