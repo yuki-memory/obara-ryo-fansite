@@ -75,8 +75,12 @@ function resolveLogoLayout(options) {
     resolvedSidePadding = Math.max(8, resolvedSidePadding * wideSidePaddingScale);
   }
 
+  const sampleStep = width < MOBILE_BREAKPOINT
+    ? Math.max(1, Math.floor(sampleStepMobile))
+    : 1;
+
   return {
-    sampleStep: width < MOBILE_BREAKPOINT ? sampleStepMobile : sampleStepDesktop,
+    sampleStep,
     fitWidthRatio: resolvedFitWidthRatio,
     fitHeightRatio: resolvedFitHeightRatio,
     sidePadding: resolvedSidePadding,
