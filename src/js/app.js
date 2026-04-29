@@ -105,6 +105,8 @@ const albumState = {
   isInitialized: false,
 };
 
+const albumImageLoadState = new Map();
+
 function reportAppError(context, error) {
   console.error(`[app] ${context}`, error);
 }
@@ -417,16 +419,54 @@ function applyAlbumCover(coverElement, album) {
 
   coverElement.dataset.albumId = album.id;
   coverElement.setAttribute('aria-label', album.title);
+  coverElement.classList.remove('album-section__cover--loaded');
+  coverElement.style.backgroundImage = '';
 
   if (album.image) {
-    coverElement.style.backgroundImage = `url("${album.image}")`;
-    coverElement.style.backgroundSize = 'cover';
-    coverElement.style.backgroundPosition = 'center';
-  } else {
-    coverElement.style.backgroundImage = '';
-    coverElement.style.backgroundSize = '';
-    coverElement.style.backgroundPosition = '';
+    coverElement.dataset.imageSrc = album.image;
+    applyAlbumCoverImage(coverElement, album.image);
+    return;
   }
+
+  delete coverElement.dataset.imageSrc;
+}
+
+function applyAlbumCoverImage(coverElement, imageUrl) {
+  const cachedState = albumImageLoadState.get(imageUrl);
+
+  if (cachedState === 'loaded') {
+    coverElement.style.backgroundImage = `url("${imageUrl}")`;
+    coverElement.classList.add('album-section__cover--loaded');
+    return;
+  }
+
+  if (cachedState === 'failed' || cachedState === 'loading') {
+    return;
+  }
+
+  albumImageLoadState.set(imageUrl, 'loading');
+
+  const image = new Image();
+
+  image.addEventListener('load', () => {
+    albumImageLoadState.set(imageUrl, 'loaded');
+
+    if (coverElement.dataset.imageSrc === imageUrl) {
+      coverElement.style.backgroundImage = `url("${imageUrl}")`;
+      coverElement.classList.add('album-section__cover--loaded');
+    }
+  });
+
+  image.addEventListener('error', () => {
+    albumImageLoadState.set(imageUrl, 'failed');
+
+    if (coverElement.dataset.imageSrc === imageUrl) {
+      coverElement.style.backgroundImage = '';
+      coverElement.classList.remove('album-section__cover--loaded');
+    }
+  });
+
+  image.src = imageUrl;
 }
 
 function renderAlbumSection(elements) {

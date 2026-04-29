@@ -2,7 +2,8 @@ export const albums = [
   {
     id: 'my-live-life-story',
     title: 'My Live Life -STORY-',
-    image: '',
+    // 画像差し替えは image のパスを変更するだけです。
+    image: './assets/albums/my-live-life-story.jpg',
     tracks: [
       '楽曲タイトル1',
       '楽曲タイトル2',
@@ -12,7 +13,8 @@ export const albums = [
   {
     id: 'album-placeholder-2',
     title: 'Album Placeholder 2',
-    image: '',
+    // 画像差し替えは image のパスを変更するだけです。
+    image: './assets/albums/album-placeholder-2.jpg',
     tracks: [
       'Track 01',
       'Track 02',
@@ -22,7 +24,8 @@ export const albums = [
   {
     id: 'album-placeholder-3',
     title: 'Album Placeholder 3',
-    image: '',
+    // 画像差し替えは image のパスを変更するだけです。
+    image: './assets/albums/album-placeholder-3.jpg',
     tracks: [
       'Song A',
       'Song B',
