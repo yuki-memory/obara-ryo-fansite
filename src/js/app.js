@@ -103,9 +103,8 @@ const albumState = {
   albumIndex: 0,
   selectedTrackIndex: 0,
   isInitialized: false,
+  swiper: null,
 };
-
-const albumImageLoadState = new Map();
 
 function reportAppError(context, error) {
   console.error(`[app] ${context}`, error);
@@ -412,61 +411,53 @@ function normalizeAlbumIndex(index) {
   return ((index % albums.length) + albums.length) % albums.length;
 }
 
-function applyAlbumCover(coverElement, album) {
-  if (!coverElement || !album) {
+function showPrevAlbum(elements) {
+  if (albumState.swiper) {
+    albumState.swiper.slidePrev();
     return;
   }
 
-  coverElement.dataset.albumId = album.id;
-  coverElement.setAttribute('aria-label', album.title);
-  coverElement.classList.remove('album-section__cover--loaded');
-  coverElement.style.backgroundImage = '';
-
-  if (album.image) {
-    coverElement.dataset.imageSrc = album.image;
-    applyAlbumCoverImage(coverElement, album.image);
-    return;
-  }
-
-  delete coverElement.dataset.imageSrc;
+  albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex - 1);
+  albumState.selectedTrackIndex = 0;
+  renderAlbumSection(elements);
 }
 
-function applyAlbumCoverImage(coverElement, imageUrl) {
-  const cachedState = albumImageLoadState.get(imageUrl);
-
-  if (cachedState === 'loaded') {
-    coverElement.style.backgroundImage = `url("${imageUrl}")`;
-    coverElement.classList.add('album-section__cover--loaded');
+function showNextAlbum(elements) {
+  if (albumState.swiper) {
+    albumState.swiper.slideNext();
     return;
   }
 
-  if (cachedState === 'failed' || cachedState === 'loading') {
+  albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex + 1);
+  albumState.selectedTrackIndex = 0;
+  renderAlbumSection(elements);
+}
+
+function createAlbumCoverSlide(album, albumIndex) {
+  const slide = document.createElement('div');
+  slide.className = 'album-section__cover swiper-slide';
+  slide.dataset.albumId = album.id;
+  slide.dataset.albumIndex = String(albumIndex);
+  slide.setAttribute('aria-label', album.title);
+
+  if (album.image) {
+    slide.style.backgroundImage = `url("${album.image}")`;
+    slide.classList.add('album-section__cover--loaded');
+  }
+
+  return slide;
+}
+
+function renderAlbumCoverSlides(elements) {
+  if (!elements.coverList) {
     return;
   }
 
-  albumImageLoadState.set(imageUrl, 'loading');
+  const slides = albums.map((album, albumIndex) =>
+    createAlbumCoverSlide(album, albumIndex),
+  );
 
-  const image = new Image();
-
-  image.addEventListener('load', () => {
-    albumImageLoadState.set(imageUrl, 'loaded');
-
-    if (coverElement.dataset.imageSrc === imageUrl) {
-      coverElement.style.backgroundImage = `url("${imageUrl}")`;
-      coverElement.classList.add('album-section__cover--loaded');
-    }
-  });
-
-  image.addEventListener('error', () => {
-    albumImageLoadState.set(imageUrl, 'failed');
-
-    if (coverElement.dataset.imageSrc === imageUrl) {
-      coverElement.style.backgroundImage = '';
-      coverElement.classList.remove('album-section__cover--loaded');
-    }
-  });
-
-  image.src = imageUrl;
+  elements.coverList.replaceChildren(...slides);
 }
 
 function renderAlbumSection(elements) {
@@ -477,18 +468,12 @@ function renderAlbumSection(elements) {
   albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex);
 
   const activeAlbum = albums[albumState.albumIndex];
-  const prevAlbum = albums[normalizeAlbumIndex(albumState.albumIndex - 1)];
-  const nextAlbum = albums[normalizeAlbumIndex(albumState.albumIndex + 1)];
 
   if (!activeAlbum) {
     return;
   }
 
   const activeTracks = Array.isArray(activeAlbum.tracks) ? activeAlbum.tracks : [];
-
-  applyAlbumCover(elements.prevCover, prevAlbum);
-  applyAlbumCover(elements.activeCover, activeAlbum);
-  applyAlbumCover(elements.nextCover, nextAlbum);
 
   elements.trackList.replaceChildren();
 
@@ -614,6 +599,89 @@ function openSelectedTrackTweet() {
   window.open(tweetUrl, '_blank', 'noopener,noreferrer');
 }
 
+function initAlbumSwiper(elements) {
+  renderAlbumCoverSlides(elements);
+
+  const SwiperConstructor = window.Swiper;
+
+  if (!SwiperConstructor || !elements.covers) {
+    reportAppError('initAlbumSwiper', new Error('Swiper is not available'));
+    return null;
+  }
+
+  const swiper = new SwiperConstructor(elements.covers, {
+    effect: 'creative',
+    grabCursor: true,
+    centeredSlides: true,
+    initialSlide: albumState.albumIndex,
+    loop: albums.length > 1,
+    slidesPerView: 1,
+    creativeEffect: {
+      limitProgress: 1,
+      prev: {
+        translate: ['-42%', '8%', -180],
+        rotate: [0, 0, -8],
+        scale: 0.82,
+        opacity: 1,
+      },
+      next: {
+        translate: ['42%', '8%', -180],
+        rotate: [0, 0, 8],
+        scale: 0.82,
+        opacity: 1,
+      },
+    },
+    breakpoints: {
+      0: {
+        creativeEffect: {
+          limitProgress: 1,
+          prev: {
+            translate: ['-34%', '7%', -140],
+            rotate: [0, 0, -7],
+            scale: 0.82,
+            opacity: 1,
+          },
+          next: {
+            translate: ['34%', '7%', -140],
+            rotate: [0, 0, 7],
+            scale: 0.82,
+            opacity: 1,
+          },
+        },
+      },
+      769: {
+        creativeEffect: {
+          limitProgress: 1,
+          prev: {
+            translate: ['-42%', '8%', -180],
+            rotate: [0, 0, -8],
+            scale: 0.82,
+            opacity: 1,
+          },
+          next: {
+            translate: ['42%', '8%', -180],
+            rotate: [0, 0, 8],
+            scale: 0.82,
+            opacity: 1,
+          },
+        },
+      },
+    },
+    on: {
+      slideChange(currentSwiper) {
+        albumState.albumIndex = normalizeAlbumIndex(
+          currentSwiper.realIndex ?? currentSwiper.activeIndex,
+        );
+        albumState.selectedTrackIndex = 0;
+        renderAlbumSection(elements);
+      },
+    },
+  });
+
+  albumState.swiper = swiper;
+  return swiper;
+}
+
 function initAlbumSection() {
   if (albumState.isInitialized) {
     return;
@@ -626,37 +694,34 @@ function initAlbumSection() {
   }
 
   const elements = {
+    carousel: section.querySelector('.album-section__carousel'),
     prevButton: section.querySelector('.album-section__nav-button--prev'),
     nextButton: section.querySelector('.album-section__nav-button--next'),
-    prevCover: section.querySelector('.album-section__cover--prev'),
-    activeCover: section.querySelector('.album-section__cover--active'),
-    nextCover: section.querySelector('.album-section__cover--next'),
+    covers: section.querySelector('.album-section__covers'),
+    coverList: section.querySelector('.album-section__cover-list'),
     trackList: section.querySelector('.album-section__track-list'),
     postButton: section.querySelector('.album-section__post-button'),
   };
 
-  if (!elements.trackList) {
+  if (!elements.trackList || !elements.coverList) {
     return;
   }
 
   albumState.isInitialized = true;
 
   elements.prevButton?.addEventListener('click', () => {
-    albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex - 1);
-    albumState.selectedTrackIndex = 0;
-    renderAlbumSection(elements);
+    showPrevAlbum(elements);
   });
 
   elements.nextButton?.addEventListener('click', () => {
-    albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex + 1);
-    albumState.selectedTrackIndex = 0;
-    renderAlbumSection(elements);
+    showNextAlbum(elements);
   });
 
   elements.postButton?.addEventListener('click', () => {
     openSelectedTrackTweet();
   });
 
+  initAlbumSwiper(elements);
   renderAlbumSection(elements);
 }
 

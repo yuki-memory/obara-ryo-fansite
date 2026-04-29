@@ -168,19 +168,21 @@ body {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-columns: minmax(420px, 1fr) minmax(280px, 360px);
   align-items: center;
-  gap: 64px;
+  gap: clamp(48px, 7vw, 120px);
   width: min(100%, 1080px);
   margin: 0 auto;
+  overflow: visible;
 }
 
 .album-section__carousel {
+  position: relative;
   display: grid;
-  grid-template-columns: 64px minmax(360px, 520px) 64px;
+  grid-template-columns: 56px minmax(0, 640px) 56px;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 8px;
   min-width: 0;
   overflow: visible;
 }
@@ -188,10 +190,12 @@ body {
 .album-section__nav-button {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border: 0;
-  background: transparent;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(8px);
   color: #111;
   cursor: pointer;
   font-size: 0;
@@ -202,7 +206,7 @@ body {
 }
 
 .album-section__nav-button::before {
-  font-size: 48px;
+  font-size: 42px;
   font-weight: 300;
   line-height: 1;
 }
@@ -225,59 +229,68 @@ body {
 
 .album-section__covers {
   position: relative;
-  width: min(100%, 430px);
-  height: 320px;
+  width: min(34vw, 420px);
+  aspect-ratio: 1 / 1;
+  height: auto;
   margin: 0 auto;
   overflow: visible;
+  touch-action: pan-y;
+}
+
+.album-section__cover-list {
+  width: 100%;
+  height: 100%;
+  align-items: center;
 }
 
 .album-section__cover {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  aspect-ratio: 1;
-  border-radius: 2px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
   background: #d7d7d7;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  transition:
-    transform 0.45s ease,
-    opacity 0.45s ease,
-    box-shadow 0.45s ease;
-  will-change: transform, opacity;
+  box-shadow: none;
+  overflow: hidden;
 }
 
 .album-section__cover--loaded {
-  background-color: #d7d7d7;
+  background-color: transparent;
 }
 
-.album-section__cover--active {
-  z-index: 3;
+.album-section__cover.swiper-slide {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  opacity: 0;
+  transition:
+    opacity 0.32s ease,
+    filter 0.35s ease;
+}
+
+.album-section__covers .swiper-slide-active,
+.album-section__covers .swiper-slide-prev,
+.album-section__covers .swiper-slide-next {
   opacity: 1;
-  width: 280px;
-  height: 280px;
-  background-color: #b78d90;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-  transform: translate(-50%, -52%) scale(1);
 }
 
-.album-section__cover--prev,
-.album-section__cover--next {
-  z-index: 1;
-  opacity: 0.72;
-  width: 230px;
-  height: 230px;
-  background-color: #d9d9d9;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+.album-section__covers .swiper-slide-active {
+  filter: none;
 }
 
-.album-section__cover--prev {
-  transform: translate(-92%, -46%) scale(0.86);
+.album-section__covers .swiper-slide-prev,
+.album-section__covers .swiper-slide-next {
+  filter: saturate(0.88) brightness(1.04);
 }
 
-.album-section__cover--next {
-  transform: translate(-8%, -46%) scale(0.86);
+.album-section__covers .swiper-slide-shadow,
+.album-section__covers .swiper-slide-shadow-left,
+.album-section__covers .swiper-slide-shadow-right {
+  display: none !important;
 }
 
 .album-section__side {
@@ -425,7 +438,7 @@ body {
   }
 
   .album-section__body {
-    grid-template-columns: 1fr;
+    display: block;
     gap: 28px;
     width: 100%;
   }
@@ -466,31 +479,18 @@ body {
   }
 
   .album-section__covers {
-    width: min(82vw, 320px);
-    height: 236px;
+    width: min(72vw, 280px);
+    aspect-ratio: 1 / 1;
+    height: auto;
     overflow: visible;
   }
 
-  .album-section__cover--active {
-    width: 204px;
-    height: 204px;
-  }
-
-  .album-section__cover--prev,
-  .album-section__cover--next {
-    width: 166px;
-    height: 166px;
-  }
-
-  .album-section__cover--prev {
-    transform: translate(-74%, -46%) scale(0.82);
-  }
-
-  .album-section__cover--next {
-    transform: translate(-26%, -46%) scale(0.82);
+  .album-section__cover {
+    width: 100%;
   }
 
   .album-section__track-panel {
+    margin-top: 28px;
     width: 100%;
     padding: 22px 20px 26px;
   }
