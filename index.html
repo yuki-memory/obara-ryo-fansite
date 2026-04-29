@@ -4,25 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Particle Countdown WebGL</title>
+    <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <main class="hero">
-      <canvas id="webgl-canvas" class="hero__canvas"></canvas>
+    <main class="main">
+      <canvas id="webgl-canvas" class="main__canvas"></canvas>
 
-      <div class="hero__overlay">
-        <p class="hero__eyebrow">ONE MAN LIVE COUNTDOWN</p>
-        <h1 class="hero__title">My Live Life -STORY-</h1>
+      <div class="main__overlay">
+        <p class="main__eyebrow">ONE MAN LIVE COUNTDOWN</p>
+        <h1 class="main__title">My Live Life -STORY-</h1>
       </div>
 
-      <div class="hero-controls">
-        <button id="btn-logo" class="hero-controls__button" type="button">
+      <div class="main__controls">
+        <button id="btn-logo" class="main__control-button" type="button">
           ロゴ
         </button>
-        <button id="btn-days" class="hero-controls__button" type="button">
+        <button id="btn-days" class="main__control-button" type="button">
           日数
         </button>
-        <button id="btn-login" class="hero-controls__button" type="button">
+        <button id="btn-login" class="main__control-button" type="button">
           ログイン演出
         </button>
       </div>
@@ -41,7 +42,9 @@
 
           <div class="album-section__covers" aria-hidden="true">
             <div class="album-section__cover album-section__cover--prev"></div>
-            <div class="album-section__cover album-section__cover--active"></div>
+            <div
+              class="album-section__cover album-section__cover--active"
+            ></div>
             <div class="album-section__cover album-section__cover--next"></div>
           </div>
 
