@@ -872,7 +872,7 @@ function initAlbumThumbnailSwiper(elements) {
   }
 
   const swiper = new SwiperConstructor(elements.thumbnailSwiper, {
-    slidesPerView: 5,
+    slidesPerView: 3,
     spaceBetween: 14,
     grabCursor: true,
     watchSlidesProgress: true,
@@ -885,9 +885,9 @@ function initAlbumThumbnailSwiper(elements) {
         slidesPerView: 3,
         spaceBetween: 10,
       },
-      768: {
-        slidesPerView: 5,
-        spaceBetween: 14,
+      769: {
+        slidesPerView: 4,
+        spaceBetween: 18,
       },
     },
   });
