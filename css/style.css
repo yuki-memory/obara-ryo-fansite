@@ -259,11 +259,13 @@ body {
   width: 100%;
   min-width: 0;
   overflow: hidden;
-  padding: 12px 0 20px;
+  padding: 10px 10px 16px;
 }
 
 .album-section__thumbnail-slide {
   width: auto;
+  box-sizing: border-box;
+  padding: 4px;
 }
 
 .album-section__thumbnail-button {
@@ -290,13 +292,14 @@ body {
 .album-section__thumbnail-button.is-active {
   z-index: 2;
   filter: none;
-  transform: translateY(-4px) scale(1.03);
+  transform: translateY(-3px) scale(1.02);
 }
 
 .album-section__thumbnail-image {
   display: block;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   border: 3px solid rgba(255, 255, 255, 0.88);
   background: #d7d7d7;
   background-position: center;
@@ -305,7 +308,9 @@ body {
 }
 
 .album-section__thumbnail-button.is-active .album-section__thumbnail-image {
-  border-color: #eb6ef9;
+  border-color: rgba(255, 255, 255, 0.88);
+  outline: 3px solid #eb6ef9;
+  outline-offset: -3px;
 }
 
 .album-section__thumbnail-nav {
@@ -449,6 +454,127 @@ body {
   transform: none;
 }
 
+.artist__profile {
+  display: grid;
+  grid-template-columns: minmax(220px, 360px) minmax(260px, 420px);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(48px, 8vw, 120px);
+  width: min(88vw, 1080px);
+  margin: 0 auto clamp(72px, 9vw, 120px);
+}
+
+.artist__profile-photo-slider {
+  position: relative;
+  width: min(32vw, 360px);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+
+.artist__profile-photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: artistProfileImageSwitch 25s infinite;
+}
+
+.artist__profile-photo--1 {
+  background-image: url("../images/artist__001.webp");
+  animation-delay: 0s;
+}
+
+.artist__profile-photo--2 {
+  background-image: url("../images/artist__002.webp");
+  animation-delay: 5s;
+}
+
+.artist__profile-photo--3 {
+  background-image: url("../images/artist__003.webp");
+  animation-delay: 10s;
+}
+
+.artist__profile-photo--4 {
+  background-image: url("../images/artist__004.webp");
+  animation-delay: 15s;
+}
+
+.artist__profile-photo--5 {
+  background-image: url("../images/artist__005.webp");
+  animation-delay: 20s;
+}
+
+@keyframes artistProfileImageSwitch {
+  0% {
+    opacity: 0;
+  }
+
+  6% {
+    opacity: 1;
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.artist__profile-content {
+  text-align: left;
+}
+
+.artist__profile-eyebrow {
+  margin: 0 0 12px;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  opacity: 0.62;
+}
+
+.artist__profile-name {
+  margin: 0 0 20px;
+  font-size: clamp(28px, 3vw, 48px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.artist__profile-text {
+  margin: 0 0 28px;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 2;
+  letter-spacing: 0.05em;
+}
+
+.artist__profile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  min-height: 48px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #111;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.artist__profile-link:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.92);
+}
+
 @media (max-width: 768px) {
   .site-menu {
     top: 20px;
@@ -531,5 +657,25 @@ body {
 
   .album-section__post-button {
     width: 100%;
+  }
+
+  .artist__profile {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    width: min(88vw, 420px);
+    margin-bottom: 72px;
+  }
+
+  .artist__profile-photo-slider {
+    width: min(72vw, 300px);
+    margin: 0 auto;
+  }
+
+  .artist__profile-content {
+    text-align: center;
+  }
+
+  .artist__profile-text {
+    text-align: left;
   }
 }
