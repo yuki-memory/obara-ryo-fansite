@@ -496,7 +496,7 @@ body {
   }
 
   .album-section__covers {
-    width: min(72vw, 280px);
+    width: min(62vw, 250px);
   }
 
   .album-section__cover--prev {

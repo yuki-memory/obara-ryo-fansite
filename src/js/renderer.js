@@ -153,7 +153,7 @@ export class Renderer {
     }
 
     if (this.uColor) {
-      gl.uniform3f(this.uColor, 0.922, 0.431, 0.976);
+      gl.uniform3f(this.uColor, 0.91, 0.31, 0.96);
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);

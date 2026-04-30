@@ -17,7 +17,7 @@ void main() {
 
   vec3 color = u_color;
 
-  float alpha = softEdge * 1.25 * v_depthAlpha * densityVariation;
+  float alpha = softEdge * 1.35 * v_depthAlpha * densityVariation;
   alpha = clamp(alpha, 0.0, 1.0);
 
   gl_FragColor = vec4(color, alpha);

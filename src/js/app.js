@@ -4,7 +4,11 @@ import { FluidSimulation } from './fluid.js';
 import { ParticleSystem, PARTICLE_MOTION_MODES } from './particleSystem.js';
 import { Renderer } from './renderer.js';
 import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './targets.js';
-import { getDaysLeftJST, scheduleMidnightUpdate } from './utils/date.js';
+import {
+  formatTimeLeftJST,
+  getDaysLeftJST,
+  scheduleMidnightUpdate,
+} from './utils/date.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
 const RESIZE_DEBOUNCE_MS = 120;
@@ -56,19 +60,24 @@ const TARGET_LAYOUT = {
 const DAYS_TARGET_LAYOUT = {
   sampleStepDesktop: 2,
   sampleStepMobile: 3,
-  alphaThreshold: 20,
+  alphaThreshold: 18,
   fontFamily: '"Helvetica Neue", Arial, sans-serif',
-  fontWeight: 800,
-  maxWidthRatioDesktop: 0.58,
-  maxWidthRatioMobile: 0.88,
-  maxHeightRatioDesktop: 0.24,
-  maxHeightRatioMobile: 0.2,
+  fontWeight: 900,
+  maxWidthRatioDesktop: 0.64,
+  maxWidthRatioMobile: 0.9,
+  maxHeightRatioDesktop: 0.44,
+  maxHeightRatioMobile: 0.4,
   wideAspectThreshold: 1.9,
-  wideMaxWidthAdjust: 0.06,
-  wideMaxHeightAdjust: -0.03,
-  offsetY: 18,
+  wideMaxWidthAdjust: 0.04,
+  wideMaxHeightAdjust: -0.02,
+  offsetY: 0,
 };
-const DAYS_PARTICLE_SIZE_SCALE = 1.03;
+const DAYS_PARTICLE_SIZE_SCALE = 1;
+
+const countdownState = {
+  previousLines: null,
+  intervalId: null,
+};
 
 // App-level orchestration state. Rendering/physics internals live in dedicated modules.
 const state = {
@@ -179,11 +188,33 @@ function getLiveDaysLeft() {
   return getDaysLeftJST(LIVE_DATE);
 }
 
-function buildCurrentDaysTarget() {
+function getCountdownLines() {
   const days = getLiveDaysLeft();
+  const timeLeft = formatTimeLeftJST(LIVE_DATE);
 
+  return [
+    `${days}DAYS`,
+    timeLeft,
+  ];
+}
+
+function buildDaysTargetFromLines(lines) {
   return buildDaysTargetPoints({
-    text: `${days}DAYS`,
+    lines: [
+      {
+        text: lines[0],
+        key: 'days',
+        fontWeight: 900,
+        fontSizeScale: 1,
+      },
+      {
+        text: lines[1],
+        key: 'time',
+        fontWeight: 700,
+        fontSizeScale: 0.32,
+        offsetYRatio: 0.66,
+      },
+    ],
     width: state.width,
     height: state.height,
     particleCount: state.particleSystem.getParticleCount(),
@@ -191,15 +222,111 @@ function buildCurrentDaysTarget() {
   });
 }
 
+function buildCurrentDaysTarget() {
+  const lines = getCountdownLines();
+  return buildDaysTargetFromLines(lines);
+}
+
+function getChangedCharIndexes(previousLines, nextLines) {
+  if (!previousLines) {
+    return null;
+  }
+
+  const changed = [];
+
+  nextLines.forEach((line, lineIndex) => {
+    const previousLine = previousLines[lineIndex] || '';
+    const maxLength = Math.max(previousLine.length, line.length);
+
+    for (let charIndex = 0; charIndex < maxLength; charIndex += 1) {
+      if (previousLine[charIndex] !== line[charIndex]) {
+        changed.push({ lineIndex, charIndex });
+      }
+    }
+  });
+
+  return changed;
+}
+
+function updateParticleCountdownDiff() {
+  if (state.activeTarget !== 'days') {
+    return;
+  }
+
+  const nextLines = getCountdownLines();
+  const previousLines = countdownState.previousLines;
+
+  if (!previousLines) {
+    applyTarget('days');
+    return;
+  }
+
+  const shouldRebuildAll = previousLines.some((line, index) => (
+    line.length !== (nextLines[index] || '').length
+  ));
+
+  if (shouldRebuildAll) {
+    applyTarget('days');
+    return;
+  }
+
+  const changed = getChangedCharIndexes(previousLines, nextLines);
+
+  if (!changed || changed.length === 0) {
+    return;
+  }
+
+  const nextTarget = buildDaysTargetFromLines(nextLines);
+  const changedGroupKeys = changed.map(
+    ({ lineIndex, charIndex }) => `line-${lineIndex}-char-${charIndex}`,
+  );
+
+  if (!nextTarget.groupedPoints) {
+    applyTarget('days');
+    return;
+  }
+
+  state.particleSystem.softUpdateTargetsByGroup(
+    nextTarget.groupedPoints,
+    changedGroupKeys,
+  );
+
+  countdownState.previousLines = [...nextLines];
+}
+
 function applyTarget(targetType) {
+  const lines = targetType === 'days' ? getCountdownLines() : null;
   const targetPoints =
-    targetType === 'days' ? buildCurrentDaysTarget() : buildCurrentLogoTarget();
+    targetType === 'days' ? buildDaysTargetFromLines(lines) : buildCurrentLogoTarget();
 
   state.particleSystem.setSizeScale(
     targetType === 'days' ? DAYS_PARTICLE_SIZE_SCALE : 1,
   );
-  state.particleSystem.setTargets(targetPoints);
+
+  if (targetType === 'days' && targetPoints.groupedPoints) {
+    state.particleSystem.setTargetsByGroup(targetPoints.groupedPoints);
+    countdownState.previousLines = [...lines];
+  } else {
+    state.particleSystem.clearTargetGroups();
+    state.particleSystem.setTargets(targetPoints.points || targetPoints);
+    countdownState.previousLines = null;
+  }
+
   state.activeTarget = targetType;
+}
+
+function startParticleCountdownTimer() {
+  stopParticleCountdownTimer();
+  countdownState.previousLines = getCountdownLines();
+
+  countdownState.intervalId = window.setInterval(updateParticleCountdownDiff, 1000);
+}
+
+function stopParticleCountdownTimer() {
+  if (countdownState.intervalId !== null) {
+    window.clearInterval(countdownState.intervalId);
+    countdownState.intervalId = null;
+  }
 }
 
 function setAppState(nextState) {
@@ -211,6 +338,7 @@ function setParticleMotionMode(nextMode) {
 }
 
 function showLogoTarget() {
+  stopParticleCountdownTimer();
   setAppState(APP_STATES.LOGO);
   setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   applyTarget('logo');
@@ -221,6 +349,7 @@ function showDaysTarget() {
   setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   applyTarget('days');
   setupJstMidnightUpdate();
+  startParticleCountdownTimer();
 }
 
 function scatterAll(power = INTRO_SEQUENCE_TIMINGS.scatterPower) {
@@ -246,8 +375,10 @@ function cancelLoginSequence() {
   if (state.appState === APP_STATES.LOGIN_SEQUENCE) {
     if (state.activeTarget === 'days') {
       setAppState(APP_STATES.COUNTDOWN);
+      startParticleCountdownTimer();
     } else {
       setAppState(APP_STATES.LOGO);
+      stopParticleCountdownTimer();
     }
   }
 
@@ -299,6 +430,7 @@ async function playIntroSequence() {
     applyTarget('days');
     setAppState(APP_STATES.COUNTDOWN);
     setupJstMidnightUpdate();
+    startParticleCountdownTimer();
   } finally {
     if (sequenceId === state.introSequenceId) {
       state.isIntroSequenceRunning = false;
@@ -319,6 +451,7 @@ async function playLoginSequence() {
     sequenceId !== state.loginSequenceId || !state.isLoginSequenceRunning;
 
   try {
+    stopParticleCountdownTimer();
     setAppState(APP_STATES.LOGIN_SEQUENCE);
     setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
     applyTarget('logo');
@@ -369,6 +502,7 @@ async function playLoginSequence() {
 
     setAppState(APP_STATES.COUNTDOWN);
     setParticleMotionMode(PARTICLE_MOTION_MODES.IDLE);
+    startParticleCountdownTimer();
   } finally {
     if (sequenceId === state.loginSequenceId) {
       state.isLoginSequenceRunning = false;
