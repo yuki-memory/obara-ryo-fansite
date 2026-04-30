@@ -11,6 +11,7 @@ const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
 const POINTER_SMOOTHING = 0.16;
 const POINTER_RELEASE_HALF_LIFE_SEC = 0.12;
+const SWIPE_THRESHOLD = 48;
 
 const APP_STATES = Object.freeze({
   IDLE: 'idle',
@@ -103,7 +104,8 @@ const albumState = {
   albumIndex: 0,
   selectedTrackIndex: 0,
   isInitialized: false,
-  swiper: null,
+  thumbnailSwiper: null,
+  elements: null,
 };
 
 function reportAppError(context, error) {
@@ -408,56 +410,178 @@ function normalizeAlbumIndex(index) {
     return 0;
   }
 
-  return ((index % albums.length) + albums.length) % albums.length;
+  const numericIndex = Number(index);
+  const safeIndex = Number.isFinite(numericIndex) ? numericIndex : 0;
+
+  return ((safeIndex % albums.length) + albums.length) % albums.length;
 }
 
-function showPrevAlbum(elements) {
-  if (albumState.swiper) {
-    albumState.swiper.slidePrev();
+function getVisibleAlbumIndexes() {
+  const activeIndex = normalizeAlbumIndex(albumState.albumIndex);
+
+  return {
+    prevIndex: normalizeAlbumIndex(activeIndex - 1),
+    activeIndex,
+    nextIndex: normalizeAlbumIndex(activeIndex + 1),
+  };
+}
+
+function applyAlbumCover(element, album, index) {
+  if (!element || !album) {
     return;
   }
 
-  albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex - 1);
-  albumState.selectedTrackIndex = 0;
-  renderAlbumSection(elements);
-}
-
-function showNextAlbum(elements) {
-  if (albumState.swiper) {
-    albumState.swiper.slideNext();
-    return;
-  }
-
-  albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex + 1);
-  albumState.selectedTrackIndex = 0;
-  renderAlbumSection(elements);
-}
-
-function createAlbumCoverSlide(album, albumIndex) {
-  const slide = document.createElement('div');
-  slide.className = 'album-section__cover swiper-slide';
-  slide.dataset.albumId = album.id;
-  slide.dataset.albumIndex = String(albumIndex);
-  slide.setAttribute('aria-label', album.title);
+  element.dataset.albumIndex = String(index);
+  element.dataset.albumId = album.id;
+  element.setAttribute('aria-label', album.title);
 
   if (album.image) {
-    slide.style.backgroundImage = `url("${album.image}")`;
-    slide.classList.add('album-section__cover--loaded');
+    element.style.backgroundImage = `url("${album.image}")`;
+    element.classList.add('album-section__cover--loaded');
+  } else {
+    element.style.backgroundImage = '';
+    element.classList.remove('album-section__cover--loaded');
   }
+}
+
+function renderAlbumCovers(elements) {
+  if (!elements?.prevCover || !elements?.activeCover || !elements?.nextCover) {
+    return;
+  }
+
+  const { prevIndex, activeIndex, nextIndex } = getVisibleAlbumIndexes();
+
+  applyAlbumCover(elements.prevCover, albums[prevIndex], prevIndex);
+  applyAlbumCover(elements.activeCover, albums[activeIndex], activeIndex);
+  applyAlbumCover(elements.nextCover, albums[nextIndex], nextIndex);
+}
+
+function setActiveAlbum(index) {
+  albumState.albumIndex = normalizeAlbumIndex(index);
+  albumState.selectedTrackIndex = 0;
+
+  renderAlbumSection(albumState.elements);
+  syncAlbumThumbnailState(albumState.albumIndex);
+}
+
+function showPrevAlbum() {
+  setActiveAlbum(albumState.albumIndex - 1);
+}
+
+function showNextAlbum() {
+  setActiveAlbum(albumState.albumIndex + 1);
+}
+
+function initAlbumCoverSwipe(elements) {
+  if (!elements?.covers) {
+    return;
+  }
+
+  let startX = 0;
+  let currentX = 0;
+  let isDragging = false;
+
+  elements.covers.addEventListener('pointerdown', (event) => {
+    isDragging = true;
+    startX = event.clientX;
+    currentX = event.clientX;
+  });
+
+  elements.covers.addEventListener('pointermove', (event) => {
+    if (!isDragging) {
+      return;
+    }
+
+    currentX = event.clientX;
+  });
+
+  elements.covers.addEventListener('pointerup', () => {
+    if (!isDragging) {
+      return;
+    }
+
+    isDragging = false;
+
+    const diffX = currentX - startX;
+
+    if (Math.abs(diffX) < SWIPE_THRESHOLD) {
+      return;
+    }
+
+    if (diffX < 0) {
+      showNextAlbum();
+    } else {
+      showPrevAlbum();
+    }
+  });
+
+  elements.covers.addEventListener('pointercancel', () => {
+    isDragging = false;
+  });
+}
+
+function createAlbumThumbnailSlide(album, albumIndex, elements) {
+  const slide = document.createElement('div');
+  slide.className = 'album-section__thumbnail-slide swiper-slide';
+
+  const button = document.createElement('button');
+  button.className = 'album-section__thumbnail-button';
+  button.type = 'button';
+  button.dataset.albumIndex = String(albumIndex);
+  button.setAttribute('aria-label', `${album.title} を表示`);
+  button.setAttribute('aria-current', 'false');
+
+  const image = document.createElement('span');
+  image.className = 'album-section__thumbnail-image';
+
+  if (album.image) {
+    image.style.backgroundImage = `url("${album.image}")`;
+  }
+
+  button.addEventListener('click', () => {
+    const index = Number(button.dataset.albumIndex);
+    setActiveAlbum(index);
+  });
+
+  button.appendChild(image);
+  slide.appendChild(button);
 
   return slide;
 }
 
-function renderAlbumCoverSlides(elements) {
-  if (!elements.coverList) {
+function renderAlbumThumbnailSlides(elements) {
+  if (!elements.thumbnailList) {
     return;
   }
 
   const slides = albums.map((album, albumIndex) =>
-    createAlbumCoverSlide(album, albumIndex),
+    createAlbumThumbnailSlide(album, albumIndex, elements),
   );
 
-  elements.coverList.replaceChildren(...slides);
+  elements.thumbnailList.replaceChildren(...slides);
+}
+
+function syncAlbumThumbnailState(index) {
+  const normalizedIndex = normalizeAlbumIndex(index);
+
+  document
+    .querySelectorAll('.album-section__thumbnail-button')
+    .forEach((button) => {
+      const isActive = Number(button.dataset.albumIndex) === normalizedIndex;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+
+  const thumbnailSwiper = albumState.thumbnailSwiper;
+
+  if (!thumbnailSwiper) {
+    return;
+  }
+
+  const visibleOffset = 2;
+  const targetSlideIndex = Math.max(0, normalizedIndex - visibleOffset);
+
+  thumbnailSwiper.slideTo(targetSlideIndex);
 }
 
 function renderAlbumSection(elements) {
@@ -466,6 +590,7 @@ function renderAlbumSection(elements) {
   }
 
   albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex);
+  renderAlbumCovers(elements);
 
   const activeAlbum = albums[albumState.albumIndex];
 
@@ -599,86 +724,41 @@ function openSelectedTrackTweet() {
   window.open(tweetUrl, '_blank', 'noopener,noreferrer');
 }
 
-function initAlbumSwiper(elements) {
-  renderAlbumCoverSlides(elements);
+function initAlbumThumbnailSwiper(elements) {
+  renderAlbumThumbnailSlides(elements);
 
   const SwiperConstructor = window.Swiper;
 
-  if (!SwiperConstructor || !elements.covers) {
-    reportAppError('initAlbumSwiper', new Error('Swiper is not available'));
+  if (!SwiperConstructor || !elements.thumbnailSwiper || !elements.thumbnailList) {
+    reportAppError(
+      'initAlbumThumbnailSwiper',
+      new Error('Thumbnail Swiper is not available'),
+    );
     return null;
   }
 
-  const swiper = new SwiperConstructor(elements.covers, {
-    effect: 'creative',
+  const swiper = new SwiperConstructor(elements.thumbnailSwiper, {
+    slidesPerView: 5,
+    spaceBetween: 14,
     grabCursor: true,
-    centeredSlides: true,
-    initialSlide: albumState.albumIndex,
-    loop: albums.length > 1,
-    slidesPerView: 1,
-    creativeEffect: {
-      limitProgress: 1,
-      prev: {
-        translate: ['-42%', '8%', -180],
-        rotate: [0, 0, -8],
-        scale: 0.82,
-        opacity: 1,
-      },
-      next: {
-        translate: ['42%', '8%', -180],
-        rotate: [0, 0, 8],
-        scale: 0.82,
-        opacity: 1,
-      },
+    watchSlidesProgress: true,
+    navigation: {
+      prevEl: elements.thumbnailPrevButton,
+      nextEl: elements.thumbnailNextButton,
     },
     breakpoints: {
       0: {
-        creativeEffect: {
-          limitProgress: 1,
-          prev: {
-            translate: ['-34%', '7%', -140],
-            rotate: [0, 0, -7],
-            scale: 0.82,
-            opacity: 1,
-          },
-          next: {
-            translate: ['34%', '7%', -140],
-            rotate: [0, 0, 7],
-            scale: 0.82,
-            opacity: 1,
-          },
-        },
+        slidesPerView: 3,
+        spaceBetween: 10,
       },
-      769: {
-        creativeEffect: {
-          limitProgress: 1,
-          prev: {
-            translate: ['-42%', '8%', -180],
-            rotate: [0, 0, -8],
-            scale: 0.82,
-            opacity: 1,
-          },
-          next: {
-            translate: ['42%', '8%', -180],
-            rotate: [0, 0, 8],
-            scale: 0.82,
-            opacity: 1,
-          },
-        },
-      },
-    },
-    on: {
-      slideChange(currentSwiper) {
-        albumState.albumIndex = normalizeAlbumIndex(
-          currentSwiper.realIndex ?? currentSwiper.activeIndex,
-        );
-        albumState.selectedTrackIndex = 0;
-        renderAlbumSection(elements);
+      768: {
+        slidesPerView: 5,
+        spaceBetween: 14,
       },
     },
   });
 
-  albumState.swiper = swiper;
+  albumState.thumbnailSwiper = swiper;
   return swiper;
 }
 
@@ -695,34 +775,55 @@ function initAlbumSection() {
 
   const elements = {
     carousel: section.querySelector('.album-section__carousel'),
-    prevButton: section.querySelector('.album-section__nav-button--prev'),
-    nextButton: section.querySelector('.album-section__nav-button--next'),
     covers: section.querySelector('.album-section__covers'),
-    coverList: section.querySelector('.album-section__cover-list'),
+    prevCover: section.querySelector('.album-section__cover--prev'),
+    activeCover: section.querySelector('.album-section__cover--active'),
+    nextCover: section.querySelector('.album-section__cover--next'),
+    thumbnailSwiper: section.querySelector('.album-section__thumbnail-swiper'),
+    thumbnailList: section.querySelector('.album-section__thumbnail-list'),
+    thumbnailPrevButton: section.querySelector(
+      '.album-section__thumbnail-nav--prev',
+    ),
+    thumbnailNextButton: section.querySelector(
+      '.album-section__thumbnail-nav--next',
+    ),
     trackList: section.querySelector('.album-section__track-list'),
     postButton: section.querySelector('.album-section__post-button'),
   };
 
-  if (!elements.trackList || !elements.coverList) {
+  if (
+    !elements.trackList ||
+    !elements.prevCover ||
+    !elements.activeCover ||
+    !elements.nextCover ||
+    !elements.thumbnailList
+  ) {
     return;
   }
 
   albumState.isInitialized = true;
+  albumState.elements = elements;
+  albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex);
 
-  elements.prevButton?.addEventListener('click', () => {
-    showPrevAlbum(elements);
-  });
-
-  elements.nextButton?.addEventListener('click', () => {
-    showNextAlbum(elements);
-  });
+  console.table(
+    albums.map((album, index) => ({
+      index,
+      id: album.id,
+      title: album.title,
+      image: album.image,
+    })),
+  );
 
   elements.postButton?.addEventListener('click', () => {
     openSelectedTrackTweet();
   });
 
-  initAlbumSwiper(elements);
+  elements.prevCover?.addEventListener('click', showPrevAlbum);
+  elements.nextCover?.addEventListener('click', showNextAlbum);
+  initAlbumCoverSwipe(elements);
+  initAlbumThumbnailSwiper(elements);
   renderAlbumSection(elements);
+  syncAlbumThumbnailState(albumState.albumIndex);
 }
 
 function setupJstMidnightUpdate() {

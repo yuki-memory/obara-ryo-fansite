@@ -42,22 +42,33 @@
     <section class="album-section" aria-label="アルバム選択">
       <div class="album-section__body">
         <div class="album-section__carousel" aria-label="アルバム選択">
+          <div class="album-section__covers" aria-hidden="true">
+            <div class="album-section__cover album-section__cover--prev"></div>
+            <div class="album-section__cover album-section__cover--active"></div>
+            <div class="album-section__cover album-section__cover--next"></div>
+          </div>
+        </div>
+
+        <div
+          class="album-section__thumbnail-area"
+          aria-label="アルバムサムネイル選択"
+        >
           <button
-            class="album-section__nav-button album-section__nav-button--prev"
+            class="album-section__thumbnail-nav album-section__thumbnail-nav--prev"
             type="button"
-            aria-label="前のアルバム"
+            aria-label="前のサムネイルへ"
           >
             前へ
           </button>
 
-          <div class="album-section__covers swiper">
-            <div class="album-section__cover-list swiper-wrapper"></div>
+          <div class="album-section__thumbnail-swiper swiper">
+            <div class="album-section__thumbnail-list swiper-wrapper"></div>
           </div>
 
           <button
-            class="album-section__nav-button album-section__nav-button--next"
+            class="album-section__thumbnail-nav album-section__thumbnail-nav--next"
             type="button"
-            aria-label="次のアルバム"
+            aria-label="次のサムネイルへ"
           >
             次へ
           </button>
