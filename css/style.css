@@ -74,8 +74,10 @@ body {
   position: absolute;
   inset: 0;
   z-index: 10;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   text-align: center;
   pointer-events: none;
@@ -84,15 +86,15 @@ body {
 }
 
 .main__eyebrow {
-  position: absolute;
-  top: 48px;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  color: #121212;
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  opacity: 0.68;
+  margin: 0 0 clamp(20px, 2.4vw, 36px);
+  transform: translateY(-220px);
+  color: rgba(17, 17, 17, 0.72);
+  font-size: clamp(18px, 1.8vw, 30px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .main__title {
@@ -464,13 +466,41 @@ body {
   gap: clamp(48px, 8vw, 120px);
   width: min(88vw, 1080px);
   margin: 0 auto clamp(72px, 9vw, 120px);
+  padding-bottom: 24px;
+}
+
+.artist__image-wrapper {
+  position: relative;
+  display: inline-block;
+  justify-self: center;
+  width: min(32vw, 360px);
+  aspect-ratio: 4 / 5;
+}
+
+.artist__image-bg {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  background: #f6a0fe;
+  /* box-shadow: inset 0 0 0 2px #fff; */
+}
+
+.artist__image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .artist__profile-photo-slider {
   position: relative;
-  width: min(32vw, 360px);
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .artist__profile-photo {
@@ -534,6 +564,17 @@ body {
   text-align: left;
 }
 
+.artist__profile-copy {
+  margin: 0;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  color: #222;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 .artist__profile-eyebrow {
   margin: 0 0 12px;
   font-size: 12px;
@@ -549,32 +590,43 @@ body {
 }
 
 .artist__profile-text {
-  margin: 0 0 28px;
-  font-size: clamp(14px, 1.2vw, 16px);
-  line-height: 2;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.9;
   letter-spacing: 0.05em;
 }
 
-.artist__profile-link {
+.artist__profile-text strong {
+  font-weight: 600;
+}
+
+.artist__fanclub-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 180px;
   min-height: 48px;
-  padding: 0 28px;
+  padding: 12px 28px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
+  background: #ffc7ff;
   color: #111;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   transition:
     transform 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.artist__profile-link:hover {
+.artist__cta {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.artist__fanclub-button:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.92);
+  background: #feb7fe;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .news-section {
@@ -951,7 +1003,6 @@ body {
     width: clamp(64px, 5vw, 88px);
     margin-right: clamp(14px, 1.4vw, 20px);
   }
-
 }
 
 @media (max-width: 768px) {
@@ -976,8 +1027,11 @@ body {
   }
 
   .main__eyebrow {
-    top: 28px;
-    font-size: 10px;
+    margin-bottom: 16px;
+    transform: translateY(-170px);
+    font-size: clamp(14px, 4.2vw, 20px);
+    letter-spacing: 0.1em;
+    line-height: 1.3;
   }
 
   .main__title {
@@ -1045,9 +1099,14 @@ body {
     margin-bottom: 72px;
   }
 
-  .artist__profile-photo-slider {
+  .artist__image-wrapper {
     width: min(72vw, 300px);
     margin: 0 auto;
+  }
+
+  .artist__image-bg {
+    top: 10px;
+    left: 10px;
   }
 
   .artist__profile-content {
@@ -1056,6 +1115,10 @@ body {
 
   .artist__profile-text {
     text-align: left;
+  }
+
+  .artist__cta {
+    text-align: center;
   }
 
   .news-section {

@@ -459,6 +459,7 @@ export function samplePointsFromTextLines(options) {
           const point = {
             x,
             y,
+            type: region.lineIndex === 0 ? 'days' : 'time',
             char: region.char,
             lineIndex: region.lineIndex,
             charIndex: region.charIndex,

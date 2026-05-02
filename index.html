@@ -22,7 +22,7 @@
       <canvas id="webgl-canvas" class="main__canvas"></canvas>
 
       <div class="main__overlay">
-        <p class="main__eyebrow">ONE MAN LIVE COUNTDOWN</p>
+        <h2 class="main__eyebrow">ONE MAN LIVE COUNTDOWN</h2>
         <h1 class="main__title">My Live Life -STORY-</h1>
       </div>
 
@@ -41,29 +41,40 @@
 
     <section class="album-section" aria-label="アルバム選択">
       <section class="artist__profile" aria-label="アーティスト紹介">
-        <div class="artist__profile-photo-slider" aria-hidden="true">
-          <div class="artist__profile-photo artist__profile-photo--1"></div>
-          <div class="artist__profile-photo artist__profile-photo--2"></div>
-          <div class="artist__profile-photo artist__profile-photo--3"></div>
-          <div class="artist__profile-photo artist__profile-photo--4"></div>
-          <div class="artist__profile-photo artist__profile-photo--5"></div>
+        <div class="artist__image-wrapper" aria-hidden="true">
+          <div class="artist__image-bg"></div>
+          <div class="artist__image">
+            <div class="artist__profile-photo-slider">
+              <div class="artist__profile-photo artist__profile-photo--1"></div>
+              <div class="artist__profile-photo artist__profile-photo--2"></div>
+              <div class="artist__profile-photo artist__profile-photo--3"></div>
+              <div class="artist__profile-photo artist__profile-photo--4"></div>
+              <div class="artist__profile-photo artist__profile-photo--5"></div>
+            </div>
+          </div>
         </div>
 
         <div class="artist__profile-content">
-          <p class="artist__profile-eyebrow">ABOUT ARTIST</p>
-          <h2 class="artist__profile-name">小原涼</h2>
-          <p class="artist__profile-text">
-            パワフルでまっすぐな歌声と、ライブでの熱量を武器に活動するアーティスト。
-            楽曲ごとに違う表情を見せながら、聴く人の背中をそっと押すような音楽を届けている。
-          </p>
-          <a
-            class="artist__profile-link"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            FCはこちら
-          </a>
+          <div class="artist__profile-copy">
+            <p class="artist__profile-eyebrow">ABOUT ARTIST</p>
+            <h2 class="artist__profile-name">小原涼</h2>
+            <p class="artist__profile-text">
+              <strong
+                >POPでROCKな音楽に甘い歌声をのせた唯一無二甘口ROCKをお届けする女性シンガー。</strong
+              ><br />皆の元気印Sunshine girl！<br />元気になれる曲から癒される曲まで独特なSWEET
+              VOICEでおたのしみください。<br />5月17日生まれ。出身地は福島県。<br />血液型はAB型。
+            </p>
+          </div>
+          <div class="artist__cta">
+            <a
+              class="artist__fanclub-button"
+              href="https://fanclove.jp/club/obararyo"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              FCはこちら
+            </a>
+          </div>
         </div>
       </section>
 
@@ -264,7 +275,9 @@
                   </div>
                   <div class="discography-section__body">
                     <p class="discography-section__type">Album</p>
-                    <h3 class="discography-section__title">My Live Life -STORY-</h3>
+                    <h3 class="discography-section__title">
+                      My Live Life -STORY-
+                    </h3>
                   </div>
                 </a>
               </li>
@@ -275,11 +288,16 @@
                   href="#"
                 >
                   <div class="discography-section__image">
-                    <img src="./images/album__002.webp" alt="作品ジャケット画像" />
+                    <img
+                      src="./images/album__002.webp"
+                      alt="作品ジャケット画像"
+                    />
                   </div>
                   <div class="discography-section__body">
                     <p class="discography-section__type">Single</p>
-                    <h3 class="discography-section__title">Album Placeholder</h3>
+                    <h3 class="discography-section__title">
+                      Album Placeholder
+                    </h3>
                   </div>
                 </a>
               </li>
@@ -301,7 +319,9 @@
               <p class="discography-section__eyebrow">Video</p>
             </div>
 
-            <ul class="discography-section__list discography-section__list--video">
+            <ul
+              class="discography-section__list discography-section__list--video"
+            >
               <li class="discography-section__item">
                 <a
                   class="discography-section__link discography-section__link--video"
@@ -312,7 +332,9 @@
                   </div>
                   <div class="discography-section__body">
                     <p class="discography-section__type">Music Video</p>
-                    <h3 class="discography-section__title">Video Placeholder</h3>
+                    <h3 class="discography-section__title">
+                      Video Placeholder
+                    </h3>
                   </div>
                 </a>
               </li>
@@ -327,7 +349,9 @@
                   </div>
                   <div class="discography-section__body">
                     <p class="discography-section__type">Live</p>
-                    <h3 class="discography-section__title">Live Video Placeholder</h3>
+                    <h3 class="discography-section__title">
+                      Live Video Placeholder
+                    </h3>
                   </div>
                 </a>
               </li>

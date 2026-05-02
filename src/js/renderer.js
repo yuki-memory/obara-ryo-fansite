@@ -86,6 +86,7 @@ export class Renderer {
     this.aDepth = gl.getAttribLocation(this.program, 'a_depth');
     this.aColorBias = gl.getAttribLocation(this.program, 'a_colorBias');
     this.aEnergy = gl.getAttribLocation(this.program, 'a_energy');
+    this.aType = gl.getAttribLocation(this.program, 'a_type');
     this.uResolution = gl.getUniformLocation(this.program, 'u_resolution');
     this.uColor = gl.getUniformLocation(this.program, 'u_color');
 
@@ -94,13 +95,15 @@ export class Renderer {
     this.depthBuffer = gl.createBuffer();
     this.colorBiasBuffer = gl.createBuffer();
     this.energyBuffer = gl.createBuffer();
+    this.typeBuffer = gl.createBuffer();
 
     if (
       !this.positionBuffer ||
       !this.sizeBuffer ||
       !this.depthBuffer ||
       !this.colorBiasBuffer ||
-      !this.energyBuffer
+      !this.energyBuffer ||
+      !this.typeBuffer
     ) {
       throw new Error('[Renderer] 描画バッファの初期化に失敗しました。');
     }
@@ -130,6 +133,7 @@ export class Renderer {
     const depths = new Float32Array(count);
     const colorBiases = new Float32Array(count);
     const energies = new Float32Array(count);
+    const types = new Float32Array(count);
 
     for (let i = 0; i < count; i += 1) {
       const p = particles[i];
@@ -139,6 +143,7 @@ export class Renderer {
       depths[i] = p.depth || 0;
       colorBiases[i] = p.colorBias || 0;
       energies[i] = p.interactionGlow || 0;
+      types[i] = p.type === 'days' ? 0 : 1;
     }
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -180,6 +185,11 @@ export class Renderer {
     gl.bufferData(gl.ARRAY_BUFFER, energies, gl.DYNAMIC_DRAW);
     gl.enableVertexAttribArray(this.aEnergy);
     gl.vertexAttribPointer(this.aEnergy, 1, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.typeBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, types, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(this.aType);
+    gl.vertexAttribPointer(this.aType, 1, gl.FLOAT, false, 0, 0);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

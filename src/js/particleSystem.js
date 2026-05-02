@@ -48,6 +48,7 @@ class Particle {
     this.interactionAccent = 0.86 + Math.random() * 0.28;
     this.colorBias = (Math.random() * 2 - 1) * (0.35 + Math.random() * 0.65);
     this.interactionGlow = 0;
+    this.type = 'time';
     this.groupKey = null;
     this.groupTargetIndex = 0;
     this.groupTargetRatio = 0;
@@ -377,6 +378,7 @@ export class ParticleSystem {
 
     for (let i = 0; i < count; i += 1) {
       this.particles[i].setTarget(targetPoints[i].x, targetPoints[i].y);
+      this.particles[i].type = targetPoints[i].type === 'days' ? 'days' : 'time';
     }
   }
 
@@ -523,6 +525,7 @@ export class ParticleSystem {
         const target = allocation.points[Math.min(targetIndex, allocation.points.length - 1)];
 
         particle.setTarget(target.x, target.y);
+        particle.type = target.type === 'days' ? 'days' : 'time';
         particleIndex += 1;
       }
     });
@@ -550,6 +553,7 @@ export class ParticleSystem {
       const targetIndex = Math.floor(particle.groupTargetRatio * targets.length);
       const target = targets[Math.min(targetIndex, targets.length - 1)];
       particle.setTarget(target.x, target.y);
+      particle.type = target.type === 'days' ? 'days' : 'time';
       particle.vx += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
       particle.vy += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
     }
@@ -577,6 +581,7 @@ export class ParticleSystem {
       const targetIndex = Math.floor(particle.groupTargetRatio * targets.length);
       const target = targets[Math.min(targetIndex, targets.length - 1)];
       particle.setTarget(target.x, target.y);
+      particle.type = target.type === 'days' ? 'days' : 'time';
 
       if (changedGroups.has(particle.groupKey)) {
         particle.vx += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
