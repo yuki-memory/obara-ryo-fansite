@@ -24,6 +24,25 @@ body {
   overflow-x: hidden;
 }
 
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(255, 245, 247, 0.08);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition:
+    background 0.35s ease,
+    backdrop-filter 0.35s ease;
+}
+
+body.is-scrolled .bg-overlay {
+  background: rgba(255, 245, 247, 0.18);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
 .site-menu {
   position: fixed;
   top: 32px;
@@ -163,6 +182,47 @@ body {
     rgba(255, 255, 255, 0.34),
     rgba(255, 232, 232, 0)
   );
+}
+
+.section-heading {
+  width: min(88vw, 1080px);
+  margin: 0 auto clamp(32px, 4vw, 56px);
+  text-align: center;
+}
+
+.section-heading__label {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.6);
+  font-size: clamp(48px, 5vw, 72px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+}
+
+.section-heading__lead {
+  max-width: 560px;
+  margin: 14px auto 0;
+  color: rgba(17, 17, 17, 0.62);
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 600;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+}
+
+.section-heading--artist {
+  width: min(88vw, 1080px);
+  margin: 0 auto clamp(32px, 4vw, 56px);
+  text-align: center;
+}
+
+.section-heading--favorite {
+  margin-top: clamp(72px, 8vw, 112px);
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+
+.section-heading--live,
+.section-heading--news {
+  margin-bottom: clamp(28px, 3vw, 44px);
 }
 
 .album-section__body {
@@ -459,14 +519,23 @@ body {
 }
 
 .artist__profile {
+  width: min(88vw, 1080px);
+  margin: 0 auto clamp(72px, 9vw, 120px);
+  padding-bottom: 24px;
+}
+
+.artist__profile-inner {
   display: grid;
   grid-template-columns: minmax(220px, 360px) minmax(260px, 420px);
   align-items: center;
   justify-content: center;
   gap: clamp(48px, 8vw, 120px);
-  width: min(88vw, 1080px);
-  margin: 0 auto clamp(72px, 9vw, 120px);
-  padding-bottom: 24px;
+}
+
+.artist__visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .artist__image-wrapper {
@@ -575,13 +644,6 @@ body {
   -webkit-backdrop-filter: blur(6px);
 }
 
-.artist__profile-eyebrow {
-  margin: 0 0 12px;
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  opacity: 0.62;
-}
-
 .artist__profile-name {
   margin: 0 0 20px;
   font-size: clamp(28px, 3vw, 48px);
@@ -636,15 +698,6 @@ body {
 
 .news-section__inner {
   width: 100%;
-}
-
-.news-section__eyebrow {
-  margin: 0 0 clamp(24px, 3vw, 40px);
-  color: #111;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  opacity: 0.64;
 }
 
 .news-section__list {
@@ -728,31 +781,36 @@ body {
 }
 
 .discography-section {
-  width: min(88vw, 1080px);
+  width: min(92vw, 1120px);
   margin: clamp(72px, 8vw, 112px) auto 0;
 }
 
 .discography-section__inner {
-  position: relative;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  column-gap: clamp(44px, 5vw, 76px);
+  align-items: start;
   width: 100%;
-  padding-left: clamp(64px, 8vw, 120px);
 }
 
 .discography-section__side-label {
-  position: absolute;
-  left: clamp(-48px, -3vw, -28px);
-  top: clamp(180px, 18vw, 300px);
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: center;
   margin: 0;
-  color: rgba(17, 17, 17, 0.26);
-  font-size: clamp(56px, 6.4vw, 96px);
+  color: rgba(17, 17, 17, 0.5);
+  font-size: 82px;
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.12em;
-  transform: rotate(90deg);
-  transform-origin: left top;
+  letter-spacing: 0.08em;
+  transform: translateX(-12px);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
 }
 
 .discography-section__group {
+  grid-column: 2;
   margin: 0;
 }
 
@@ -769,9 +827,9 @@ body {
 .discography-section__eyebrow {
   margin: 0;
   color: rgba(17, 17, 17, 0.68);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.24em;
   text-align: center;
 }
 
@@ -880,18 +938,7 @@ body {
 
 .live-info {
   width: min(88vw, 1080px);
-  margin: clamp(88px, 12vw, 160px) auto 0;
-}
-
-.live-info__section-eyebrow {
-  width: min(88vw, 1080px);
-  margin: 0 auto clamp(28px, 3vw, 44px);
-  color: #111;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  opacity: 0.64;
-  text-align: left;
+  margin: clamp(88px, 8vw, 160px) auto 0;
 }
 
 .live-info__article {
@@ -985,7 +1032,7 @@ body {
 
 .live-info__article-links a:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(254, 183, 254, 0.92);
 }
 
 @media (min-width: 1024px) {
@@ -1044,6 +1091,31 @@ body {
     padding: 14vh 16px 120px;
   }
 
+  .section-heading {
+    width: min(88vw, 420px);
+    margin-bottom: 28px;
+  }
+
+  .section-heading__label {
+    font-size: clamp(36px, 11vw, 52px);
+  }
+
+  .section-heading__lead {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .section-heading--artist {
+    width: min(88vw, 420px);
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .section-heading--favorite {
+    margin-top: 64px;
+  }
+
   .album-section__body {
     display: block;
     width: 100%;
@@ -1093,15 +1165,22 @@ body {
   }
 
   .artist__profile {
-    grid-template-columns: 1fr;
-    gap: 32px;
     width: min(88vw, 420px);
     margin-bottom: 72px;
+  }
+
+  .artist__profile-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .artist__image-wrapper {
     width: min(72vw, 300px);
     margin: 0 auto;
+  }
+
+  .artist__visual {
+    align-items: center;
   }
 
   .artist__image-bg {
@@ -1126,13 +1205,6 @@ body {
     margin-top: 72px;
   }
 
-  .news-section__eyebrow {
-    margin-bottom: 24px;
-    font-size: 12px;
-    letter-spacing: 0.24em;
-    text-align: center;
-  }
-
   .news-section__item {
     grid-template-columns: 1fr;
     gap: 6px;
@@ -1154,25 +1226,30 @@ body {
   }
 
   .discography-section {
-    width: min(88vw, 420px);
+    width: min(92vw, 460px);
     margin-top: 72px;
   }
 
   .discography-section__inner {
-    padding-left: 0;
+    display: block;
   }
 
   .discography-section__side-label {
-    position: static;
-    margin-bottom: 24px;
-    font-size: 32px;
-    letter-spacing: 0.08em;
+    margin-bottom: 18px;
+    font-size: 38px;
+    letter-spacing: 0.06em;
     text-align: center;
     transform: none;
+    writing-mode: horizontal-tb;
   }
 
   .discography-section__group + .discography-section__group {
-    margin-top: 64px;
+    margin-top: 56px;
+  }
+
+  .discography-section__group-header {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
   }
 
   .discography-section__link,
@@ -1208,14 +1285,6 @@ body {
 
   .live-info {
     margin-top: 88px;
-  }
-
-  .live-info__section-eyebrow {
-    width: min(88vw, 420px);
-    margin-bottom: 24px;
-    font-size: 12px;
-    letter-spacing: 0.24em;
-    text-align: center;
   }
 
   .live-info__article {

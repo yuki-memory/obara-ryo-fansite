@@ -1155,6 +1155,15 @@ function requestSceneRebuild() {
   }
 }
 
+function setupScrollOverlayState() {
+  const updateScrollState = () => {
+    document.body.classList.toggle('is-scrolled', window.scrollY > 80);
+  };
+
+  updateScrollState();
+  window.addEventListener('scroll', updateScrollState, { passive: true });
+}
+
 async function init() {
   const canvas = document.getElementById('webgl-canvas');
 
@@ -1173,6 +1182,7 @@ async function init() {
   setupTargetControls();
   initAlbumSection();
   setupPointerInput(canvas);
+  setupScrollOverlayState();
 
   window.playLoginSequence = () =>
     playLoginSequence().catch((error) => {

@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
+    <div class="bg-overlay"></div>
+
     <button class="site-menu" type="button" aria-label="メニューを開く">
       <span class="site-menu__bar"></span>
       <span class="site-menu__bar"></span>
@@ -41,42 +43,56 @@
 
     <section class="album-section" aria-label="アルバム選択">
       <section class="artist__profile" aria-label="アーティスト紹介">
-        <div class="artist__image-wrapper" aria-hidden="true">
-          <div class="artist__image-bg"></div>
-          <div class="artist__image">
-            <div class="artist__profile-photo-slider">
-              <div class="artist__profile-photo artist__profile-photo--1"></div>
-              <div class="artist__profile-photo artist__profile-photo--2"></div>
-              <div class="artist__profile-photo artist__profile-photo--3"></div>
-              <div class="artist__profile-photo artist__profile-photo--4"></div>
-              <div class="artist__profile-photo artist__profile-photo--5"></div>
+        <div class="section-heading section-heading--artist">
+          <p class="section-heading__label">Artist</p>
+        </div>
+
+        <div class="artist__profile-inner">
+          <div class="artist__visual">
+            <div class="artist__image-wrapper" aria-hidden="true">
+              <div class="artist__image-bg"></div>
+              <div class="artist__image">
+                <div class="artist__profile-photo-slider">
+                  <div class="artist__profile-photo artist__profile-photo--1"></div>
+                  <div class="artist__profile-photo artist__profile-photo--2"></div>
+                  <div class="artist__profile-photo artist__profile-photo--3"></div>
+                  <div class="artist__profile-photo artist__profile-photo--4"></div>
+                  <div class="artist__profile-photo artist__profile-photo--5"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="artist__profile-content">
+            <div class="artist__profile-copy">
+              <h2 class="artist__profile-name">小原涼</h2>
+              <p class="artist__profile-text">
+                <strong
+                  >POPでROCKな音楽に甘い歌声をのせた唯一無二甘口ROCKをお届けする女性シンガー。</strong
+                ><br />皆の元気印Sunshine girl！<br />元気になれる曲から癒される曲まで独特なSWEET
+                VOICEでおたのしみください。<br />5月17日生まれ。出身地は福島県。<br />血液型はAB型。
+              </p>
+            </div>
+            <div class="artist__cta">
+              <a
+                class="artist__fanclub-button"
+                href="https://fanclove.jp/club/obararyo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                FCはこちら
+              </a>
             </div>
           </div>
         </div>
-
-        <div class="artist__profile-content">
-          <div class="artist__profile-copy">
-            <p class="artist__profile-eyebrow">ABOUT ARTIST</p>
-            <h2 class="artist__profile-name">小原涼</h2>
-            <p class="artist__profile-text">
-              <strong
-                >POPでROCKな音楽に甘い歌声をのせた唯一無二甘口ROCKをお届けする女性シンガー。</strong
-              ><br />皆の元気印Sunshine girl！<br />元気になれる曲から癒される曲まで独特なSWEET
-              VOICEでおたのしみください。<br />5月17日生まれ。出身地は福島県。<br />血液型はAB型。
-            </p>
-          </div>
-          <div class="artist__cta">
-            <a
-              class="artist__fanclub-button"
-              href="https://fanclove.jp/club/obararyo"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              FCはこちら
-            </a>
-          </div>
-        </div>
       </section>
+
+      <div class="section-heading section-heading--favorite">
+        <p class="section-heading__label">Favorite Song</p>
+        <p class="section-heading__lead">
+          お気に入りの一曲を選んで、ライブまでの想いをシェア。
+        </p>
+      </div>
 
       <div class="album-section__body">
         <div class="album-section__carousel" aria-label="アルバム選択">
@@ -133,7 +149,9 @@
       </div>
 
       <section class="live-info" id="next-live" aria-label="次回ライブ情報">
-        <p class="live-info__section-eyebrow">NEXT LIVE</p>
+        <div class="section-heading section-heading--live">
+          <p class="section-heading__label">Next Live</p>
+        </div>
 
         <article class="live-info__article">
           <div class="live-info__article-visual">
@@ -193,7 +211,9 @@
 
       <section class="news-section" id="news" aria-label="ニュース">
         <div class="news-section__inner">
-          <p class="news-section__eyebrow">NEWS</p>
+          <div class="section-heading section-heading--news">
+            <p class="section-heading__label">News</p>
+          </div>
 
           <ul class="news-section__list">
             <li class="news-section__item">
