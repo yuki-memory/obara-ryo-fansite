@@ -9,6 +9,7 @@ import {
   getDaysLeftJST,
   scheduleMidnightUpdate,
 } from './utils/date.js';
+import { getVideoItems } from './video-data.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
 const RESIZE_DEBOUNCE_MS = 120;
@@ -550,6 +551,143 @@ function normalizeAlbumIndex(index) {
   return ((safeIndex % albums.length) + albums.length) % albums.length;
 }
 
+function getAlbumReleaseTime(album) {
+  const releaseTime = Date.parse(album?.releaseDate || '');
+
+  return Number.isNaN(releaseTime) ? 0 : releaseTime;
+}
+
+function getLatestMusicItems(limit = 2) {
+  return [...albums]
+    .filter((album) => album?.releaseDate && /(?:Album|Single)/.test(album.type))
+    .sort(
+      (albumA, albumB) =>
+        getAlbumReleaseTime(albumB) - getAlbumReleaseTime(albumA),
+    )
+    .slice(0, limit);
+}
+
+function formatAlbumReleaseDate(releaseDate) {
+  if (!releaseDate) {
+    return '';
+  }
+
+  return releaseDate.replaceAll('-', '.');
+}
+
+function createDiscographyMusicCard(album, index) {
+  const link = document.createElement('a');
+  link.className = [
+    'discography-section__card',
+    index % 2 === 1 ? 'is-reverse' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  link.href = `./discography-detail.html?id=${encodeURIComponent(album.id)}`;
+  link.dataset.albumId = album.id;
+  link.setAttribute('aria-label', `${album.title} の詳細を見る`);
+
+  const imageWrapper = document.createElement('div');
+  imageWrapper.className = 'discography-section__image';
+
+  const image = document.createElement('img');
+  image.src = album.jacket || album.image || '';
+  image.alt = `${album.title} ジャケット画像`;
+
+  const body = document.createElement('div');
+  body.className = 'discography-section__body';
+
+  const type = document.createElement('p');
+  type.className = 'discography-section__type';
+  type.textContent = album.type;
+
+  const title = document.createElement('h3');
+  title.className = 'discography-section__title';
+  title.textContent = album.title;
+
+  const releaseDate = document.createElement('p');
+  releaseDate.className = 'discography-section__date';
+  releaseDate.textContent = formatAlbumReleaseDate(album.releaseDate);
+
+  imageWrapper.appendChild(image);
+  body.append(type, title, releaseDate);
+  link.append(imageWrapper, body);
+
+  return link;
+}
+
+function renderDiscographyPreview() {
+  const musicList = document.querySelector('[data-latest-discography-list]');
+
+  if (!musicList) {
+    return;
+  }
+
+  const cards = getLatestMusicItems(2).map((album, index) =>
+    createDiscographyMusicCard(album, index),
+  );
+
+  musicList.replaceChildren(...cards);
+}
+
+function createDiscographyVideoCard(video, index) {
+  const item = document.createElement('li');
+  item.className = 'discography-section__item';
+
+  const link = document.createElement('a');
+  link.className = [
+    'discography-section__link',
+    index % 2 === 1
+      ? 'discography-section__link--video-reverse'
+      : 'discography-section__link--video',
+  ].join(' ');
+  link.href = video.url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.dataset.albumId = video.albumId;
+  link.setAttribute('aria-label', `${video.title} をYouTubeで見る`);
+
+  const thumbnail = document.createElement('div');
+  thumbnail.className = 'discography-section__video-thumb';
+
+  const image = document.createElement('img');
+  image.src = video.thumbnail;
+  image.alt = `${video.title} サムネイル`;
+  image.loading = 'lazy';
+
+  const body = document.createElement('div');
+  body.className = 'discography-section__body';
+
+  const type = document.createElement('p');
+  type.className = 'discography-section__type';
+  type.textContent = video.kind;
+
+  const title = document.createElement('h3');
+  title.className = 'discography-section__title';
+  title.textContent = video.title;
+
+  thumbnail.appendChild(image);
+  body.append(type, title);
+  link.append(thumbnail, body);
+  item.appendChild(link);
+
+  return item;
+}
+
+function renderVideoPreview() {
+  const videoList = document.querySelector('[data-latest-video-list]');
+
+  if (!videoList) {
+    return;
+  }
+
+  const cards = getVideoItems({ limit: 2 }).map((video, index) =>
+    createDiscographyVideoCard(video, index),
+  );
+
+  videoList.replaceChildren(...cards);
+}
+
 function getVisibleAlbumIndexes() {
   const activeIndex = normalizeAlbumIndex(albumState.albumIndex);
 
@@ -657,11 +795,13 @@ function initAlbumCoverSwipe(elements) {
 function createAlbumThumbnailSlide(album, albumIndex, elements) {
   const slide = document.createElement('div');
   slide.className = 'album-section__thumbnail-slide swiper-slide';
+  slide.dataset.albumId = album.id;
 
   const button = document.createElement('button');
   button.className = 'album-section__thumbnail-button';
   button.type = 'button';
   button.dataset.albumIndex = String(albumIndex);
+  button.dataset.albumId = album.id;
   button.setAttribute('aria-label', `${album.title} を表示`);
   button.setAttribute('aria-current', 'false');
 
@@ -1164,6 +1304,67 @@ function setupScrollOverlayState() {
   window.addEventListener('scroll', updateScrollState, { passive: true });
 }
 
+function setupSiteMenu() {
+  const menuButton = document.querySelector('.site-menu-button');
+  const siteMenu = document.getElementById('site-menu');
+  const menuCloseButton = document.querySelector('.site-menu__close');
+  const menuLinks = document.querySelectorAll('.site-menu__link');
+
+  if (!menuButton || !siteMenu) {
+    return;
+  }
+
+  const openMenu = () => {
+    document.body.classList.add('is-menu-open');
+    menuButton.setAttribute('aria-expanded', 'true');
+    menuButton.setAttribute('aria-label', 'メニューを閉じる');
+    siteMenu.setAttribute('aria-hidden', 'false');
+    menuCloseButton?.focus();
+  };
+
+  const closeMenu = () => {
+    document.body.classList.remove('is-menu-open');
+    menuButton.setAttribute('aria-expanded', 'false');
+    menuButton.setAttribute('aria-label', 'メニューを開く');
+    siteMenu.setAttribute('aria-hidden', 'true');
+  };
+
+  const toggleMenu = () => {
+    if (document.body.classList.contains('is-menu-open')) {
+      closeMenu();
+      return;
+    }
+
+    openMenu();
+  };
+
+  menuButton.addEventListener('click', toggleMenu);
+  menuCloseButton?.addEventListener('click', () => {
+    closeMenu();
+    menuButton.focus();
+  });
+
+  siteMenu.addEventListener('click', (event) => {
+    if (event.target === siteMenu) {
+      closeMenu();
+    }
+  });
+
+  menuLinks.forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (
+      event.key === 'Escape' &&
+      document.body.classList.contains('is-menu-open')
+    ) {
+      closeMenu();
+      menuButton.focus();
+    }
+  });
+}
+
 async function init() {
   const canvas = document.getElementById('webgl-canvas');
 
@@ -1180,6 +1381,9 @@ async function init() {
   state.fluid.setPointerDown(false);
   setupResizeHandler();
   setupTargetControls();
+  setupSiteMenu();
+  renderDiscographyPreview();
+  renderVideoPreview();
   initAlbumSection();
   setupPointerInput(canvas);
   setupScrollOverlayState();

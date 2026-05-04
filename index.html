@@ -14,13 +14,40 @@
   <body>
     <div class="bg-overlay"></div>
 
-    <button class="site-menu" type="button" aria-label="メニューを開く">
-      <span class="site-menu__bar"></span>
-      <span class="site-menu__bar"></span>
-      <span class="site-menu__bar"></span>
+    <button
+      class="site-menu-button"
+      type="button"
+      aria-label="メニューを開く"
+      aria-controls="site-menu"
+      aria-expanded="false"
+    >
+      <span class="site-menu-button__bar"></span>
+      <span class="site-menu-button__bar"></span>
+      <span class="site-menu-button__bar"></span>
     </button>
 
-    <main class="main">
+    <nav class="site-menu" id="site-menu" aria-hidden="true">
+      <div class="site-menu__panel">
+        <button class="site-menu__close" type="button" aria-label="メニューを閉じる">
+          ×
+        </button>
+
+        <p class="site-menu__eyebrow">Menu</p>
+
+        <ul class="site-menu__list">
+          <li><a class="site-menu__link" href="#top">Top</a></li>
+          <li><a class="site-menu__link" href="#artist">Artist</a></li>
+          <li><a class="site-menu__link" href="#favorite-song">Favorite Song</a></li>
+          <li><a class="site-menu__link" href="#next-live">Next Live</a></li>
+          <li><a class="site-menu__link" href="#news">News</a></li>
+          <li><a class="site-menu__link" href="#discography">Discography</a></li>
+          <li><a class="site-menu__link" href="./video/">Video</a></li>
+          <li><a class="site-menu__link" href="#links">Official Links</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="main" id="top">
       <canvas id="webgl-canvas" class="main__canvas"></canvas>
 
       <div class="main__overlay">
@@ -55,7 +82,7 @@
     </main>
 
     <section class="album-section" aria-label="アルバム選択">
-      <section class="artist__profile" aria-label="アーティスト紹介">
+      <section class="artist__profile" id="artist" aria-label="アーティスト紹介">
         <div class="section-heading section-heading--artist">
           <p class="section-heading__label">Artist</p>
         </div>
@@ -66,11 +93,21 @@
               <div class="artist__image-bg"></div>
               <div class="artist__image">
                 <div class="artist__profile-photo-slider">
-                  <div class="artist__profile-photo artist__profile-photo--1"></div>
-                  <div class="artist__profile-photo artist__profile-photo--2"></div>
-                  <div class="artist__profile-photo artist__profile-photo--3"></div>
-                  <div class="artist__profile-photo artist__profile-photo--4"></div>
-                  <div class="artist__profile-photo artist__profile-photo--5"></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--1"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--2"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--3"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--4"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--5"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -100,10 +137,12 @@
         </div>
       </section>
 
-      <div class="section-heading section-heading--favorite">
+      <div class="section-heading section-heading--favorite" id="favorite-song">
         <p class="section-heading__label">Favorite Song</p>
         <p class="section-heading__lead">
-          お気に入りの一曲を選んで、ライブまでの想いをシェア。
+          お気に入りの一曲を選んで、<br
+            class="sp-only"
+          />ライブまでの想いをシェア。
         </p>
       </div>
 
@@ -155,7 +194,7 @@
 
           <div class="album-section__actions">
             <button class="album-section__post-button" type="button">
-              お気に入り楽曲をXにポストする
+              お気に入り楽曲を選んでXにポストする
             </button>
           </div>
         </div>
@@ -297,51 +336,14 @@
               <p class="discography-section__eyebrow">Music</p>
             </div>
 
-            <ul class="discography-section__list">
-              <li class="discography-section__item">
-                <a class="discography-section__link" href="#">
-                  <div class="discography-section__image">
-                    <img
-                      src="./images/album__001.webp"
-                      alt="My Live Life -STORY- ジャケット画像"
-                    />
-                  </div>
-                  <div class="discography-section__body">
-                    <p class="discography-section__type">Album</p>
-                    <h3 class="discography-section__title">
-                      My Live Life -STORY-
-                    </h3>
-                  </div>
-                </a>
-              </li>
-
-              <li class="discography-section__item">
-                <a
-                  class="discography-section__link discography-section__link--reverse"
-                  href="#"
-                >
-                  <div class="discography-section__image">
-                    <img
-                      src="./images/album__002.webp"
-                      alt="作品ジャケット画像"
-                    />
-                  </div>
-                  <div class="discography-section__body">
-                    <p class="discography-section__type">Single</p>
-                    <h3 class="discography-section__title">
-                      Album Placeholder
-                    </h3>
-                  </div>
-                </a>
-              </li>
-            </ul>
+            <div
+              class="discography-section__music-list"
+              id="discography-music-list"
+              data-latest-discography-list
+            ></div>
 
             <div class="discography-section__more">
-              <a
-                href="https://obararyo.jp/discography"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a class="discography-section__more-link" href="./discography.html">
                 もっと見る
               </a>
             </div>
@@ -354,52 +356,62 @@
 
             <ul
               class="discography-section__list discography-section__list--video"
-            >
-              <li class="discography-section__item">
-                <a
-                  class="discography-section__link discography-section__link--video"
-                  href="#"
-                >
-                  <div class="discography-section__video-thumb">
-                    <img src="./images/video__001.webp" alt="動画サムネイル" />
-                  </div>
-                  <div class="discography-section__body">
-                    <p class="discography-section__type">Music Video</p>
-                    <h3 class="discography-section__title">
-                      Video Placeholder
-                    </h3>
-                  </div>
-                </a>
-              </li>
-
-              <li class="discography-section__item">
-                <a
-                  class="discography-section__link discography-section__link--video-reverse"
-                  href="#"
-                >
-                  <div class="discography-section__video-thumb">
-                    <img src="./images/video__002.webp" alt="動画サムネイル" />
-                  </div>
-                  <div class="discography-section__body">
-                    <p class="discography-section__type">Live</p>
-                    <h3 class="discography-section__title">
-                      Live Video Placeholder
-                    </h3>
-                  </div>
-                </a>
-              </li>
-            </ul>
+              data-latest-video-list
+            ></ul>
 
             <div class="discography-section__more">
-              <a
-                href="https://obararyo.jp/movie"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="./video/">
                 もっと見る
               </a>
             </div>
           </section>
+        </div>
+      </section>
+
+      <section class="links-section" id="links" aria-labelledby="links-title">
+        <div class="links-section__inner">
+          <p class="links-section__eyebrow">Official Links</p>
+
+          <h2 class="links-section__title" id="links-title">Official SNS</h2>
+
+          <p class="links-section__lead">
+            ライブのお知らせや日々の雰囲気は、公式SNSからチェックできます。
+          </p>
+
+          <div class="links-section__list">
+            <a
+              class="links-section__card"
+              href="https://www.youtube.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTubeを見る"
+            >
+              <span class="links-section__card-label">YouTube</span>
+              <span class="links-section__card-text">Music Video / Live</span>
+            </a>
+
+            <a
+              class="links-section__card"
+              href="https://x.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Xを見る"
+            >
+              <span class="links-section__card-label">X</span>
+              <span class="links-section__card-text">News / Daily Post</span>
+            </a>
+
+            <a
+              class="links-section__card"
+              href="https://www.instagram.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagramを見る"
+            >
+              <span class="links-section__card-label">Instagram</span>
+              <span class="links-section__card-text">Photo / Story</span>
+            </a>
+          </div>
         </div>
       </section>
     </section>
