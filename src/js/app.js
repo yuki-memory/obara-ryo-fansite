@@ -1311,7 +1311,9 @@ function setupScrollOverlayState() {
 }
 
 function setupScrollTopLinks() {
-  const scrollTopLinks = document.querySelectorAll('.js-scroll-top');
+  const scrollTopLinks = document.querySelectorAll(
+    '.js-scroll-top, .js-scroll-home',
+  );
 
   scrollTopLinks.forEach((link) => {
     link.addEventListener('click', (event) => {

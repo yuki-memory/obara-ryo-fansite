@@ -155,6 +155,8 @@ body.is-menu-open .site-menu {
 
 .site-menu__panel {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: min(420px, 86vw);
   height: 100%;
   padding: 72px 48px 48px;
@@ -222,6 +224,43 @@ body.is-menu-open .site-menu__panel {
   color: var(--color-accent);
   outline: none;
   transform: translateX(4px);
+}
+
+.site-menu__sns {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: auto;
+  padding-top: 32px;
+}
+
+.site-menu__sns-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: color-mix(in srgb, var(--color-text) 76%, transparent);
+  text-decoration: none;
+}
+
+.site-menu__sns img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  opacity: 0.72;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.site-menu__sns-link:hover img,
+.site-menu__sns-link:focus-visible img {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.site-menu__sns-link:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 6px;
 }
 
 .main {
