@@ -1,5 +1,30 @@
 import { getVideoItems } from './video-data.js';
 
+function setupScrollTopLinks() {
+  const scrollTopLinks = document.querySelectorAll('.js-scroll-top');
+  const topButtons = document.querySelectorAll('.top-button');
+
+  const updateTopButtonState = () => {
+    topButtons.forEach((button) => {
+      button.classList.toggle('is-visible', window.scrollY > 200);
+    });
+  };
+
+  scrollTopLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  });
+
+  updateTopButtonState();
+  window.addEventListener('scroll', updateTopButtonState, { passive: true });
+}
+
 function createVideoCard(video) {
   const link = document.createElement('a');
   link.className = 'video-card';
@@ -51,3 +76,4 @@ function renderVideoPage() {
 }
 
 renderVideoPage();
+setupScrollTopLinks();

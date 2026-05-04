@@ -1296,12 +1296,33 @@ function requestSceneRebuild() {
 }
 
 function setupScrollOverlayState() {
+  const topButtons = document.querySelectorAll('.top-button');
+
   const updateScrollState = () => {
     document.body.classList.toggle('is-scrolled', window.scrollY > 80);
+
+    topButtons.forEach((button) => {
+      button.classList.toggle('is-visible', window.scrollY > 200);
+    });
   };
 
   updateScrollState();
   window.addEventListener('scroll', updateScrollState, { passive: true });
+}
+
+function setupScrollTopLinks() {
+  const scrollTopLinks = document.querySelectorAll('.js-scroll-top');
+
+  scrollTopLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  });
 }
 
 function setupSiteMenu() {
@@ -1381,6 +1402,7 @@ async function init() {
   state.fluid.setPointerDown(false);
   setupResizeHandler();
   setupTargetControls();
+  setupScrollTopLinks();
   setupSiteMenu();
   renderDiscographyPreview();
   renderVideoPreview();
