@@ -1,15 +1,15 @@
-import logoImageUrl from '../../assets/logo.png';
-import { albums } from './albums.js';
-import { FluidSimulation } from './fluid.js';
-import { ParticleSystem, PARTICLE_MOTION_MODES } from './particleSystem.js';
-import { Renderer } from './renderer.js';
-import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './targets.js';
+import logoImageUrl from '../../assets/logos/logo.png';
+import { albums } from './data/albums.js';
+import { getVideoItems } from './data/video-data.js';
+import { FluidSimulation } from './webgl/fluid.js';
+import { ParticleSystem, PARTICLE_MOTION_MODES } from './webgl/particleSystem.js';
+import { Renderer } from './webgl/renderer.js';
+import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './webgl/targets.js';
 import {
   formatTimeLeftJST,
   getDaysLeftJST,
   scheduleMidnightUpdate,
 } from './utils/date.js';
-import { getVideoItems } from './video-data.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
 const RESIZE_DEBOUNCE_MS = 120;
@@ -583,7 +583,7 @@ function createDiscographyMusicCard(album, index) {
   ]
     .filter(Boolean)
     .join(' ');
-  link.href = `./discography-detail.html?id=${encodeURIComponent(album.id)}`;
+  link.href = `./pages/discography-detail.html?id=${encodeURIComponent(album.id)}`;
   link.dataset.albumId = album.id;
   link.setAttribute('aria-label', `${album.title} の詳細を見る`);
 

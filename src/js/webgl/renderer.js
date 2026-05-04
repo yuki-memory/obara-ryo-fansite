@@ -1,5 +1,5 @@
-import particleFragSource from '../shaders/particle.frag.glsl?raw';
-import particleVertSource from '../shaders/particle.vert.glsl?raw';
+import particleFragSource from '../../shaders/particle.frag.glsl?raw';
+import particleVertSource from '../../shaders/particle.vert.glsl?raw';
 
 function shaderTypeName(gl, type) {
   if (type === gl.VERTEX_SHADER) {

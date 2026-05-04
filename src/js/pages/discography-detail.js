@@ -1,4 +1,4 @@
-import { albums } from './albums.js';
+import { albums } from '../data/albums.js';
 
 function setupScrollTopLinks() {
   const scrollTopLinks = document.querySelectorAll('.js-scroll-top');

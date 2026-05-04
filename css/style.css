@@ -881,27 +881,27 @@ body.is-menu-open .site-menu__panel {
 }
 
 .artist__profile-photo--1 {
-  background-image: url("../images/artist__001.webp");
+  background-image: url("../assets/images/artists/artist__001.webp");
   animation-delay: 0s;
 }
 
 .artist__profile-photo--2 {
-  background-image: url("../images/artist__002.webp");
+  background-image: url("../assets/images/artists/artist__002.webp");
   animation-delay: 5s;
 }
 
 .artist__profile-photo--3 {
-  background-image: url("../images/artist__003.webp");
+  background-image: url("../assets/images/artists/artist__003.webp");
   animation-delay: 10s;
 }
 
 .artist__profile-photo--4 {
-  background-image: url("../images/artist__004.webp");
+  background-image: url("../assets/images/artists/artist__004.webp");
   animation-delay: 15s;
 }
 
 .artist__profile-photo--5 {
-  background-image: url("../images/artist__005.webp");
+  background-image: url("../assets/images/artists/artist__005.webp");
   animation-delay: 20s;
 }
 
@@ -1236,7 +1236,7 @@ body.is-menu-open .site-menu__panel {
 .discography-section__video-thumb {
   width: min(36vw, 320px);
   aspect-ratio: 16 / 9;
-  border-radius: var(--radius-card);
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -2823,7 +2823,6 @@ body.is-menu-open .site-menu__panel {
 .album-section__cover,
 .album-section__thumbnail-image,
 .discography-section__image,
-.discography-section__video-thumb,
 .discography-page__image,
 .video-card__thumbnail,
 .discography-detail-page__visual,
@@ -2856,7 +2855,6 @@ body.is-menu-open .site-menu__panel {
   }
 
   .discography-section__image,
-  .discography-section__video-thumb,
   .discography-page__image,
   .video-card__thumbnail,
   .discography-detail-page__visual {

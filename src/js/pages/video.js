@@ -1,4 +1,4 @@
-import { getVideoItems } from './video-data.js';
+import { getVideoItems } from '../data/video-data.js';
 
 function setupScrollTopLinks() {
   const scrollTopLinks = document.querySelectorAll('.js-scroll-top');

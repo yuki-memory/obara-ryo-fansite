@@ -1,11 +1,14 @@
+const albumImagePath = (fileName) =>
+  new URL(`../../../assets/images/albums/${fileName}`, import.meta.url).href;
+
 export const albums = [
   {
     id: 'album-placeholder-0',
     type: '1st Digital Single',
     title: 'Goodday!!',
     releaseDate: '2020-05-17',
-    image: './images/album__001.webp',
-    jacket: './images/album__001.webp',
+    image: albumImagePath('album__001.webp'),
+    jacket: albumImagePath('album__001.webp'),
     tracks: ['Goodday!!'],
     links: {
       appleMusic: 'https://music.apple.com/jp/album/goodday/1513538072?i=1513538073',
@@ -23,8 +26,8 @@ export const albums = [
     type: '1st Single',
     title: 'Re:shine',
     releaseDate: '2021-06-12',
-    image: './images/album__002.webp',
-    jacket: './images/album__002.webp',
+    image: albumImagePath('album__002.webp'),
+    jacket: albumImagePath('album__002.webp'),
     tracks: ['Re:shine', 'Sunny ship'],
     links: {
       linkcore: 'https://linkco.re/zMavf2pr',
@@ -50,8 +53,8 @@ export const albums = [
     type: '2nd Single',
     title: '全力！ジェリーフィッシュ',
     releaseDate: '2021-08-14',
-    image: './images/album__003.webp',
-    jacket: './images/album__003.webp',
+    image: albumImagePath('album__003.webp'),
+    jacket: albumImagePath('album__003.webp'),
     tracks: ['全力！ジェリーフィッシュ', 'ココじゃない透明'],
     links: {
       linkcore: 'https://linkco.re/RGtr3tDq',
@@ -72,8 +75,8 @@ export const albums = [
     type: '3rd Single',
     title: 'POP STEP 脱兎！',
     releaseDate: '2021-09-04',
-    image: './images/album__004.webp',
-    jacket: './images/album__004.webp',
+    image: albumImagePath('album__004.webp'),
+    jacket: albumImagePath('album__004.webp'),
     tracks: ['POP STEP 脱兎！', 'One Punch Punish!'],
     links: {
       linkcore: 'https://linkco.re/MEV5SeaE',
@@ -99,8 +102,8 @@ export const albums = [
     type: '4th Single',
     title: 'オンリーワンダーランド',
     releaseDate: '2021-10-12',
-    image: './images/album__005.webp',
-    jacket: './images/album__005.webp',
+    image: albumImagePath('album__005.webp'),
+    jacket: albumImagePath('album__005.webp'),
     tracks: ['オンリーワンダーランド', 'リングリングソング'],
     links: {
       linkcore: 'https://linkco.re/PXHFXsB2',
@@ -115,8 +118,8 @@ export const albums = [
     type: '1st Album',
     title: 'PUZZLE',
     releaseDate: '2021-10-02',
-    image: './images/album__006.webp',
-    jacket: './images/album__006.webp',
+    image: albumImagePath('album__006.webp'),
+    jacket: albumImagePath('album__006.webp'),
     tracks: [
       'PUZZLE',
       'RAKUYOU SPLASH！',
@@ -146,8 +149,8 @@ export const albums = [
     type: '5th Single',
     title: 'ビバ！バビデブー',
     releaseDate: '2023-07-01',
-    image: './images/album__007.webp',
-    jacket: './images/album__007.webp',
+    image: albumImagePath('album__007.webp'),
+    jacket: albumImagePath('album__007.webp'),
     tracks: ['ビバ！バビデブー', 'step!step!step!'],
     links: {
       linkcore: 'https://linkco.re/65tbp7Mf',
@@ -162,8 +165,8 @@ export const albums = [
     type: '2nd Digital Single',
     title: 'ぐるぐるビクトリー',
     releaseDate: '2024-06-20',
-    image: './images/album__008.webp',
-    jacket: './images/album__008.webp',
+    image: albumImagePath('album__008.webp'),
+    jacket: albumImagePath('album__008.webp'),
     tracks: ['ぐるぐるビクトリー'],
     links: {
       linkcore: 'https://linkco.re/gEnGDqam',
@@ -178,8 +181,8 @@ export const albums = [
     type: '6th Single',
     title: 'スーパーヒーロー',
     releaseDate: '2024-10-05',
-    image: './images/album__009.webp',
-    jacket: './images/album__009.webp',
+    image: albumImagePath('album__009.webp'),
+    jacket: albumImagePath('album__009.webp'),
     tracks: ['スーパーヒーロー', 'ぐるぐるビクトリー'],
     links: {
       linkcore: 'https://linkco.re/5Hq3XzS3?lang=ja',
@@ -194,8 +197,8 @@ export const albums = [
     type: '1st Acoustic Album',
     title: 'MOON LIGHT',
     releaseDate: '2025-02-16',
-    image: './images/album__010.webp',
-    jacket: './images/album__010.webp',
+    image: albumImagePath('album__010.webp'),
+    jacket: albumImagePath('album__010.webp'),
     tracks: [
       '僕はYumekui',
       'ココじゃない透明',
@@ -217,8 +220,8 @@ export const albums = [
     type: '7th Single',
     title: 'flower',
     releaseDate: '2025-10-04',
-    image: './images/album__011.webp',
-    jacket: './images/album__011.webp',
+    image: albumImagePath('album__011.webp'),
+    jacket: albumImagePath('album__011.webp'),
     tracks: ['flower', 'シアワセノリユウ'],
     links: {
       tunecore: 'https://www.tunecore.co.jp/artists/obararyo',
@@ -239,8 +242,8 @@ export const albums = [
     type: '3rd Digital Single',
     title: 'STORY',
     releaseDate: '2025-12-08',
-    image: './images/album__012.webp',
-    jacket: './images/album__012.webp',
+    image: albumImagePath('album__012.webp'),
+    jacket: albumImagePath('album__012.webp'),
     tracks: ['STORY'],
     links: {},
     videos: [
