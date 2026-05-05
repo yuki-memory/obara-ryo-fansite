@@ -6,7 +6,7 @@
   - .is-active is used for JS-driven state.
 */
 
-@import url("https://fonts.googleapis.com/css2?family=Nikukyu&family=Noto+Sans+JP:wght@400;600;700&family=Zen+Maru+Gothic:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nikukyu&family=Noto+Sans+JP:wght@400;600;700&family=Patrick+Hand&family=Zen+Maru+Gothic:wght@400;700&display=swap");
 
 * {
   box-sizing: border-box;
@@ -119,6 +119,15 @@ body.is-scrolled .bg-overlay {
   background: transparent;
   padding: 0;
   cursor: pointer;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+}
+
+body.is-menu-open .site-menu-button {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .site-menu-button__bar {
@@ -134,11 +143,13 @@ body.is-scrolled .bg-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  display: flex;
-  justify-content: flex-end;
-  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background:
+    radial-gradient(
+      circle at 16% 18%,
+      color-mix(in srgb, #ffffff 58%, transparent),
+      transparent 24%
+    ),
+    linear-gradient(145deg, #f6dbe7 0%, #dfd1f4 58%, #f7eef2 100%);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -157,81 +168,157 @@ body.is-menu-open .site-menu {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(420px, 86vw);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   height: 100%;
-  padding: 72px 48px 48px;
-  background: color-mix(in srgb, var(--color-bg-sub) 94%, var(--color-bg));
-  box-shadow: -24px 0 60px
-    color-mix(in srgb, var(--color-accent-soft) 18%, transparent);
-  transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  min-height: 100svh;
+  padding: clamp(88px, 11vh, 132px) 28px clamp(94px, 12vh, 132px);
+  overflow: hidden;
+  transform: translateY(12px);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body.is-menu-open .site-menu__panel {
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
 .site-menu__close {
   position: absolute;
-  top: 28px;
-  left: 32px;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   border: 0;
-  background: transparent;
-  color: color-mix(in srgb, var(--color-text) 88%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, #ffffff 82%, transparent);
+  color: color-mix(in srgb, var(--color-text) 78%, #b87c9b);
   cursor: pointer;
-  font-size: 36px;
+  font-family: var(--font-body);
+  font-size: 30px;
   line-height: 1;
+  opacity: 0;
   padding: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+  visibility: hidden;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease;
 }
 
-.site-menu__eyebrow {
-  margin: 0 0 32px;
-  color: color-mix(in srgb, var(--color-text) 56%, transparent);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+body.is-menu-open .site-menu__close {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+  visibility: visible;
+}
+
+.site-menu__close:hover,
+.site-menu__close:focus-visible {
+  background: color-mix(in srgb, #ffffff 94%, transparent);
+  color: #d96097;
+  outline: none;
+  transform: rotate(6deg);
+}
+
+.site-menu__decoration {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.site-menu__decoration--top {
+  top: clamp(20px, 4vw, 42px);
+  left: clamp(18px, 4vw, 46px);
+  width: clamp(96px, 15vw, 176px);
+  opacity: 0.52;
+  transform: rotate(-7deg);
+}
+
+.site-menu__decoration--bottom {
+  right: clamp(10px, 5vw, 70px);
+  bottom: clamp(62px, 7vh, 90px);
+  width: clamp(112px, 18vw, 230px);
+  opacity: 0.82;
 }
 
 .site-menu__list {
-  display: grid;
-  gap: 12px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(22px, 3.1vh, 32px);
   margin: 0;
   padding: 0;
   list-style: none;
+  transform: translateY(-5vh);
 }
 
 .site-menu__link {
-  display: block;
-  border-radius: 999px;
-  color: color-mix(in srgb, var(--color-text) 88%, transparent);
-  font-family: var(--font-heading);
-  font-size: clamp(24px, 4vw, 40px);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  padding: 14px 18px;
+  position: relative;
+  display: inline-block;
+  color: color-mix(in srgb, var(--color-text) 82%, #8a5d81);
+  font-family: "Patrick Hand", cursive;
+  font-size: clamp(22px, 3.4vw, 34px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  padding: 4px 10px 8px;
   text-decoration: none;
   transition:
-    background 0.25s ease,
     color 0.25s ease,
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.site-menu__link::after {
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  left: 10px;
+  height: 1px;
+  background: color-mix(in srgb, #d96097 54%, transparent);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.72) translateY(4px);
+  transform-origin: center;
+  transition:
+    opacity 0.25s ease,
     transform 0.25s ease;
 }
 
 .site-menu__link:hover,
 .site-menu__link:focus-visible {
-  background: color-mix(in srgb, var(--color-accent-soft) 16%, transparent);
-  color: var(--color-accent);
+  color: #d96097;
   outline: none;
-  transform: translateX(4px);
+  transform: translateY(-2px) rotate(-1deg);
+}
+
+.site-menu__link:hover::after,
+.site-menu__link:focus-visible::after {
+  opacity: 1;
+  transform: scaleX(1) translateY(0);
 }
 
 .site-menu__sns {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  z-index: 1;
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: auto;
-  padding-top: 32px;
+  gap: 24px;
+  transform: translateX(-50%);
 }
 
 .site-menu__sns-link {
@@ -244,9 +331,9 @@ body.is-menu-open .site-menu__panel {
 
 .site-menu__sns img {
   display: block;
-  width: 28px;
-  height: 28px;
-  opacity: 0.72;
+  width: 25px;
+  height: 25px;
+  opacity: 0.7;
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
@@ -2232,11 +2319,32 @@ body.is-menu-open .site-menu__panel {
 
   .site-menu__panel {
     width: 100%;
-    padding: 76px 28px 40px;
+    padding: 92px 24px 96px;
   }
 
   .site-menu__link {
-    font-size: 30px;
+    font-size: 24px;
+  }
+
+  .site-menu__list {
+    gap: 26px;
+    transform: translateY(-4vh);
+  }
+
+  .site-menu__decoration--top {
+    width: 104px;
+    opacity: 0.46;
+  }
+
+  .site-menu__decoration--bottom {
+    right: 8px;
+    bottom: 58px;
+    width: 126px;
+    opacity: 0.72;
+  }
+
+  .site-menu__sns {
+    bottom: 28px;
   }
 
   .main__controls {
@@ -2749,7 +2857,6 @@ body.is-menu-open .site-menu__panel {
 }
 
 /* Radius policy: roundness is reserved for visuals; UI stays structural. */
-.site-menu__panel,
 .album-section__track-panel,
 .artist__profile-copy,
 .news-section__item,
@@ -2807,7 +2914,6 @@ body.is-menu-open .site-menu__panel {
 }
 
 .main__control-button,
-.site-menu__link,
 .album-section__thumbnail-nav,
 .album-section__track-button,
 .album-section__post-button,
