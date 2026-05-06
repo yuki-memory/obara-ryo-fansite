@@ -12,6 +12,7 @@ import {
 } from './utils/date.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
+const SITE_URL = window.location.origin;
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
 const POINTER_SMOOTHING = 0.16;
@@ -1006,8 +1007,10 @@ function getCurrentAlbumSelection() {
 
 function buildTweetText({ albumTitle, trackTitle, daysLeft }) {
   return [
+    `収録アルバム: ${albumTitle}`,
     `お気に入り楽曲: 「${trackTitle}」`,
-    `Album: ${albumTitle}`,
+    '',
+    SITE_URL,
     '',
     `#小原涼 #小原涼生誕ワンマン2026 まであと${daysLeft}日`,
   ].join('\n');
