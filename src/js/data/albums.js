@@ -1,6 +1,10 @@
 const albumImagePath = (fileName) =>
   new URL(`../../../assets/images/albums/${fileName}`, import.meta.url).href;
 
+const characterImagePath = (fileName) =>
+  new URL(`../../../assets/images/characters/${fileName}`, import.meta.url)
+    .href;
+
 export const albums = [
   {
     id: 'album-placeholder-0',
@@ -11,7 +15,8 @@ export const albums = [
     jacket: albumImagePath('album__001.webp'),
     tracks: ['Goodday!!'],
     links: {
-      appleMusic: 'https://music.apple.com/jp/album/goodday/1513538072?i=1513538073',
+      appleMusic:
+        'https://music.apple.com/jp/album/goodday/1513538072?i=1513538073',
     },
     videos: [
       {
@@ -37,12 +42,12 @@ export const albums = [
     },
     videos: [
       {
-        title: 'Re:shine（MV）',
+        title: 'Re:shine（mv）',
         kind: 'Music Video',
         url: 'https://www.youtube.com/watch?v=JkIWtN9n2jU',
       },
       {
-        title: 'Sunny ship（MV）',
+        title: 'Sunny ship（mv）',
         kind: 'Music Video',
         url: 'https://www.youtube.com/watch?v=ojEv2AvznHk',
       },
@@ -59,7 +64,8 @@ export const albums = [
     links: {
       linkcore: 'https://linkco.re/RGtr3tDq',
       spotify: 'https://open.spotify.com/intl-ja/album/6siXpE8l9TSFFB6c9dbKD3',
-      appleMusic: 'https://music.apple.com/jp/album/zenryoku-jelly-fish-single/1693065578',
+      appleMusic:
+        'https://music.apple.com/jp/album/zenryoku-jelly-fish-single/1693065578',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0C8FSNZLX',
     },
     videos: [
@@ -81,7 +87,8 @@ export const albums = [
     links: {
       linkcore: 'https://linkco.re/MEV5SeaE',
       spotify: 'https://open.spotify.com/intl-ja/album/5qsnyaaZdBmTIy7GwBntJd',
-      appleMusic: 'https://music.apple.com/jp/album/pop-step-datto-single/1693075171',
+      appleMusic:
+        'https://music.apple.com/jp/album/pop-step-datto-single/1693075171',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0C8GXGVFT',
     },
     videos: [
@@ -108,7 +115,8 @@ export const albums = [
     links: {
       linkcore: 'https://linkco.re/PXHFXsB2',
       spotify: 'https://open.spotify.com/intl-ja/album/20M5xhWivHPTdxX1JEZB5H',
-      appleMusic: 'https://music.apple.com/jp/album/only-wonderland-single/1693075217',
+      appleMusic:
+        'https://music.apple.com/jp/album/only-wonderland-single/1693075217',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0C8L6QFFR',
     },
     videos: [],
@@ -155,7 +163,8 @@ export const albums = [
     links: {
       linkcore: 'https://linkco.re/65tbp7Mf',
       spotify: 'https://open.spotify.com/intl-ja/album/3J0H6AVduzcSrOYNLfJK1F',
-      appleMusic: 'https://music.apple.com/jp/album/viva-bobbidi-boo-single/1746003520',
+      appleMusic:
+        'https://music.apple.com/jp/album/viva-bobbidi-boo-single/1746003520',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0D4186V22',
     },
     videos: [],
@@ -171,7 +180,8 @@ export const albums = [
     links: {
       linkcore: 'https://linkco.re/gEnGDqam',
       spotify: 'https://open.spotify.com/intl-ja/album/43fiIaDLhaL1Nxpp0O7FBu',
-      appleMusic: 'https://music.apple.com/jp/album/guru-guru-victory-single/1751155922',
+      appleMusic:
+        'https://music.apple.com/jp/album/guru-guru-victory-single/1751155922',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0D6LRFGGT',
     },
     videos: [],
@@ -187,7 +197,8 @@ export const albums = [
     links: {
       linkcore: 'https://linkco.re/5Hq3XzS3?lang=ja',
       spotify: 'https://open.spotify.com/intl-ja/album/0kyn6U2Ey3a1AYAU5epuRs',
-      appleMusic: 'https://music.apple.com/jp/album/superhero-single/1784386411',
+      appleMusic:
+        'https://music.apple.com/jp/album/superhero-single/1784386411',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0DPZ9STXH',
     },
     videos: [],
@@ -209,7 +220,7 @@ export const albums = [
     links: {},
     videos: [
       {
-        title: '僕はYumekui（MV）',
+        title: '僕はYumekui（mv）',
         kind: 'Music Video',
         url: 'https://www.youtube.com/watch?v=DrUstvPHPnE',
       },
@@ -222,6 +233,7 @@ export const albums = [
     releaseDate: '2025-10-04',
     image: albumImagePath('album__011.webp'),
     jacket: albumImagePath('album__011.webp'),
+    characterImage: characterImagePath('character_pose_smile.webp'),
     tracks: ['flower', 'シアワセノリユウ'],
     links: {
       tunecore: 'https://www.tunecore.co.jp/artists/obararyo',
@@ -231,7 +243,7 @@ export const albums = [
     },
     videos: [
       {
-        title: 'flower（MV）',
+        title: 'flower（mv）',
         kind: 'Music Video',
         url: 'https://www.youtube.com/watch?v=evC0dNJGF6E',
       },
@@ -244,6 +256,7 @@ export const albums = [
     releaseDate: '2025-12-08',
     image: albumImagePath('album__012.webp'),
     jacket: albumImagePath('album__012.webp'),
+    characterImage: characterImagePath('character_pose_point.webp'),
     tracks: ['STORY'],
     links: {},
     videos: [

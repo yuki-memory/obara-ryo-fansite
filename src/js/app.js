@@ -613,6 +613,16 @@ function createDiscographyMusicCard(album, index) {
   body.append(type, title, releaseDate);
   link.append(imageWrapper, body);
 
+  if (album.characterImage) {
+    const character = document.createElement('img');
+    character.className = 'discography-section__card-character';
+    character.src = album.characterImage;
+    character.alt = '';
+    character.loading = 'lazy';
+    character.setAttribute('aria-hidden', 'true');
+    link.appendChild(character);
+  }
+
   return link;
 }
 
@@ -632,44 +642,65 @@ function renderDiscographyPreview() {
 
 function createDiscographyVideoCard(video, index) {
   const item = document.createElement('li');
-  item.className = 'discography-section__item';
+  item.className = [
+    'discography-section__item',
+    'video-item',
+    index % 2 === 1 ? 'video-item--reverse' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  item.dataset.albumId = video.albumId;
 
-  const link = document.createElement('a');
-  link.className = [
-    'discography-section__link',
-    index % 2 === 1
-      ? 'discography-section__link--video-reverse'
-      : 'discography-section__link--video',
-  ].join(' ');
-  link.href = video.url;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.dataset.albumId = video.albumId;
-  link.setAttribute('aria-label', `${video.title} をYouTubeで見る`);
-
-  const thumbnail = document.createElement('div');
-  thumbnail.className = 'discography-section__video-thumb';
+  const thumbnail = document.createElement('a');
+  thumbnail.className = 'video-item__thumb';
+  thumbnail.href = video.url;
+  thumbnail.target = '_blank';
+  thumbnail.rel = 'noopener noreferrer';
+  thumbnail.dataset.albumId = video.albumId;
+  thumbnail.setAttribute('aria-label', `${video.title} をYouTubeで見る`);
 
   const image = document.createElement('img');
   image.src = video.thumbnail;
   image.alt = `${video.title} サムネイル`;
   image.loading = 'lazy';
 
+  const play = document.createElement('span');
+  play.className = 'video-item__play';
+  play.setAttribute('aria-hidden', 'true');
+
   const body = document.createElement('div');
-  body.className = 'discography-section__body';
+  body.className = 'video-item__content';
 
   const type = document.createElement('p');
-  type.className = 'discography-section__type';
+  type.className = 'video-item__type';
   type.textContent = video.kind;
 
   const title = document.createElement('h3');
-  title.className = 'discography-section__title';
+  title.className = 'video-item__title';
   title.textContent = video.title;
 
-  thumbnail.appendChild(image);
+  const description = document.createElement('p');
+  description.className = 'video-item__description';
+  description.textContent = video.description || '';
+
+  const more = document.createElement('a');
+  more.className = 'video-item__link';
+  more.href = video.url;
+  more.target = '_blank';
+  more.rel = 'noopener noreferrer';
+  more.dataset.albumId = video.albumId;
+  more.setAttribute('aria-label', `${video.title} をYouTubeで見る`);
+  more.textContent = 'play video';
+
+  thumbnail.append(image, play);
   body.append(type, title);
-  link.append(thumbnail, body);
-  item.appendChild(link);
+
+  if (description.textContent) {
+    body.appendChild(description);
+  }
+
+  body.appendChild(more);
+  item.append(thumbnail, body);
 
   return item;
 }
@@ -680,6 +711,8 @@ function renderVideoPreview() {
   if (!videoList) {
     return;
   }
+
+  videoList.classList.add('video-list');
 
   const cards = getVideoItems({ limit: 2 }).map((video, index) =>
     createDiscographyVideoCard(video, index),
