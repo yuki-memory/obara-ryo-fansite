@@ -2586,6 +2586,11 @@ body.is-menu-open .site-menu__close {
 }
 
 @media (min-width: 769px) {
+  .main__eyebrow,
+  .main__title {
+    transform: translateY(-228px);
+  }
+
   .site-menu-button {
     position: fixed;
     top: 32px;
