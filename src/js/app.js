@@ -1,20 +1,17 @@
 import logoImageUrl from '../../assets/logos/logo.png';
+import { initCountdownController } from './controllers/countdownController.js';
+import { initMenuController } from './controllers/menuController.js';
+import { initPostLiveController } from './controllers/postLiveController.js';
 import { albums } from './data/albums.js';
 import { getVideoItems } from './data/video-data.js';
 import { FluidSimulation } from './webgl/fluid.js';
 import { ParticleSystem, PARTICLE_MOTION_MODES } from './webgl/particleSystem.js';
 import { Renderer } from './webgl/renderer.js';
 import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './webgl/targets.js';
-import {
-  formatTimeLeftJST,
-  getDaysLeftJST,
-  scheduleMidnightUpdate,
-} from './utils/date.js';
+import { scheduleMidnightUpdate } from './utils/date.js';
 import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
-// 開発確認用。本番前に false に戻すこと
-const FORCE_POST_LIVE_MODE = false;
 const SITE_URL = window.location.origin;
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
@@ -89,10 +86,9 @@ const LIVE_COUNTDOWN_BACKGROUND_COLORS = Object.freeze({
   particle: [0.91, 0.31, 0.96],
 });
 
-const countdownState = {
-  previousLines: null,
-  intervalId: null,
-};
+let countdownController = null;
+let postLiveController = null;
+let cleanupMenuController = () => {};
 
 // App-level orchestration state. Rendering/physics internals live in dedicated modules.
 const state = {
@@ -200,15 +196,15 @@ function buildCurrentLogoTarget() {
 }
 
 function getLiveDaysLeft() {
-  return getDaysLeftJST(LIVE_DATE);
+  return countdownController.getLiveDaysLeft();
 }
 
 function isPostLiveMode() {
-  return FORCE_POST_LIVE_MODE || Date.now() >= LIVE_DATE.getTime();
+  return postLiveController.isPostLive();
 }
 
 function syncPostLiveDomState() {
-  document.body.classList.toggle('is-post-live', isPostLiveMode());
+  postLiveController.sync();
 }
 
 function applyRenderTone() {
@@ -246,13 +242,7 @@ function buildPostLiveAmbientTarget() {
 }
 
 function getCountdownLines() {
-  const days = getLiveDaysLeft();
-  const timeLeft = formatTimeLeftJST(LIVE_DATE);
-
-  return [
-    `${days}DAYS`,
-    timeLeft,
-  ];
+  return countdownController.getCountdownLines();
 }
 
 function buildDaysTargetFromLines(lines) {
@@ -284,73 +274,6 @@ function buildCurrentDaysTarget() {
   return buildDaysTargetFromLines(lines);
 }
 
-function getChangedCharIndexes(previousLines, nextLines) {
-  if (!previousLines) {
-    return null;
-  }
-
-  const changed = [];
-
-  nextLines.forEach((line, lineIndex) => {
-    const previousLine = previousLines[lineIndex] || '';
-    const maxLength = Math.max(previousLine.length, line.length);
-
-    for (let charIndex = 0; charIndex < maxLength; charIndex += 1) {
-      if (previousLine[charIndex] !== line[charIndex]) {
-        changed.push({ lineIndex, charIndex });
-      }
-    }
-  });
-
-  return changed;
-}
-
-function updateParticleCountdownDiff() {
-  if (state.activeTarget !== 'days') {
-    return;
-  }
-
-  const nextLines = getCountdownLines();
-  const previousLines = countdownState.previousLines;
-
-  if (!previousLines) {
-    applyTarget('days');
-    return;
-  }
-
-  const shouldRebuildAll = previousLines.some((line, index) => (
-    line.length !== (nextLines[index] || '').length
-  ));
-
-  if (shouldRebuildAll) {
-    applyTarget('days');
-    return;
-  }
-
-  const changed = getChangedCharIndexes(previousLines, nextLines);
-
-  if (!changed || changed.length === 0) {
-    return;
-  }
-
-  const nextTarget = buildDaysTargetFromLines(nextLines);
-  const changedGroupKeys = changed.map(
-    ({ lineIndex, charIndex }) => `line-${lineIndex}-char-${charIndex}`,
-  );
-
-  if (!nextTarget.groupedPoints) {
-    applyTarget('days');
-    return;
-  }
-
-  state.particleSystem.softUpdateTargetsByGroup(
-    nextTarget.groupedPoints,
-    changedGroupKeys,
-  );
-
-  countdownState.previousLines = [...nextLines];
-}
-
 function applyTarget(targetType) {
   applyRenderTone();
 
@@ -358,7 +281,7 @@ function applyTarget(targetType) {
     state.particleSystem.setSizeScale(POST_LIVE_PARTICLE_SIZE_SCALE);
     state.particleSystem.clearTargetGroups();
     state.particleSystem.setTargets(buildPostLiveAmbientTarget());
-    countdownState.previousLines = null;
+    countdownController.setPreviousLines(null);
     state.activeTarget = targetType;
     return;
   }
@@ -373,33 +296,22 @@ function applyTarget(targetType) {
 
   if (targetType === 'days' && targetPoints.groupedPoints) {
     state.particleSystem.setTargetsByGroup(targetPoints.groupedPoints);
-    countdownState.previousLines = [...lines];
+    countdownController.setPreviousLines(lines);
   } else {
     state.particleSystem.clearTargetGroups();
     state.particleSystem.setTargets(targetPoints.points || targetPoints);
-    countdownState.previousLines = null;
+    countdownController.setPreviousLines(null);
   }
 
   state.activeTarget = targetType;
 }
 
 function startParticleCountdownTimer() {
-  stopParticleCountdownTimer();
-
-  if (isPostLiveMode()) {
-    return;
-  }
-
-  countdownState.previousLines = getCountdownLines();
-
-  countdownState.intervalId = window.setInterval(updateParticleCountdownDiff, 1000);
+  countdownController.start();
 }
 
 function stopParticleCountdownTimer() {
-  if (countdownState.intervalId !== null) {
-    window.clearInterval(countdownState.intervalId);
-    countdownState.intervalId = null;
-  }
+  countdownController.stop();
 }
 
 function setAppState(nextState) {
@@ -1478,63 +1390,28 @@ function setupScrollTopLinks() {
 }
 
 function setupSiteMenu() {
-  const menuButton = document.querySelector('.site-menu-button');
-  const siteMenu = document.getElementById('site-menu');
-  const menuCloseButton = document.querySelector('.site-menu__close');
-  const menuLinks = document.querySelectorAll('.site-menu__link');
+  cleanupMenuController = initMenuController();
+}
 
-  if (!menuButton || !siteMenu) {
-    return;
-  }
-
-  const openMenu = () => {
-    document.body.classList.add('is-menu-open');
-    menuButton.setAttribute('aria-expanded', 'true');
-    menuButton.setAttribute('aria-label', 'メニューを閉じる');
-    siteMenu.setAttribute('aria-hidden', 'false');
-    menuCloseButton?.focus();
-  };
-
-  const closeMenu = () => {
-    document.body.classList.remove('is-menu-open');
-    menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', 'メニューを開く');
-    siteMenu.setAttribute('aria-hidden', 'true');
-  };
-
-  const toggleMenu = () => {
-    if (document.body.classList.contains('is-menu-open')) {
-      closeMenu();
-      return;
-    }
-
-    openMenu();
-  };
-
-  menuButton.addEventListener('click', toggleMenu);
-  menuCloseButton?.addEventListener('click', () => {
-    closeMenu();
-    menuButton.focus();
+function setupControllers() {
+  postLiveController = initPostLiveController({
+    liveDate: LIVE_DATE,
   });
 
-  siteMenu.addEventListener('click', (event) => {
-    if (event.target === siteMenu) {
-      closeMenu();
-    }
-  });
-
-  menuLinks.forEach((link) => {
-    link.addEventListener('click', closeMenu);
-  });
-
-  window.addEventListener('keydown', (event) => {
-    if (
-      event.key === 'Escape' &&
-      document.body.classList.contains('is-menu-open')
-    ) {
-      closeMenu();
-      menuButton.focus();
-    }
+  countdownController = initCountdownController({
+    liveDate: LIVE_DATE,
+    isEnabled: () => !isPostLiveMode(),
+    isActive: () => state.activeTarget === 'days',
+    applyFullTarget: () => {
+      applyTarget('days');
+    },
+    buildTargetFromLines: buildDaysTargetFromLines,
+    softUpdateTargetsByGroup: (groupedPoints, changedGroupKeys) => {
+      state.particleSystem.softUpdateTargetsByGroup(
+        groupedPoints,
+        changedGroupKeys,
+      );
+    },
   });
 }
 
@@ -1549,6 +1426,7 @@ async function init() {
   state.fluid = new FluidSimulation(state.renderer.getContext());
   state.logoImage = await loadImage(logoImageUrl);
 
+  setupControllers();
   syncPostLiveDomState();
   rebuildScene();
   state.pointerDown = false;
@@ -1575,6 +1453,9 @@ async function init() {
     }
 
     cancelAutoSequences();
+    countdownController?.cleanup();
+    postLiveController?.cleanup();
+    cleanupMenuController();
     state.fluid.dispose();
   });
 
