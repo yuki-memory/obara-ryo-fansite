@@ -10,6 +10,7 @@ import {
   getDaysLeftJST,
   scheduleMidnightUpdate,
 } from './utils/date.js';
+import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
 // 開発確認用。本番前に false に戻すこと
@@ -1470,19 +1471,9 @@ function setupScrollOverlayState() {
 }
 
 function setupScrollTopLinks() {
-  const scrollTopLinks = document.querySelectorAll(
-    '.js-scroll-top, .js-scroll-home',
-  );
-
-  scrollTopLinks.forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    });
+  setupScrollTopLinkHandlers({
+    linkSelector: '.js-scroll-top, .js-scroll-home',
+    includeTopButtonVisibility: false,
   });
 }
 
