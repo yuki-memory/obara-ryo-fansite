@@ -1132,15 +1132,6 @@ function initAlbumSection() {
   albumState.elements = elements;
   albumState.albumIndex = normalizeAlbumIndex(albumState.albumIndex);
 
-  console.table(
-    albums.map((album, index) => ({
-      index,
-      id: album.id,
-      title: album.title,
-      image: album.image,
-    })),
-  );
-
   elements.postButton?.addEventListener('click', () => {
     openSelectedTrackTweet();
   });
