@@ -79,6 +79,8 @@ export class Renderer {
     this.canvas = canvas;
     this.gl = gl;
     this.dpr = 1;
+    this.clearColor = [1.0, 0.91, 0.91, 1.0];
+    this.particleColor = [0.91, 0.31, 0.96];
 
     this.program = createProgram(gl, particleVertSource, particleFragSource);
     this.aPosition = gl.getAttribLocation(this.program, 'a_position');
@@ -124,6 +126,14 @@ export class Renderer {
     return this.gl;
   }
 
+  setClearColor(r, g, b, a = 1) {
+    this.clearColor = [r, g, b, a];
+  }
+
+  setParticleColor(r, g, b) {
+    this.particleColor = [r, g, b];
+  }
+
   render(particles) {
     // Renderer is draw-only: it receives prepared particle data from app/system.
     const gl = this.gl;
@@ -148,7 +158,7 @@ export class Renderer {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    gl.clearColor(1.0, 0.91, 0.91, 1.0);
+    gl.clearColor(...this.clearColor);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.useProgram(this.program);
@@ -158,7 +168,7 @@ export class Renderer {
     }
 
     if (this.uColor) {
-      gl.uniform3f(this.uColor, 0.91, 0.31, 0.96);
+      gl.uniform3f(this.uColor, ...this.particleColor);
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);

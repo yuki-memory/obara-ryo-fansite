@@ -12,6 +12,8 @@ import {
 } from './utils/date.js';
 
 const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
+// 開発確認用。本番前に false に戻すこと
+const FORCE_POST_LIVE_MODE = false;
 const SITE_URL = window.location.origin;
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
@@ -25,6 +27,7 @@ const APP_STATES = Object.freeze({
   MORPH_TO_DAYS: 'morphToDays',
   COUNTDOWN: 'countdown',
   LOGIN_SEQUENCE: 'loginSequence',
+  POST_LIVE: 'postLive',
 });
 
 const LOGIN_SEQUENCE_TIMINGS = Object.freeze({
@@ -75,6 +78,15 @@ const DAYS_TARGET_LAYOUT = {
   offsetY: 0,
 };
 const DAYS_PARTICLE_SIZE_SCALE = 1;
+const POST_LIVE_PARTICLE_SIZE_SCALE = 0.58;
+const POST_LIVE_BACKGROUND_COLORS = Object.freeze({
+  clear: [0.08, 0.055, 0.075, 1],
+  particle: [0.95, 0.48, 0.72],
+});
+const LIVE_COUNTDOWN_BACKGROUND_COLORS = Object.freeze({
+  clear: [1.0, 0.91, 0.91, 1],
+  particle: [0.91, 0.31, 0.96],
+});
 
 const countdownState = {
   previousLines: null,
@@ -190,6 +202,48 @@ function getLiveDaysLeft() {
   return getDaysLeftJST(LIVE_DATE);
 }
 
+function isPostLiveMode() {
+  return FORCE_POST_LIVE_MODE || Date.now() >= LIVE_DATE.getTime();
+}
+
+function syncPostLiveDomState() {
+  document.body.classList.toggle('is-post-live', isPostLiveMode());
+}
+
+function applyRenderTone() {
+  if (!state.renderer) {
+    return;
+  }
+
+  const colors = isPostLiveMode()
+    ? POST_LIVE_BACKGROUND_COLORS
+    : LIVE_COUNTDOWN_BACKGROUND_COLORS;
+
+  state.renderer.setClearColor(...colors.clear);
+  state.renderer.setParticleColor(...colors.particle);
+}
+
+function buildPostLiveAmbientTarget() {
+  const particleCount = state.particleSystem.getParticleCount();
+  const isMobile = state.width < 768;
+  const horizontalPadding = isMobile ? 18 : 40;
+  const topPadding = isMobile ? 54 : 48;
+  const bottomPadding = isMobile ? 42 : 48;
+
+  return Array.from({ length: particleCount }, (_, index) => {
+    const columnRatio = ((index * 0.618033988749895) % 1);
+    const rowRatio = ((index * 0.4142135623730951) % 1);
+    const waveX = Math.sin(index * 0.73) * (isMobile ? 10 : 22);
+    const waveY = Math.cos(index * 0.47) * (isMobile ? 8 : 18);
+
+    return {
+      x: horizontalPadding + columnRatio * Math.max(1, state.width - horizontalPadding * 2) + waveX,
+      y: topPadding + rowRatio * Math.max(1, state.height - topPadding - bottomPadding) + waveY,
+      type: index % 3 === 0 ? 'days' : 'time',
+    };
+  });
+}
+
 function getCountdownLines() {
   const days = getLiveDaysLeft();
   const timeLeft = formatTimeLeftJST(LIVE_DATE);
@@ -297,6 +351,17 @@ function updateParticleCountdownDiff() {
 }
 
 function applyTarget(targetType) {
+  applyRenderTone();
+
+  if (targetType === 'ambient') {
+    state.particleSystem.setSizeScale(POST_LIVE_PARTICLE_SIZE_SCALE);
+    state.particleSystem.clearTargetGroups();
+    state.particleSystem.setTargets(buildPostLiveAmbientTarget());
+    countdownState.previousLines = null;
+    state.activeTarget = targetType;
+    return;
+  }
+
   const lines = targetType === 'days' ? getCountdownLines() : null;
   const targetPoints =
     targetType === 'days' ? buildDaysTargetFromLines(lines) : buildCurrentLogoTarget();
@@ -319,6 +384,11 @@ function applyTarget(targetType) {
 
 function startParticleCountdownTimer() {
   stopParticleCountdownTimer();
+
+  if (isPostLiveMode()) {
+    return;
+  }
+
   countdownState.previousLines = getCountdownLines();
 
   countdownState.intervalId = window.setInterval(updateParticleCountdownDiff, 1000);
@@ -340,6 +410,11 @@ function setParticleMotionMode(nextMode) {
 }
 
 function showLogoTarget() {
+  if (isPostLiveMode()) {
+    showPostLiveTarget();
+    return;
+  }
+
   stopParticleCountdownTimer();
   setAppState(APP_STATES.LOGO);
   setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
@@ -347,11 +422,30 @@ function showLogoTarget() {
 }
 
 function showDaysTarget() {
+  if (isPostLiveMode()) {
+    showPostLiveTarget();
+    return;
+  }
+
   setAppState(APP_STATES.COUNTDOWN);
   setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   applyTarget('days');
   setupJstMidnightUpdate();
   startParticleCountdownTimer();
+}
+
+function showPostLiveTarget() {
+  stopParticleCountdownTimer();
+
+  if (state.cancelMidnightUpdate) {
+    state.cancelMidnightUpdate();
+    state.cancelMidnightUpdate = null;
+  }
+
+  syncPostLiveDomState();
+  setAppState(APP_STATES.POST_LIVE);
+  setParticleMotionMode(PARTICLE_MOTION_MODES.AMBIENT);
+  applyTarget('ambient');
 }
 
 function scatterAll(power = INTRO_SEQUENCE_TIMINGS.scatterPower) {
@@ -403,6 +497,11 @@ function wait(ms) {
 }
 
 async function playIntroSequence() {
+  if (isPostLiveMode()) {
+    showPostLiveTarget();
+    return;
+  }
+
   if (state.isIntroSequenceRunning) {
     return;
   }
@@ -441,6 +540,11 @@ async function playIntroSequence() {
 }
 
 async function playLoginSequence() {
+  if (isPostLiveMode()) {
+    showPostLiveTarget();
+    return;
+  }
+
   if (state.isLoginSequenceRunning) {
     return;
   }
@@ -1142,6 +1246,13 @@ function setupJstMidnightUpdate() {
   }
 
   state.cancelMidnightUpdate = scheduleMidnightUpdate(() => {
+    syncPostLiveDomState();
+
+    if (isPostLiveMode()) {
+      showPostLiveTarget();
+      return;
+    }
+
     if (state.activeTarget === 'days') {
       applyTarget('days');
     }
@@ -1165,6 +1276,10 @@ function setupPointerInput(canvas) {
   let lastY = 0;
 
   const beginPointer = (x, y) => {
+    if (isPostLiveMode()) {
+      return;
+    }
+
     state.pointerDown = true;
     state.fluid.setPointerDown(true);
     if (!state.isLoginSequenceRunning) {
@@ -1302,9 +1417,17 @@ function rebuildScene() {
   state.fluid.resize(state.width, state.height);
 
   state.particleSystem.rebuild(state.width, state.height);
+
+  syncPostLiveDomState();
+  if (isPostLiveMode()) {
+    state.activeTarget = 'ambient';
+  }
+
   applyTarget(state.activeTarget);
 
-  if (!state.isLoginSequenceRunning) {
+  if (isPostLiveMode()) {
+    setParticleMotionMode(PARTICLE_MOTION_MODES.AMBIENT);
+  } else if (!state.isLoginSequenceRunning) {
     setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   }
 }
@@ -1435,6 +1558,7 @@ async function init() {
   state.fluid = new FluidSimulation(state.renderer.getContext());
   state.logoImage = await loadImage(logoImageUrl);
 
+  syncPostLiveDomState();
   rebuildScene();
   state.pointerDown = false;
   state.fluid.setPointerDown(false);
@@ -1464,9 +1588,13 @@ async function init() {
   });
 
   requestAnimationFrame(animate);
-  playIntroSequence().catch((error) => {
-    reportAppError('playIntroSequence', error);
-  });
+  if (isPostLiveMode()) {
+    showPostLiveTarget();
+  } else {
+    playIntroSequence().catch((error) => {
+      reportAppError('playIntroSequence', error);
+    });
+  }
 }
 
 init().catch((error) => {

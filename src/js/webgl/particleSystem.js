@@ -15,6 +15,7 @@ export const PARTICLE_MOTION_MODES = Object.freeze({
   IDLE: 'IDLE',
   INTERACT: 'INTERACT',
   RETURN: 'RETURN',
+  AMBIENT: 'AMBIENT',
 });
 
 function getParticleCount(width) {
@@ -348,6 +349,35 @@ export class ParticleSystem {
         depthInteractSpread: 0,
         depthFlowMax: 0.2,
         depthClamp: 0.42,
+      },
+      [PARTICLE_MOTION_MODES.AMBIENT]: {
+        spring: 0.012,
+        damping: 0.965,
+        maxSpeed: 1.8,
+        noiseStrength: 0.018,
+        fluidInfluence: 0,
+        fluidMaxAccel: 0,
+        fluidMaxSpeedDelta: 0,
+        fluidDisturbance: 0,
+        fluidDisturbanceFreq: 0,
+        fluidBurstScale: 1,
+        pointerForce: 0,
+        pointerMaxAccel: 0,
+        pointerMaxSpeedDelta: 0,
+        pointerRadiusRatioDesktop: 0.16,
+        pointerRadiusRatioMobile: 0.22,
+        fluidRadiusMultiplier: 1.3,
+        snapDistance: 0,
+        snapVelocityFactor: 1,
+        stopVelocityEpsilon: 0,
+        depthSpring: 0.026,
+        depthDamping: 0.96,
+        depthNoiseAmplitude: 0.08,
+        depthFlowInfluence: 0,
+        depthFlowSignedness: 0,
+        depthInteractSpread: 0,
+        depthFlowMax: 0.08,
+        depthClamp: 0.28,
       },
     };
   }
