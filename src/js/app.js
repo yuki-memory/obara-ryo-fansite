@@ -1,8 +1,10 @@
 import logoImageUrl from '../../assets/logos/logo.png';
 import { initCountdownController } from './controllers/countdownController.js';
 import { initMenuController } from './controllers/menuController.js';
+import { initNewsController } from './controllers/newsController.js';
 import { initPostLiveController } from './controllers/postLiveController.js';
 import { albums } from './data/albums.js';
+import { newsItems } from './data/news.js';
 import { getVideoItems } from './data/video-data.js';
 import { FluidSimulation } from './webgl/fluid.js';
 import { ParticleSystem, PARTICLE_MOTION_MODES } from './webgl/particleSystem.js';
@@ -1426,6 +1428,9 @@ async function init() {
   setupTargetControls();
   setupScrollTopLinks();
   setupSiteMenu();
+  initNewsController({
+    items: newsItems,
+  });
   renderDiscographyPreview();
   renderVideoPreview();
   initAlbumSection();
