@@ -1,5 +1,5 @@
-import particleFragSource from '../shaders/particle.frag.glsl?raw';
-import particleVertSource from '../shaders/particle.vert.glsl?raw';
+import particleFragSource from '../../shaders/particle.frag.glsl?raw';
+import particleVertSource from '../../shaders/particle.vert.glsl?raw';
 
 function shaderTypeName(gl, type) {
   if (type === gl.VERTEX_SHADER) {
@@ -79,6 +79,8 @@ export class Renderer {
     this.canvas = canvas;
     this.gl = gl;
     this.dpr = 1;
+    this.clearColor = [1.0, 0.91, 0.91, 1.0];
+    this.particleColor = [0.91, 0.31, 0.96];
 
     this.program = createProgram(gl, particleVertSource, particleFragSource);
     this.aPosition = gl.getAttribLocation(this.program, 'a_position');
@@ -86,6 +88,7 @@ export class Renderer {
     this.aDepth = gl.getAttribLocation(this.program, 'a_depth');
     this.aColorBias = gl.getAttribLocation(this.program, 'a_colorBias');
     this.aEnergy = gl.getAttribLocation(this.program, 'a_energy');
+    this.aType = gl.getAttribLocation(this.program, 'a_type');
     this.uResolution = gl.getUniformLocation(this.program, 'u_resolution');
     this.uColor = gl.getUniformLocation(this.program, 'u_color');
 
@@ -94,13 +97,15 @@ export class Renderer {
     this.depthBuffer = gl.createBuffer();
     this.colorBiasBuffer = gl.createBuffer();
     this.energyBuffer = gl.createBuffer();
+    this.typeBuffer = gl.createBuffer();
 
     if (
       !this.positionBuffer ||
       !this.sizeBuffer ||
       !this.depthBuffer ||
       !this.colorBiasBuffer ||
-      !this.energyBuffer
+      !this.energyBuffer ||
+      !this.typeBuffer
     ) {
       throw new Error('[Renderer] 描画バッファの初期化に失敗しました。');
     }
@@ -121,6 +126,14 @@ export class Renderer {
     return this.gl;
   }
 
+  setClearColor(r, g, b, a = 1) {
+    this.clearColor = [r, g, b, a];
+  }
+
+  setParticleColor(r, g, b) {
+    this.particleColor = [r, g, b];
+  }
+
   render(particles) {
     // Renderer is draw-only: it receives prepared particle data from app/system.
     const gl = this.gl;
@@ -130,6 +143,7 @@ export class Renderer {
     const depths = new Float32Array(count);
     const colorBiases = new Float32Array(count);
     const energies = new Float32Array(count);
+    const types = new Float32Array(count);
 
     for (let i = 0; i < count; i += 1) {
       const p = particles[i];
@@ -139,11 +153,12 @@ export class Renderer {
       depths[i] = p.depth || 0;
       colorBiases[i] = p.colorBias || 0;
       energies[i] = p.interactionGlow || 0;
+      types[i] = p.type === 'days' ? 0 : 1;
     }
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    gl.clearColor(1.0, 0.91, 0.91, 1.0);
+    gl.clearColor(...this.clearColor);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.useProgram(this.program);
@@ -153,7 +168,7 @@ export class Renderer {
     }
 
     if (this.uColor) {
-      gl.uniform3f(this.uColor, 0.922, 0.431, 0.976);
+      gl.uniform3f(this.uColor, ...this.particleColor);
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -180,6 +195,11 @@ export class Renderer {
     gl.bufferData(gl.ARRAY_BUFFER, energies, gl.DYNAMIC_DRAW);
     gl.enableVertexAttribArray(this.aEnergy);
     gl.vertexAttribPointer(this.aEnergy, 1, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.typeBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, types, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(this.aType);
+    gl.vertexAttribPointer(this.aType, 1, gl.FLOAT, false, 0, 0);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

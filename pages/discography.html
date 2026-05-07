@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Discography | 小原涼</title>
+    <link rel="stylesheet" href="../css/reset.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="discography-page" id="top">
+      <a class="back-button" href="../index.html#discography">
+        ← Back
+      </a>
+
+      <a class="top-button js-scroll-top" href="#" aria-label="ページ上部へ戻る">
+        Top
+      </a>
+
+      <header class="discography-page__hero">
+        <p class="discography-page__eyebrow">Music Works</p>
+        <h1 class="discography-page__title">Discography</h1>
+        <p class="discography-page__lead">
+          リリース作品を新しい順にまとめています。
+        </p>
+      </header>
+
+      <main class="discography-page__main">
+        <section class="discography-page__section" aria-labelledby="music-title">
+          <div class="discography-page__section-heading">
+            <p class="discography-page__section-label">Music</p>
+            <h2 class="discography-page__section-title" id="music-title">
+              Album / Single
+            </h2>
+          </div>
+
+          <div
+            class="discography-page__grid"
+            id="discography-page-list"
+            aria-live="polite"
+          ></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="../src/js/pages/discography.js"></script>
+  </body>
+</html>

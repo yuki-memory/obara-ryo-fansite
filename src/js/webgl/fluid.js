@@ -1,15 +1,15 @@
-import advectionFragSource from '../shaders/fluid/advection.frag.glsl?raw';
-import baseVertSource from '../shaders/fluid/base.vert.glsl?raw';
-import divergenceFragSource from '../shaders/fluid/divergence.frag.glsl?raw';
-import gradientSubtractFragSource from '../shaders/fluid/gradientSubtract.frag.glsl?raw';
-import jacobiFragSource from '../shaders/fluid/jacobi.frag.glsl?raw';
-import splatFragSource from '../shaders/fluid/splat.frag.glsl?raw';
+import advectionFragSource from '../../shaders/fluid/advection.frag.glsl?raw';
+import baseVertSource from '../../shaders/fluid/base.vert.glsl?raw';
+import divergenceFragSource from '../../shaders/fluid/divergence.frag.glsl?raw';
+import gradientSubtractFragSource from '../../shaders/fluid/gradientSubtract.frag.glsl?raw';
+import jacobiFragSource from '../../shaders/fluid/jacobi.frag.glsl?raw';
+import splatFragSource from '../../shaders/fluid/splat.frag.glsl?raw';
 import {
   createPingPongFBO,
   createTextureFBO,
   destroyPingPongFBO,
   destroyTextureFBO,
-} from './utils/fbo.js';
+} from '../utils/fbo.js';
 
 const MAX_PENDING_SPLATS = 24;
 const MOBILE_BREAKPOINT = 768;

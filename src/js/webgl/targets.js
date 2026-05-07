@@ -268,6 +268,213 @@ export function samplePointsFromText(text, options) {
   return points;
 }
 
+export function samplePointsFromTextLines(options) {
+  const {
+    width,
+    height,
+    sampleStep = 5,
+    alphaThreshold = 20,
+    fontFamily = '"Helvetica Neue", Arial, sans-serif',
+    maxWidthRatio = 0.64,
+    lines,
+    text,
+  } = options;
+
+  const resolvedLines = Array.isArray(lines) && lines.length > 0
+    ? lines
+    : [{ text: text ?? '', fontWeight: options.fontWeight ?? 900 }];
+  const daysText = resolvedLines[0]?.text ?? '';
+  const timeText = resolvedLines[1]?.text ?? '';
+
+  const canvas = createOffscreenCanvas(width, height);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  if (!ctx) {
+    return { points: [], groupedPoints: {} };
+  }
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = '#000';
+  ctx.strokeStyle = '#000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+
+  const isMobile = width < MOBILE_BREAKPOINT;
+  const widthRatio = isMobile ? 0.22 : 0.13;
+  const timeFontRatio = isMobile ? 0.48 : 0.32;
+  let mainFontSize = Math.min(width * widthRatio, height * 0.22, 190);
+  const minMainFontSize = 36;
+  const maxTextWidth = width * maxWidthRatio;
+
+  while (mainFontSize > minMainFontSize) {
+    ctx.font = `900 ${mainFontSize}px ${fontFamily}`;
+    const timeFontSize = mainFontSize * timeFontRatio;
+    const daysWidth = ctx.measureText(daysText).width;
+    ctx.font = `700 ${timeFontSize}px ${fontFamily}`;
+    const timeWidth = timeText ? ctx.measureText(timeText).width : 0;
+
+    if (Math.max(daysWidth, timeWidth) <= maxTextWidth) {
+      break;
+    }
+
+    mainFontSize -= 2;
+  }
+
+  const timeFontSize = mainFontSize * timeFontRatio;
+  const centerX = width * 0.5;
+  const daysY = height * 0.46;
+  const timeY = height * 0.61;
+  const timeDrawY = timeY - timeFontSize * 0.06;
+  const groupedPoints = {};
+  const groupedMeta = {};
+
+  function createCharacterRegions({
+    text,
+    font,
+    fontSize,
+    lineIndex,
+    centerY,
+  }) {
+    const chars = Array.from(text);
+    ctx.font = font;
+
+    const widths = chars.map((char) => ctx.measureText(char).width);
+    const totalWidth = widths.reduce((total, charWidth) => total + charWidth, 0);
+    const startX = centerX - totalWidth * 0.5;
+    const centers = [];
+    let cursorX = startX;
+
+    widths.forEach((charWidth) => {
+      centers.push(cursorX + charWidth * 0.5);
+      cursorX += charWidth;
+    });
+
+    cursorX = startX;
+
+    return chars.map((char, charIndex) => {
+      const groupKey = `line-${lineIndex}-char-${charIndex}`;
+      const charWidth = widths[charIndex];
+      const xStart = charIndex === 0
+        ? startX - sampleStep
+        : (centers[charIndex - 1] + centers[charIndex]) * 0.5;
+      const xEnd = charIndex === chars.length - 1
+        ? startX + totalWidth + sampleStep
+        : (centers[charIndex] + centers[charIndex + 1]) * 0.5;
+
+      groupedPoints[groupKey] = [];
+      groupedMeta[groupKey] = {
+        lineIndex,
+        charIndex,
+        char,
+      };
+
+      const charBounds = {
+        lineIndex,
+        charIndex,
+        char,
+        groupKey,
+        xStart,
+        xEnd,
+        xCenter: centers[charIndex] ?? cursorX + charWidth * 0.5,
+        yStart: centerY - fontSize * 0.85,
+        yEnd: centerY + fontSize * (lineIndex === 1 ? 0.83 : 0.65),
+        yCenter: centerY,
+      };
+
+      // Expand bottom sampling range to capture full glyph descenders
+      if (lineIndex === 1) {
+        charBounds.yEnd += fontSize * 0.2;
+      }
+      if (lineIndex === 0) {
+        charBounds.yEnd += fontSize * 0.08;
+      }
+
+      cursorX += charWidth;
+      return charBounds;
+    });
+  }
+
+  const dayRegions = createCharacterRegions({
+    text: daysText,
+    font: `900 ${mainFontSize}px ${fontFamily}`,
+    fontSize: mainFontSize,
+    lineIndex: 0,
+    centerY: daysY,
+  });
+  const timeRegions = timeText
+    ? createCharacterRegions({
+      text: timeText,
+      font: `700 ${timeFontSize}px ${fontFamily}`,
+      fontSize: timeFontSize,
+      lineIndex: 1,
+      centerY: timeDrawY,
+    })
+    : [];
+  const lineRegions = [dayRegions, timeRegions].filter((regions) => regions.length > 0);
+
+  const points = [];
+
+  function findCharacterRegionInLine(regions, x) {
+    return regions.find((region) => x >= region.xStart && x <= region.xEnd)
+      ?? regions.reduce((closestRegion, region) => {
+        const currentDistance = Math.abs(x - region.xCenter);
+        const closestDistance = Math.abs(x - closestRegion.xCenter);
+        return currentDistance < closestDistance ? region : closestRegion;
+      }, regions[0]);
+  }
+
+  lineRegions.forEach((regions) => {
+    const lineIndex = regions[0].lineIndex;
+    
+    // Clear and draw only the current line to prevent bounding box overlap
+    ctx.clearRect(0, 0, width, height);
+    if (lineIndex === 0) {
+      ctx.font = `900 ${mainFontSize}px ${fontFamily}`;
+      ctx.lineWidth = Math.max(1, mainFontSize * 0.025);
+      ctx.strokeText(daysText, centerX, daysY);
+      ctx.fillText(daysText, centerX, daysY);
+    } else {
+      ctx.font = `700 ${timeFontSize}px ${fontFamily}`;
+      ctx.lineWidth = Math.max(1, timeFontSize * 0.03);
+      ctx.strokeText(timeText, centerX, timeDrawY);
+      ctx.fillText(timeText, centerX, timeDrawY);
+    }
+    const imageData = ctx.getImageData(0, 0, width, height).data;
+
+    const lineSampleStep = 1;
+    const lineAlphaThreshold = Math.max(4, alphaThreshold * 0.4);
+    const minX = Math.max(0, Math.floor(regions[0].xStart - lineSampleStep));
+    const maxX = Math.min(width, Math.ceil(regions[regions.length - 1].xEnd + lineSampleStep));
+    const minY = Math.max(0, Math.floor(regions[0].yStart - lineSampleStep));
+    const maxY = Math.min(height, Math.ceil(regions[0].yEnd + lineSampleStep));
+
+    for (let y = minY; y < maxY; y += lineSampleStep) {
+      for (let x = minX; x < maxX; x += lineSampleStep) {
+        const index = (y * width + x) * 4;
+        const alpha = imageData[index + 3];
+
+        if (alpha >= lineAlphaThreshold) {
+          const region = findCharacterRegionInLine(regions, x);
+          const point = {
+            x,
+            y,
+            type: region.lineIndex === 0 ? 'days' : 'time',
+            char: region.char,
+            lineIndex: region.lineIndex,
+            charIndex: region.charIndex,
+            groupKey: region.groupKey,
+          };
+          points.push(point);
+          groupedPoints[region.groupKey].push(point);
+        }
+      }
+    }
+  });
+
+  return { points, groupedPoints, groupedMeta };
+}
+
 function shuffleInPlace(array) {
   for (let i = array.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -350,6 +557,7 @@ export function buildLogoTargetPoints(options) {
 export function buildDaysTargetPoints(options) {
   const {
     text,
+    lines,
     width,
     height,
     particleCount,
@@ -361,7 +569,9 @@ export function buildDaysTargetPoints(options) {
 
   const responsiveLayout = resolveDaysLayout(options);
 
-  const points = samplePointsFromText(text, {
+  const textOptions = {
+    text,
+    lines,
     width,
     height,
     sampleStep: responsiveLayout.sampleStep,
@@ -371,8 +581,27 @@ export function buildDaysTargetPoints(options) {
     maxWidthRatio: responsiveLayout.maxWidthRatio,
     maxHeightRatio: responsiveLayout.maxHeightRatio,
     offsetY,
-  });
+  };
 
+  if (Array.isArray(lines) && lines.length > 0) {
+    const { points, groupedPoints, groupedMeta } = samplePointsFromTextLines(textOptions);
+    const normalized = normalizePointCount(points, particleCount);
+
+    if (normalized.length > 0) {
+      return { points: normalized, groupedPoints, groupedMeta };
+    }
+
+    return {
+      points: Array.from({ length: particleCount }, () => ({
+        x: width * 0.5,
+        y: height * 0.5,
+      })),
+      groupedPoints: {},
+      groupedMeta: {},
+    };
+  }
+
+  const points = samplePointsFromText(text, textOptions);
   const normalized = normalizePointCount(points, particleCount);
 
   if (normalized.length > 0) {

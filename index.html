@@ -4,25 +4,542 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Particle Countdown WebGL</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <main class="hero">
-      <canvas id="webgl-canvas"></canvas>
+    <div class="bg-overlay"></div>
 
-      <div class="hero__overlay">
-        <p class="hero__eyebrow">ONE MAN LIVE COUNTDOWN</p>
-        <h1 class="hero__title">My Live Life -STORY-</h1>
-        <p class="hero__desc">ロゴ / 日数 の手動切り替え実装中</p>
+    <button
+      class="site-menu-button"
+      type="button"
+      aria-label="メニューを開く"
+      aria-controls="site-menu"
+      aria-expanded="false"
+    >
+      <span class="site-menu-button__bar"></span>
+      <span class="site-menu-button__bar"></span>
+      <span class="site-menu-button__bar"></span>
+    </button>
+
+    <nav class="site-menu" id="site-menu" aria-hidden="true">
+      <div class="site-menu__panel">
+        <button
+          class="site-menu__close"
+          type="button"
+          aria-label="メニューを閉じる"
+        >
+          ×
+        </button>
+
+        <img
+          class="site-menu__decoration site-menu__decoration--top"
+          src="./assets/logos/logo.png"
+          alt="アーティストロゴ"
+          aria-hidden="true"
+        />
+        <img
+          class="site-menu__decoration site-menu__decoration--bottom"
+          src="./assets/images/characters/character_pose_smartphone.webp"
+          alt="イメージキャラクター"
+          aria-hidden="true"
+        />
+
+        <ul class="site-menu__list">
+          <li><a class="site-menu__link js-scroll-home" href="#">Home</a></li>
+          <li><a class="site-menu__link" href="#news">News</a></li>
+          <li>
+            <a class="site-menu__link" href="./pages/discography.html">Music</a>
+          </li>
+          <li>
+            <a class="site-menu__link" href="./pages/video.html">Video</a>
+          </li>
+          <li>
+            <a class="site-menu__link" href="./pages/history.html">History</a>
+          </li>
+        </ul>
+
+        <div class="site-menu__sns" aria-label="公式SNS">
+          <a
+            class="site-menu__sns-link"
+            href="https://www.youtube.com/channel/UCLzG4j65zEa1_JCS8sbbLsg"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="YouTube"
+          >
+            <img src="./assets/icons/icon-youtube.svg" alt="YouTube" />
+          </a>
+          <a
+            class="site-menu__sns-link"
+            href="https://x.com/obararyou"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X"
+          >
+            <img src="./assets/icons/icon-x.svg" alt="Xアイコン" />
+          </a>
+          <a
+            class="site-menu__sns-link"
+            href="https://www.instagram.com/obararyou/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <img src="./assets/icons/icon-instagram.svg" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main" id="top">
+      <canvas id="webgl-canvas" class="main__canvas"></canvas>
+
+      <div class="main__overlay">
+        <h2 class="main__eyebrow">ONE MAN LIVE COUNTDOWN</h2>
+        <h1 class="main__title">My Live Life -STORY-</h1>
       </div>
 
-      <div class="hero__controls">
-        <button id="btn-logo" type="button">ロゴ</button>
-        <button id="btn-days" type="button">日数</button>
-        <button id="btn-login" type="button">ログイン演出</button>
+      <section class="post-live-hero" aria-label="ライブアーカイブ">
+        <p class="post-live-hero__date">2026.05.17</p>
+
+        <h1 class="post-live-hero__title">THANK YOU FOR THE LIVE</h1>
+
+        <!-- この下はライブが終わって写真が集まり次第更新する -->
+
+        <!-- <p class="post-live-hero__lead">
+          この日の余韻を、少しずつここに残していきます。
+        </p> -->
+
+        <!-- <div class="post-live-hero__photos">
+          <figure class="post-live-hero__photo">
+            <img src="./assets/images/live-photo-01.jpg" alt="ライブ写真" />
+          </figure>
+
+          <figure class="post-live-hero__photo">
+            <img src="./assets/images/live-photo-02.jpg" alt="ライブ写真" />
+          </figure> -->
+        </div>
+      </section>
+
+      <div class="main__visual">
+        <img
+          src="./assets/images/characters/character_hero_artist-pose.webp"
+          alt="小原涼キャラクター"
+          class="main__character main__character--pc"
+        />
+        <img
+          src="./assets/images/characters/character_action_run-back.webp"
+          alt="小原涼キャラクター"
+          class="main__character main__character--sp"
+        />
+      </div>
+
+      <div class="main__controls">
+        <button id="btn-logo" class="main__control-button" type="button">
+          ロゴ
+        </button>
+        <button id="btn-days" class="main__control-button" type="button">
+          日数
+        </button>
+        <button id="btn-login" class="main__control-button" type="button">
+          ログイン演出
+        </button>
       </div>
     </main>
 
+    <section class="album-section" aria-label="アルバム選択">
+      <section
+        class="artist__profile"
+        id="artist"
+        aria-label="アーティスト紹介"
+      >
+        <div class="section-heading section-heading--artist">
+          <p class="section-heading__label">Artist</p>
+        </div>
+
+        <div class="artist__profile-inner">
+          <div class="artist__visual">
+            <div class="artist__image-wrapper" aria-hidden="true">
+              <div class="artist__image-bg"></div>
+              <div class="artist__image">
+                <div class="artist__profile-photo-slider">
+                  <div
+                    class="artist__profile-photo artist__profile-photo--1"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--2"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--3"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--4"
+                  ></div>
+                  <div
+                    class="artist__profile-photo artist__profile-photo--5"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="artist__profile-content">
+            <div class="artist__profile-copy">
+              <h2 class="artist__profile-name">小原涼</h2>
+              <p class="artist__profile-text">
+                <strong
+                  >POPでROCKな音楽に甘い歌声をのせた唯一無二甘口ROCKをお届けする女性シンガー。</strong
+                ><br />皆の元気印Sunshine girl！<br />元気になれる曲から癒される曲まで独特なSWEET
+                VOICEでおたのしみください。<br />5月17日生まれ。出身地は福島県。<br />血液型はAB型。
+              </p>
+            </div>
+            <div class="artist__cta">
+              <a
+                class="artist__fanclub-button"
+                href="https://fanclove.jp/club/obararyo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                FCはこちら
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-heading section-heading--favorite" id="favorite-song">
+        <p class="section-heading__label">Favorite Song</p>
+        <p class="section-heading__lead">
+          お気に入りの一曲を選んで、<br
+            class="sp-only"
+          />ライブまでの想いをシェア。
+        </p>
+      </div>
+
+      <div class="album-section__body">
+        <div class="album-section__carousel" aria-label="アルバム選択">
+          <div class="album-section__covers" aria-hidden="true">
+            <div class="album-section__cover album-section__cover--prev"></div>
+            <div
+              class="album-section__cover album-section__cover--active"
+            ></div>
+            <div class="album-section__cover album-section__cover--next"></div>
+          </div>
+        </div>
+
+        <div
+          class="album-section__thumbnail-area"
+          aria-label="アルバムサムネイル選択"
+        >
+          <button
+            class="album-section__thumbnail-nav album-section__thumbnail-nav--prev"
+            type="button"
+            aria-label="前のサムネイルへ"
+          >
+            前へ
+          </button>
+
+          <div class="album-section__thumbnail-swiper swiper">
+            <div class="album-section__thumbnail-list swiper-wrapper"></div>
+          </div>
+
+          <button
+            class="album-section__thumbnail-nav album-section__thumbnail-nav--next"
+            type="button"
+            aria-label="次のサムネイルへ"
+          >
+            次へ
+          </button>
+        </div>
+
+        <div class="album-section__side">
+          <aside class="album-section__track-panel" aria-label="楽曲リスト">
+            <h3 class="album-section__track-title">Track List</h3>
+            <ol class="album-section__track-list">
+              <li class="album-section__track-item">Track 01</li>
+              <li class="album-section__track-item">Track 02</li>
+              <li class="album-section__track-item">Track 03</li>
+            </ol>
+          </aside>
+
+          <div class="album-section__actions">
+            <button class="album-section__post-button" type="button">
+              お気に入り楽曲を選んでXにポストする
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <section class="live-info" id="next-live" aria-label="次回ライブ情報">
+        <div class="section-heading section-heading--live">
+          <p class="section-heading__label">Next Live</p>
+        </div>
+
+        <article class="live-info__article">
+          <div class="live-info__article-visual">
+            <div class="live-info__article-image">
+              <img
+                src="./assets/images/lives/live__001.webp"
+                alt="小原涼 生誕ワンマンライブ告知画像"
+              />
+            </div>
+          </div>
+
+          <div class="live-info__article-body">
+            <h2 class="live-info__article-title">
+              小原涼お誕生日当日×NEW album レコ発ワンマンLIVE
+            </h2>
+
+            <p class="live-info__article-subtitle">「My Live Life -STORY-」</p>
+
+            <dl class="live-info__article-list">
+              <div class="live-info__article-row">
+                <dt>日程</dt>
+                <dd>5/17(日)</dd>
+              </div>
+              <div class="live-info__article-row">
+                <dt>会場</dt>
+                <dd>赤羽ReNY alpha</dd>
+              </div>
+              <div class="live-info__article-row">
+                <dt>時間</dt>
+                <dd>開場17:00 / 開演18:00</dd>
+              </div>
+              <div class="live-info__article-row">
+                <dt>料金</dt>
+                <dd>通常¥3,500 / 配信¥2,500 / プレミアムチケット¥10,000</dd>
+              </div>
+            </dl>
+
+            <div class="live-info__article-links">
+              <a
+                href="https://obararyo.base.shop"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                紙チケット通販
+              </a>
+              <a
+                href="https://twitcasting.tv/obararyou/shopcart/412857"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                配信購入
+              </a>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="news-section" id="news" aria-label="ニュース">
+        <div class="news-section__inner">
+          <div class="section-heading section-heading--news">
+            <p class="section-heading__label">News</p>
+          </div>
+
+          <ul class="news-section__list">
+            <li class="news-section__item">
+              <time class="news-section__date" datetime="2026-04-29">
+                2026.04.29
+              </time>
+              <span class="news-section__link">
+                お誕生日当日×NEWアルバムレコ発ワンマン開催決定
+              </span>
+            </li>
+
+            <li class="news-section__item">
+              <time class="news-section__date" datetime="2025-08-10">
+                2025.08.10
+              </time>
+              <span class="news-section__link">
+                小原涼初の全曲ワンマン「bouquet toss💐」開催決定！
+              </span>
+            </li>
+
+            <li class="news-section__item">
+              <time class="news-section__date" datetime="2025-02-16">
+                2025.02.16
+              </time>
+              <span class="news-section__link">
+                新情報公開のお知らせ
+              </span>
+            </li>
+          </ul>
+
+          <div class="news-section__more">
+            <a
+              href="https://obararyo.jp/news"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              公式NEWSを見る
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="discography-section"
+        id="discography"
+        aria-label="ディスコグラフィー"
+      >
+        <div class="discography-section__inner">
+          <p class="discography-section__side-label">Discography</p>
+
+          <section class="discography-section__group" aria-label="Music">
+            <div class="discography-section__group-header">
+              <p class="discography-section__eyebrow">Music</p>
+            </div>
+
+            <div
+              class="discography-section__music-list"
+              id="discography-music-list"
+              data-latest-discography-list
+            ></div>
+
+            <div class="discography-section__more">
+              <a
+                class="discography-section__more-link"
+                href="./pages/discography.html"
+              >
+                もっと見る
+              </a>
+            </div>
+          </section>
+
+          <section
+            class="discography-section__group discography-section__group--video"
+            aria-label="Video"
+          >
+            <div class="discography-section__group-header">
+              <p class="discography-section__eyebrow">Video</p>
+            </div>
+
+            <ul
+              class="discography-section__list discography-section__list--video"
+              data-latest-video-list
+            ></ul>
+
+            <div class="discography-section__more">
+              <a href="./pages/video.html"> もっと見る </a>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="links-section" id="links" aria-labelledby="links-title">
+        <div class="links-section__inner">
+          <p class="links-section__eyebrow">Official Links</p>
+
+          <h2 class="links-section__title" id="links-title">Official SNS</h2>
+
+          <p class="links-section__lead">
+            ライブのお知らせや日々の活動は、<br class="sp-only" />
+            公式SNSからチェックできます。
+          </p>
+
+          <div class="links-section__list">
+            <a
+              class="links-section__card"
+              href="https://www.youtube.com/channel/UCLzG4j65zEa1_JCS8sbbLsg"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTubeを見る"
+            >
+              <span class="links-section__card-label">YouTube</span>
+              <span class="links-section__card-text">Music Video / Live</span>
+            </a>
+
+            <a
+              class="links-section__card"
+              href="https://x.com/obararyou"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Xを見る"
+            >
+              <span class="links-section__card-label">X</span>
+              <span class="links-section__card-text">News / Daily Post</span>
+            </a>
+
+            <a
+              class="links-section__card"
+              href="https://www.instagram.com/obararyou/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagramを見る"
+            >
+              <span class="links-section__card-label">Instagram</span>
+              <span class="links-section__card-text">Photo / Story</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer" aria-label="サイトフッター">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <p class="footer__title">Obara Ryo</p>
+            <p class="footer__subtitle">Unofficial Fan Site</p>
+          </div>
+
+          <nav class="footer__nav" aria-label="フッターナビゲーション">
+            <a class="footer__nav-link js-scroll-home" href="#">Home</a>
+            <a class="footer__nav-link" href="#news">News</a>
+            <a class="footer__nav-link" href="./pages/discography.html"
+              >Music</a
+            >
+            <a class="footer__nav-link" href="./pages/video.html">Video</a>
+            <a class="footer__nav-link" href="./pages/history.html">History</a>
+          </nav>
+
+          <div class="footer__sns" aria-label="公式SNS">
+            <a
+              class="footer__sns-link"
+              href="https://www.youtube.com/channel/UCLzG4j65zEa1_JCS8sbbLsg"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
+              <img src="./assets/icons/icon-youtube.svg" alt="YouTube" />
+            </a>
+            <a
+              class="footer__sns-link"
+              href="https://x.com/obararyou"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="X"
+            >
+              <img src="./assets/icons/icon-x.svg" alt="X" />
+            </a>
+            <a
+              class="footer__sns-link"
+              href="https://www.instagram.com/obararyou/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <img src="./assets/icons/icon-instagram.svg" alt="Instagram" />
+            </a>
+          </div>
+
+          <div class="footer__bottom">
+            <p class="footer__copyright">
+              © 2026 Obara Ryo Unofficial Fan Site
+            </p>
+          </div>
+        </div>
+      </footer>
+    </section>
+
+    <a class="top-button js-scroll-top" href="#" aria-label="ページ上部へ戻る">
+      Top
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script type="module" src="./src/js/app.js"></script>
   </body>
 </html>

@@ -3,11 +3,19 @@ const PARTICLE_COUNT_DESKTOP = 14000;
 const PARTICLE_COUNT_MOBILE = 7600;
 const POINT_SIZE_DESKTOP = 2.35;
 const POINT_SIZE_MOBILE = 2.7;
+const MIN_PARTICLES_PER_DAYS_DIGIT_GROUP = 480;
+const MIN_PARTICLES_PER_DAYS_LETTER_GROUP = 600;
+const MIN_PARTICLES_PER_TIME_GROUP = 320;
+const MIN_PARTICLES_PER_TIME_ONE_GROUP = 200;
+const MIN_PARTICLES_PER_PUNCTUATION_GROUP = 90;
+const MIN_PARTICLES_PER_TEXT_GROUP = 200;
+const COUNTDOWN_CHANGED_GROUP_VELOCITY = 0.22;
 
 export const PARTICLE_MOTION_MODES = Object.freeze({
   IDLE: 'IDLE',
   INTERACT: 'INTERACT',
   RETURN: 'RETURN',
+  AMBIENT: 'AMBIENT',
 });
 
 function getParticleCount(width) {
@@ -41,6 +49,10 @@ class Particle {
     this.interactionAccent = 0.86 + Math.random() * 0.28;
     this.colorBias = (Math.random() * 2 - 1) * (0.35 + Math.random() * 0.65);
     this.interactionGlow = 0;
+    this.type = 'time';
+    this.groupKey = null;
+    this.groupTargetIndex = 0;
+    this.groupTargetRatio = 0;
 
     this.depthBase = (Math.random() - 0.5) * 0.32;
     this.depthSign = Math.random() < 0.5 ? -1 : 1;
@@ -338,6 +350,35 @@ export class ParticleSystem {
         depthFlowMax: 0.2,
         depthClamp: 0.42,
       },
+      [PARTICLE_MOTION_MODES.AMBIENT]: {
+        spring: 0.012,
+        damping: 0.965,
+        maxSpeed: 1.8,
+        noiseStrength: 0.018,
+        fluidInfluence: 0,
+        fluidMaxAccel: 0,
+        fluidMaxSpeedDelta: 0,
+        fluidDisturbance: 0,
+        fluidDisturbanceFreq: 0,
+        fluidBurstScale: 1,
+        pointerForce: 0,
+        pointerMaxAccel: 0,
+        pointerMaxSpeedDelta: 0,
+        pointerRadiusRatioDesktop: 0.16,
+        pointerRadiusRatioMobile: 0.22,
+        fluidRadiusMultiplier: 1.3,
+        snapDistance: 0,
+        snapVelocityFactor: 1,
+        stopVelocityEpsilon: 0,
+        depthSpring: 0.026,
+        depthDamping: 0.96,
+        depthNoiseAmplitude: 0.08,
+        depthFlowInfluence: 0,
+        depthFlowSignedness: 0,
+        depthInteractSpread: 0,
+        depthFlowMax: 0.08,
+        depthClamp: 0.28,
+      },
     };
   }
 
@@ -361,10 +402,228 @@ export class ParticleSystem {
       return;
     }
 
+    this.clearTargetGroups();
+
     const count = Math.min(this.particles.length, targetPoints.length);
 
     for (let i = 0; i < count; i += 1) {
       this.particles[i].setTarget(targetPoints[i].x, targetPoints[i].y);
+      this.particles[i].type = targetPoints[i].type === 'days' ? 'days' : 'time';
+    }
+  }
+
+  getAvailableTargetGroups(groupedTargetPoints) {
+    if (!groupedTargetPoints) {
+      return [];
+    }
+
+    return Object.entries(groupedTargetPoints)
+      .filter(([, points]) => Array.isArray(points) && points.length > 0)
+      .map(([groupKey, points]) => ({
+        groupKey,
+        points,
+        char: points[0]?.char ?? '',
+        lineIndex: points[0]?.lineIndex ?? 0,
+      }));
+  }
+
+  getMinimumParticlesForGroup(group) {
+    if (group.lineIndex === 0) {
+      return /[A-Z]/.test(group.char)
+        ? MIN_PARTICLES_PER_DAYS_LETTER_GROUP
+        : MIN_PARTICLES_PER_DAYS_DIGIT_GROUP;
+    }
+
+    if (group.lineIndex === 1) {
+      if (group.char === ':') {
+        return MIN_PARTICLES_PER_PUNCTUATION_GROUP;
+      }
+
+      if (group.char === '1') {
+        return MIN_PARTICLES_PER_TIME_ONE_GROUP;
+      }
+
+      return MIN_PARTICLES_PER_TIME_GROUP;
+    }
+
+    return MIN_PARTICLES_PER_TEXT_GROUP;
+  }
+
+  allocateParticlesToGroups(groups) {
+    const particleCount = this.particles.length;
+    if (particleCount === 0 || groups.length === 0) {
+      return [];
+    }
+
+    const minimumAllocations = groups.map((group) => ({
+      ...group,
+      minimumCount: this.getMinimumParticlesForGroup(group),
+      count: 0,
+    }));
+    const minimumTotal = minimumAllocations.reduce(
+      (total, group) => total + group.minimumCount,
+      0,
+    );
+    const totalTargetPoints = groups.reduce(
+      (total, group) => total + Math.max(1, group.points.length),
+      0,
+    );
+
+    if (minimumTotal >= particleCount) {
+      let assignedParticles = 0;
+      const scaledAllocations = minimumAllocations.map((group) => {
+        const count = Math.max(
+          1,
+          Math.floor((group.minimumCount / minimumTotal) * particleCount),
+        );
+        assignedParticles += count;
+        return { ...group, count };
+      });
+
+      while (assignedParticles < particleCount && scaledAllocations.length > 0) {
+        scaledAllocations[assignedParticles % scaledAllocations.length].count += 1;
+        assignedParticles += 1;
+      }
+
+      while (assignedParticles > particleCount) {
+        const largestAllocation = scaledAllocations.reduce((largest, allocation) => (
+          allocation.count > largest.count ? allocation : largest
+        ), scaledAllocations[0]);
+
+        if (!largestAllocation || largestAllocation.count <= 1) {
+          break;
+        }
+
+        largestAllocation.count -= 1;
+        assignedParticles -= 1;
+      }
+
+      return scaledAllocations;
+    }
+
+    let remainingParticles = particleCount - minimumTotal;
+    const allocations = minimumAllocations.map((group) => {
+      const proportionalCount = Math.floor(
+        (Math.max(1, group.points.length) / totalTargetPoints) * remainingParticles,
+      );
+
+      return {
+        ...group,
+        count: group.minimumCount + proportionalCount,
+      };
+    });
+
+    remainingParticles -= allocations.reduce(
+      (total, group) => total + (group.count - group.minimumCount),
+      0,
+    );
+
+    while (remainingParticles > 0 && allocations.length > 0) {
+      allocations[remainingParticles % allocations.length].count += 1;
+      remainingParticles -= 1;
+    }
+
+    return allocations;
+  }
+
+  setTargetsByGroup(groupedTargetPoints) {
+    const groups = this.getAvailableTargetGroups(groupedTargetPoints);
+    if (groups.length === 0) {
+      return;
+    }
+
+    this.clearTargetGroups();
+
+    const allocations = this.allocateParticlesToGroups(groups);
+    let particleIndex = 0;
+
+    allocations.forEach((allocation) => {
+      for (
+        let i = 0;
+        i < allocation.count && particleIndex < this.particles.length;
+        i += 1
+      ) {
+        const particle = this.particles[particleIndex];
+        particle.groupKey = allocation.groupKey;
+        particle.groupTargetIndex = i;
+        
+        // Use Golden Ratio (Weyl sequence) to achieve a uniform, pseudo-random low-discrepancy scatter.
+        // This completely eliminates grid patterns while maintaining stability across frames.
+        particle.groupTargetRatio = (i * 0.618033988749895) % 1;
+        
+        const targetIndex = Math.floor(particle.groupTargetRatio * allocation.points.length);
+        const target = allocation.points[Math.min(targetIndex, allocation.points.length - 1)];
+
+        particle.setTarget(target.x, target.y);
+        particle.type = target.type === 'days' ? 'days' : 'time';
+        particleIndex += 1;
+      }
+    });
+  }
+
+  updateTargetGroups(groupedTargetPoints, changedGroupKeys) {
+    if (!groupedTargetPoints || !changedGroupKeys || changedGroupKeys.length === 0) {
+      return;
+    }
+
+    const changedGroups = new Set(changedGroupKeys);
+
+    for (let i = 0; i < this.particles.length; i += 1) {
+      const particle = this.particles[i];
+
+      if (!particle.groupKey || !changedGroups.has(particle.groupKey)) {
+        continue;
+      }
+
+      const targets = groupedTargetPoints[particle.groupKey];
+      if (!Array.isArray(targets) || targets.length === 0) {
+        continue;
+      }
+
+      const targetIndex = Math.floor(particle.groupTargetRatio * targets.length);
+      const target = targets[Math.min(targetIndex, targets.length - 1)];
+      particle.setTarget(target.x, target.y);
+      particle.type = target.type === 'days' ? 'days' : 'time';
+      particle.vx += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
+      particle.vy += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
+    }
+  }
+
+  softUpdateTargetsByGroup(groupedTargetPoints, changedGroupKeys) {
+    if (!groupedTargetPoints) {
+      return;
+    }
+
+    const changedGroups = new Set(changedGroupKeys || []);
+
+    for (let i = 0; i < this.particles.length; i += 1) {
+      const particle = this.particles[i];
+
+      if (!particle.groupKey) {
+        continue;
+      }
+
+      const targets = groupedTargetPoints[particle.groupKey];
+      if (!Array.isArray(targets) || targets.length === 0) {
+        continue;
+      }
+
+      const targetIndex = Math.floor(particle.groupTargetRatio * targets.length);
+      const target = targets[Math.min(targetIndex, targets.length - 1)];
+      particle.setTarget(target.x, target.y);
+      particle.type = target.type === 'days' ? 'days' : 'time';
+
+      if (changedGroups.has(particle.groupKey)) {
+        particle.vx += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
+        particle.vy += (Math.random() - 0.5) * COUNTDOWN_CHANGED_GROUP_VELOCITY;
+      }
+    }
+  }
+
+  clearTargetGroups() {
+    for (let i = 0; i < this.particles.length; i += 1) {
+      this.particles[i].groupKey = null;
+      this.particles[i].groupTargetIndex = 0;
     }
   }
 

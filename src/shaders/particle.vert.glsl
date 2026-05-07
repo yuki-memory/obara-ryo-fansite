@@ -3,12 +3,14 @@ attribute float a_size;
 attribute float a_depth;
 attribute float a_colorBias;
 attribute float a_energy;
+attribute float a_type;
 
 uniform vec2 u_resolution;
 varying float v_depthAlpha;
 varying float v_depthTint;
 varying float v_colorBias;
 varying float v_energy;
+varying float v_type;
 
 void main() {
   vec2 zeroToOne = a_position / u_resolution;
@@ -22,4 +24,5 @@ void main() {
   v_depthTint = mix(0.92, 1.1, depth01);
   v_colorBias = a_colorBias;
   v_energy = a_energy;
+  v_type = a_type;
 }

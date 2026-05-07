@@ -62,6 +62,33 @@ export function getDaysLeftJST(liveDate) {
   return Math.max(0, diff);
 }
 
+export function getTimeLeftJST(targetDate) {
+  const target = toDate(targetDate);
+  const now = new Date();
+  const diffMs = Math.max(0, target.getTime() - now.getTime());
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return { hours, minutes, seconds };
+}
+
+export function formatTimePart(value) {
+  return String(value).padStart(2, '0');
+}
+
+export function formatTimeLeftJST(targetDate) {
+  const { hours, minutes, seconds } = getTimeLeftJST(targetDate);
+
+  return [
+    formatTimePart(hours),
+    formatTimePart(minutes),
+    formatTimePart(seconds),
+  ].join(':');
+}
+
 function getNextJstMidnightTimestamp(now = new Date()) {
   const todayJst = getJstDateParts(now);
 
