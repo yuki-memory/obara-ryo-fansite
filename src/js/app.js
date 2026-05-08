@@ -113,6 +113,9 @@ const state = {
   height: 0,
   dpr: 1,
   lastTime: 0,
+  animationFrameId: null,
+  isAnimationRunning: false,
+  isWebglDisposed: false,
   pointer: {
     x: 0,
     y: 0,
@@ -147,44 +150,127 @@ function readViewport() {
 }
 
 function animate(timeMs) {
-  const time = timeMs * 0.001;
-  const dt = Math.min(0.05, time - (state.lastTime || time));
-  state.lastTime = time;
-
-  if (state.pointerDown) {
-    state.pointer.influence = 1;
-  } else {
-    const decay = Math.pow(0.5, dt / POINTER_RELEASE_HALF_LIFE_SEC);
-    state.pointer.influence *= decay;
-    state.pointer.smoothDx = lerp(state.pointer.smoothDx, 0, 0.24);
-    state.pointer.smoothDy = lerp(state.pointer.smoothDy, 0, 0.24);
+  if (!state.isAnimationRunning) {
+    return;
   }
 
-  // Update simulation modules and keep app.js as the orchestrator.
-  state.fluid.update(dt, { pointerDown: state.pointerDown });
-
-  const stepDt = dt / PARTICLE_UPDATE_SUBSTEPS;
-
-  for (let i = 0; i < PARTICLE_UPDATE_SUBSTEPS; i += 1) {
-    state.particleSystem.update(stepDt, time + i * stepDt, state.fluid, {
-      motionMode: state.particleMotionMode,
-      pointer: state.pointer,
-      viewportWidth: state.width,
-      viewportHeight: state.height,
-    });
+  if (!state.renderer || !state.fluid || state.isWebglDisposed) {
+    stopParticleAnimation();
+    return;
   }
 
-  if (
-    state.particleMotionMode === PARTICLE_MOTION_MODES.RETURN &&
-    !state.pointerDown &&
-    state.particleSystem.isSettled(0.75, 0.14)
-  ) {
-    setParticleMotionMode(PARTICLE_MOTION_MODES.IDLE);
+  try {
+    const time = timeMs * 0.001;
+    const dt = Math.min(0.05, time - (state.lastTime || time));
+    state.lastTime = time;
+
+    if (state.pointerDown) {
+      state.pointer.influence = 1;
+    } else {
+      const decay = Math.pow(0.5, dt / POINTER_RELEASE_HALF_LIFE_SEC);
+      state.pointer.influence *= decay;
+      state.pointer.smoothDx = lerp(state.pointer.smoothDx, 0, 0.24);
+      state.pointer.smoothDy = lerp(state.pointer.smoothDy, 0, 0.24);
+    }
+
+    // Update simulation modules and keep app.js as the orchestrator.
+    state.fluid.update(dt, { pointerDown: state.pointerDown });
+
+    const stepDt = dt / PARTICLE_UPDATE_SUBSTEPS;
+
+    for (let i = 0; i < PARTICLE_UPDATE_SUBSTEPS; i += 1) {
+      state.particleSystem.update(stepDt, time + i * stepDt, state.fluid, {
+        motionMode: state.particleMotionMode,
+        pointer: state.pointer,
+        viewportWidth: state.width,
+        viewportHeight: state.height,
+      });
+    }
+
+    if (
+      state.particleMotionMode === PARTICLE_MOTION_MODES.RETURN &&
+      !state.pointerDown &&
+      state.particleSystem.isSettled(0.75, 0.14)
+    ) {
+      setParticleMotionMode(PARTICLE_MOTION_MODES.IDLE);
+    }
+
+    state.renderer.render(state.particleSystem.getParticles());
+  } catch (error) {
+    reportAppError('animate', error);
+    stopParticleAnimation();
+    return;
   }
 
-  state.renderer.render(state.particleSystem.getParticles());
+  state.animationFrameId = requestAnimationFrame(animate);
+}
 
-  requestAnimationFrame(animate);
+function startParticleAnimation() {
+  if (state.isAnimationRunning) {
+    return;
+  }
+
+  state.lastTime = 0;
+  state.isAnimationRunning = true;
+  state.animationFrameId = requestAnimationFrame(animate);
+}
+
+function stopParticleAnimation() {
+  state.isAnimationRunning = false;
+
+  if (state.animationFrameId !== null) {
+    cancelAnimationFrame(state.animationFrameId);
+    state.animationFrameId = null;
+  }
+
+  state.pointerDown = false;
+
+  if (state.fluid) {
+    state.fluid.setPointerDown(false);
+  }
+}
+
+function disposeWebglResources() {
+  if (state.isWebglDisposed) {
+    return;
+  }
+
+  if (state.fluid) {
+    state.fluid.dispose();
+    state.fluid = null;
+  }
+
+  if (state.renderer) {
+    state.renderer.dispose();
+    state.renderer = null;
+  }
+
+  state.isWebglDisposed = true;
+}
+
+function initializeWebglResources(canvas) {
+  state.renderer = new Renderer(canvas);
+  state.fluid = new FluidSimulation(state.renderer.getContext());
+  state.particleSystem = new ParticleSystem();
+  state.width = 0;
+  state.height = 0;
+  state.dpr = 1;
+  state.lastTime = 0;
+  state.isWebglDisposed = false;
+}
+
+function restartParticleAnimation() {
+  const canvas = document.getElementById('webgl-canvas');
+
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    return;
+  }
+
+  stopParticleAnimation();
+  disposeWebglResources();
+  initializeWebglResources(canvas);
+  rebuildScene();
+  startParticleAnimation();
 }
 
 function buildCurrentLogoTarget() {
@@ -1171,8 +1257,32 @@ function setupResizeHandler() {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        debugMenuHitTest();
+      });
       requestSceneRebuild();
     }, RESIZE_DEBOUNCE_MS);
+  });
+}
+
+function debugMenuHitTest() {
+  const menuToggle = document.querySelector('.site-menu-button');
+
+  if (!(menuToggle instanceof HTMLElement)) {
+    return;
+  }
+
+  const rect = menuToggle.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  const topElement = document.elementFromPoint(x, y);
+
+  console.log('[menu] hit test', {
+    toggle: menuToggle,
+    topElement,
+    same: topElement === menuToggle || menuToggle.contains(topElement),
+    topElementClass: topElement?.className,
+    topElementId: topElement?.id,
   });
 }
 
@@ -1297,6 +1407,10 @@ function setupPointerInput(canvas) {
 }
 
 function rebuildScene() {
+  if (!state.renderer || !state.fluid || state.isWebglDisposed) {
+    return;
+  }
+
   // Safe resize re-initialization path for renderer, fluid buffers, and particle targets.
   const viewport = readViewport();
   const shouldSkip =
@@ -1415,8 +1529,7 @@ async function init() {
     throw new Error('`#webgl-canvas` が見つかりません。');
   }
 
-  state.renderer = new Renderer(canvas);
-  state.fluid = new FluidSimulation(state.renderer.getContext());
+  initializeWebglResources(canvas);
   state.logoImage = await loadImage(logoImageUrl);
 
   setupControllers();
@@ -1442,7 +1555,9 @@ async function init() {
       reportAppError('playLoginSequence(window)', error);
     });
 
-  window.addEventListener('beforeunload', () => {
+  const shutdownApp = () => {
+    stopParticleAnimation();
+
     if (state.cancelMidnightUpdate) {
       state.cancelMidnightUpdate();
       state.cancelMidnightUpdate = null;
@@ -1452,10 +1567,33 @@ async function init() {
     countdownController?.cleanup();
     postLiveController?.cleanup();
     cleanupMenuController();
-    state.fluid.dispose();
+    disposeWebglResources();
+  };
+
+  window.addEventListener('pagehide', () => {
+    stopParticleAnimation();
+    countdownController?.stop();
+    cancelAutoSequences();
+    disposeWebglResources();
   });
 
-  requestAnimationFrame(animate);
+  window.addEventListener('pageshow', (event) => {
+    cleanupMenuController();
+    setupSiteMenu();
+    requestAnimationFrame(debugMenuHitTest);
+
+    if (event.persisted) {
+      restartParticleAnimation();
+
+      if (state.activeTarget === 'days') {
+        countdownController?.start();
+      }
+    }
+  });
+
+  window.addEventListener('beforeunload', shutdownApp);
+
+  startParticleAnimation();
   if (isPostLiveMode()) {
     showPostLiveTarget();
   } else {

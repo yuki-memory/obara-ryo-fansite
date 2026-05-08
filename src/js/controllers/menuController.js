@@ -46,12 +46,21 @@ export function initMenuController(options = {}) {
       return;
     }
 
+    document.documentElement.classList.remove(openBodyClassName);
+    document.body.classList.remove(openBodyClassName);
+
     if (typeof menuToggle.focus === 'function') {
-      menuToggle.focus();
-      return;
+      menuToggle.focus({ preventScroll: true });
+
+      if (document.activeElement !== activeElement) {
+        return;
+      }
     }
 
-    activeElement.blur();
+    if (typeof activeElement.blur === 'function') {
+      activeElement.blur();
+      return;
+    }
   };
 
   function resetMenuState() {
@@ -167,10 +176,27 @@ export function initMenuController(options = {}) {
     logMenuEvent('pageshow', { persisted: event.persisted });
     resetMenuState();
     bindMenuEvents();
+    requestAnimationFrame(debugMenuHitTest);
   };
+
+  function debugMenuHitTest() {
+    const rect = menuToggle.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const topElement = document.elementFromPoint(x, y);
+
+    logMenuEvent('hit test', {
+      toggle: menuToggle,
+      topElement,
+      same: topElement === menuToggle || menuToggle.contains(topElement),
+      topElementClass: topElement?.className,
+      topElementId: topElement?.id,
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', resetMenuState);
   window.addEventListener('pageshow', handlePageShow);
+  window.addEventListener('resize', debugMenuHitTest);
   resetMenuState();
   bindMenuEvents();
 
@@ -182,6 +208,7 @@ export function initMenuController(options = {}) {
 
     document.removeEventListener('DOMContentLoaded', resetMenuState);
     window.removeEventListener('pageshow', handlePageShow);
+    window.removeEventListener('resize', debugMenuHitTest);
     resetMenuState();
     delete siteMenu._menuControllerCleanup;
   };

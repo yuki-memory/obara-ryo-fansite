@@ -206,4 +206,43 @@ export class Renderer {
 
     gl.drawArrays(gl.POINTS, 0, count);
   }
+
+  dispose() {
+    const gl = this.gl;
+
+    if (this.positionBuffer) {
+      gl.deleteBuffer(this.positionBuffer);
+      this.positionBuffer = null;
+    }
+
+    if (this.sizeBuffer) {
+      gl.deleteBuffer(this.sizeBuffer);
+      this.sizeBuffer = null;
+    }
+
+    if (this.depthBuffer) {
+      gl.deleteBuffer(this.depthBuffer);
+      this.depthBuffer = null;
+    }
+
+    if (this.colorBiasBuffer) {
+      gl.deleteBuffer(this.colorBiasBuffer);
+      this.colorBiasBuffer = null;
+    }
+
+    if (this.energyBuffer) {
+      gl.deleteBuffer(this.energyBuffer);
+      this.energyBuffer = null;
+    }
+
+    if (this.typeBuffer) {
+      gl.deleteBuffer(this.typeBuffer);
+      this.typeBuffer = null;
+    }
+
+    if (this.program) {
+      gl.deleteProgram(this.program);
+      this.program = null;
+    }
+  }
 }
