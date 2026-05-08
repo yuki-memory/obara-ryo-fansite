@@ -160,6 +160,12 @@ body.is-menu-open .site-menu-button {
     visibility 0.35s ease;
 }
 
+.site-menu[aria-hidden="true"],
+.menu-backdrop[aria-hidden="true"],
+.site-menu__overlay[aria-hidden="true"] {
+  pointer-events: none;
+}
+
 body.is-menu-open .site-menu {
   opacity: 1;
   visibility: visible;
