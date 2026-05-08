@@ -1,4 +1,5 @@
-const NEWS_API_URL = 'https://YOUR_WORKER_URL/api/news';
+const NEWS_API_URL =
+  'https://obara-news-worker.ma-kucanatifr-ko2.workers.dev/api/news';
 
 export async function fetchOfficialNews() {
   const response = await fetch(NEWS_API_URL, {
