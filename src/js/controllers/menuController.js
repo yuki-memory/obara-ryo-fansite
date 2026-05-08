@@ -1,29 +1,72 @@
 export function initMenuController(options = {}) {
   const {
-    menuButton = document.querySelector('.site-menu-button'),
+    menuButton: menuToggle = document.querySelector('.site-menu-button'),
     siteMenu = document.getElementById('site-menu'),
     menuCloseButton = document.querySelector('.site-menu__close'),
     menuLinks = document.querySelectorAll('.site-menu__link'),
     openBodyClassName = 'is-menu-open',
   } = options;
 
-  if (!menuButton || !siteMenu) {
+  if (!menuToggle || !siteMenu) {
     return () => {};
   }
 
+  const existingCleanup = siteMenu._menuControllerCleanup;
+
+  if (typeof existingCleanup === 'function') {
+    existingCleanup();
+  }
+
+  const moveFocusOutOfMenu = () => {
+    const activeElement = document.activeElement;
+
+    if (!(activeElement instanceof HTMLElement)) {
+      return;
+    }
+
+    if (!siteMenu.contains(activeElement)) {
+      return;
+    }
+
+    if (typeof menuToggle.focus === 'function') {
+      menuToggle.focus();
+      return;
+    }
+
+    activeElement.blur();
+  };
+
+  function resetMenuState() {
+    moveFocusOutOfMenu();
+    document.body.classList.remove(openBodyClassName);
+
+    if (siteMenu) {
+      siteMenu.setAttribute('aria-hidden', 'true');
+      siteMenu.setAttribute('inert', '');
+    }
+
+    if (menuToggle) {
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.setAttribute('aria-label', 'メニューを開く');
+    }
+  }
+
   const openMenu = () => {
-    document.body.classList.add(openBodyClassName);
-    menuButton.setAttribute('aria-expanded', 'true');
-    menuButton.setAttribute('aria-label', 'メニューを閉じる');
+    siteMenu.removeAttribute('inert');
     siteMenu.setAttribute('aria-hidden', 'false');
+    document.body.classList.add(openBodyClassName);
+    menuToggle.setAttribute('aria-expanded', 'true');
+    menuToggle.setAttribute('aria-label', 'メニューを閉じる');
     menuCloseButton?.focus();
   };
 
   const closeMenu = () => {
+    moveFocusOutOfMenu();
     document.body.classList.remove(openBodyClassName);
-    menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', 'メニューを開く');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-label', 'メニューを開く');
     siteMenu.setAttribute('aria-hidden', 'true');
+    siteMenu.setAttribute('inert', '');
   };
 
   const toggleMenu = () => {
@@ -37,7 +80,6 @@ export function initMenuController(options = {}) {
 
   const handleCloseButtonClick = () => {
     closeMenu();
-    menuButton.focus();
   };
 
   const handleBackdropClick = (event) => {
@@ -52,26 +94,35 @@ export function initMenuController(options = {}) {
       document.body.classList.contains(openBodyClassName)
     ) {
       closeMenu();
-      menuButton.focus();
     }
   };
 
-  menuButton.addEventListener('click', toggleMenu);
+  menuToggle.addEventListener('click', toggleMenu);
   menuCloseButton?.addEventListener('click', handleCloseButtonClick);
   siteMenu.addEventListener('click', handleBackdropClick);
   menuLinks.forEach((link) => {
     link.addEventListener('click', closeMenu);
   });
   window.addEventListener('keydown', handleKeydown);
+  document.addEventListener('DOMContentLoaded', resetMenuState);
+  window.addEventListener('pageshow', resetMenuState);
+  resetMenuState();
 
-  return () => {
-    menuButton.removeEventListener('click', toggleMenu);
+  const cleanup = () => {
+    menuToggle.removeEventListener('click', toggleMenu);
     menuCloseButton?.removeEventListener('click', handleCloseButtonClick);
     siteMenu.removeEventListener('click', handleBackdropClick);
     menuLinks.forEach((link) => {
       link.removeEventListener('click', closeMenu);
     });
     window.removeEventListener('keydown', handleKeydown);
-    closeMenu();
+    document.removeEventListener('DOMContentLoaded', resetMenuState);
+    window.removeEventListener('pageshow', resetMenuState);
+    resetMenuState();
+    delete siteMenu._menuControllerCleanup;
   };
+
+  siteMenu._menuControllerCleanup = cleanup;
+
+  return cleanup;
 }
