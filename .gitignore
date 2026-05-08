@@ -38,3 +38,6 @@ Thumbs.db
 
 # Package artifacts
 *.tgz
+
+# Cloudflare Wrangler
+worker/.wrangler/
