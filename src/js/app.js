@@ -3,6 +3,7 @@ import { initCountdownController } from './controllers/countdownController.js';
 import { initMenuController } from './controllers/menuController.js';
 import { initNewsController } from './controllers/newsController.js';
 import { initPostLiveController } from './controllers/postLiveController.js';
+import { fetchOfficialNews } from './api/newsApi.js';
 import { albums } from './data/albums.js';
 import { newsItems } from './data/news.js';
 import { getVideoItems } from './data/video-data.js';
@@ -1476,6 +1477,30 @@ function setupSiteMenu() {
   cleanupMenuController = initMenuController();
 }
 
+async function initNews() {
+  try {
+    initNewsController({
+      items: [],
+      state: 'loading',
+    });
+
+    const officialNews = await fetchOfficialNews();
+
+    initNewsController({
+      items: officialNews,
+      state: 'success',
+    });
+  } catch (error) {
+    console.warn('[news] fallback to mock news', error);
+
+    initNewsController({
+      items: newsItems,
+      state: 'fallback',
+      message: '最新NEWSを取得できなかったため、仮データを表示しています。',
+    });
+  }
+}
+
 function setupControllers() {
   postLiveController = initPostLiveController({
     liveDate: LIVE_DATE,
@@ -1517,9 +1542,7 @@ async function init() {
   setupTargetControls();
   setupScrollTopLinks();
   setupSiteMenu();
-  initNewsController({
-    items: newsItems,
-  });
+  initNews();
   renderDiscographyPreview();
   renderVideoPreview();
   initAlbumSection();

@@ -1241,6 +1241,18 @@ body.is-post-live .post-live-hero {
   opacity: 1;
 }
 
+.news-section__item--status {
+  display: block;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.news-section__item--status::before {
+  display: none;
+}
+
 .news-section__date {
   color: color-mix(in srgb, var(--color-text) 56%, transparent);
   font-size: 15px;
@@ -1260,6 +1272,16 @@ body.is-post-live .post-live-hero {
 
 .news-section__link:hover {
   color: var(--color-accent);
+}
+
+.news-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.news-card__link:hover,
+.news-card__link:focus-visible {
+  text-decoration: underline;
 }
 
 .news-section__more {
