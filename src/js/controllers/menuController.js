@@ -11,7 +11,6 @@ export function initMenuController(options = {}) {
       '.page-transition',
       '.loading',
     ],
-    debug = true,
   } = options;
 
   if (!menuToggle || !siteMenu) {
@@ -26,14 +25,6 @@ export function initMenuController(options = {}) {
 
   let isMenuOpen = false;
   let menuAbortController = null;
-
-  const logMenuEvent = (message, detail) => {
-    if (!debug) {
-      return;
-    }
-
-    console.log(`[menu] ${message}`, detail ?? '');
-  };
 
   const moveFocusOutOfMenu = () => {
     const activeElement = document.activeElement;
@@ -124,8 +115,6 @@ export function initMenuController(options = {}) {
   };
 
   const toggleMenu = () => {
-    logMenuEvent('toggle clicked');
-
     if (isMenuOpen || document.body.classList.contains(openBodyClassName)) {
       closeMenu();
       return;
@@ -172,31 +161,13 @@ export function initMenuController(options = {}) {
     window.addEventListener('keydown', handleKeydown, { signal });
   };
 
-  const handlePageShow = (event) => {
-    logMenuEvent('pageshow', { persisted: event.persisted });
+  const handlePageShow = () => {
     resetMenuState();
     bindMenuEvents();
-    requestAnimationFrame(debugMenuHitTest);
   };
-
-  function debugMenuHitTest() {
-    const rect = menuToggle.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const topElement = document.elementFromPoint(x, y);
-
-    logMenuEvent('hit test', {
-      toggle: menuToggle,
-      topElement,
-      same: topElement === menuToggle || menuToggle.contains(topElement),
-      topElementClass: topElement?.className,
-      topElementId: topElement?.id,
-    });
-  }
 
   document.addEventListener('DOMContentLoaded', resetMenuState);
   window.addEventListener('pageshow', handlePageShow);
-  window.addEventListener('resize', debugMenuHitTest);
   resetMenuState();
   bindMenuEvents();
 
@@ -208,7 +179,6 @@ export function initMenuController(options = {}) {
 
     document.removeEventListener('DOMContentLoaded', resetMenuState);
     window.removeEventListener('pageshow', handlePageShow);
-    window.removeEventListener('resize', debugMenuHitTest);
     resetMenuState();
     delete siteMenu._menuControllerCleanup;
   };

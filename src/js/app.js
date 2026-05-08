@@ -1257,32 +1257,8 @@ function setupResizeHandler() {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
-      requestAnimationFrame(() => {
-        debugMenuHitTest();
-      });
       requestSceneRebuild();
     }, RESIZE_DEBOUNCE_MS);
-  });
-}
-
-function debugMenuHitTest() {
-  const menuToggle = document.querySelector('.site-menu-button');
-
-  if (!(menuToggle instanceof HTMLElement)) {
-    return;
-  }
-
-  const rect = menuToggle.getBoundingClientRect();
-  const x = rect.left + rect.width / 2;
-  const y = rect.top + rect.height / 2;
-  const topElement = document.elementFromPoint(x, y);
-
-  console.log('[menu] hit test', {
-    toggle: menuToggle,
-    topElement,
-    same: topElement === menuToggle || menuToggle.contains(topElement),
-    topElementClass: topElement?.className,
-    topElementId: topElement?.id,
   });
 }
 
@@ -1580,7 +1556,6 @@ async function init() {
   window.addEventListener('pageshow', (event) => {
     cleanupMenuController();
     setupSiteMenu();
-    requestAnimationFrame(debugMenuHitTest);
 
     if (event.persisted) {
       restartParticleAnimation();
