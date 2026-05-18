@@ -1143,7 +1143,8 @@ function buildTweetText({ albumTitle, trackTitle, daysLeft }) {
     '',
     SITE_URL,
     '',
-    `#小原涼 #小原涼生誕ワンマン2026 まであと${daysLeft}日`,
+    `#小原涼 #小原涼生誕ワンマン2026`,
+    // `#小原涼 #小原涼生誕ワンマン2026 まであと${daysLeft}日`,
   ].join('\n');
 }
 
