@@ -15,7 +15,7 @@ import { scheduleMidnightUpdate, scheduleTargetTimeUpdate } from './utils/date.j
 import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
 const LIVE_DATE = new Date('2026-05-17T17:00:00+09:00');
-const SITE_URL = window.location.origin;
+const SITE_URL = 'https://obara-ryo.sound-memory.com';
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
 const POINTER_SMOOTHING = 0.16;
@@ -1136,16 +1136,25 @@ function getCurrentAlbumSelection() {
   };
 }
 
-function buildTweetText({ albumTitle, trackTitle, daysLeft }) {
+function buildTweetText({ albumTitle, trackTitle, shareUrl }) {
   return [
     `収録アルバム: ${albumTitle}`,
     `お気に入り楽曲: 「${trackTitle}」`,
     '',
-    SITE_URL,
+    shareUrl,
     '',
     `#小原涼 #小原涼生誕ワンマン2026`,
-    // `#小原涼 #小原涼生誕ワンマン2026 まであと${daysLeft}日`,
   ].join('\n');
+}
+
+function buildAlbumShareUrl(album) {
+  const slug = typeof album?.slug === 'string' ? album.slug.trim() : '';
+
+  if (!slug) {
+    return `${SITE_URL}/`;
+  }
+
+  return `${SITE_URL}/share/${encodeURIComponent(slug)}/`;
 }
 
 function openSelectedTrackTweet() {
@@ -1155,11 +1164,11 @@ function openSelectedTrackTweet() {
     return;
   }
 
-  const daysLeft = getLiveDaysLeft();
+  const shareUrl = buildAlbumShareUrl(selection.currentAlbum);
   const tweetText = buildTweetText({
     albumTitle: selection.currentAlbum.title,
     trackTitle: selection.selectedTrack,
-    daysLeft,
+    shareUrl,
   });
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
