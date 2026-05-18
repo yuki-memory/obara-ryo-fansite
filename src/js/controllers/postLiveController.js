@@ -1,8 +1,12 @@
 // 開発確認用。本番前に false に戻すこと
 export const FORCE_POST_LIVE_MODE = false;
 
-export function isPostLiveMode(liveDate) {
-  return FORCE_POST_LIVE_MODE || Date.now() >= liveDate.getTime();
+export function isPostLive(liveDate, now = new Date()) {
+  return now.getTime() >= liveDate.getTime();
+}
+
+export function isPostLiveMode(liveDate, now = new Date()) {
+  return FORCE_POST_LIVE_MODE || isPostLive(liveDate, now);
 }
 
 export function applyPostLiveMode(isPostLive, options = {}) {

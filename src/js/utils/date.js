@@ -54,23 +54,30 @@ function toDayIndex(parts) {
   );
 }
 
-export function getDaysLeftJST(liveDate) {
+export function getDaysLeftJST(liveDate, now = new Date()) {
   const targetParts = getJstDateParts(liveDate);
-  const todayParts = getJstDateParts(new Date());
+  const todayParts = getJstDateParts(now);
 
   const diff = toDayIndex(targetParts) - toDayIndex(todayParts);
   return Math.max(0, diff);
 }
 
-export function getTimeLeftJST(targetDate) {
-  const target = toDate(targetDate);
-  const now = new Date();
+export function getCountdownParts(liveDate, now = new Date()) {
+  const target = toDate(liveDate);
   const diffMs = Math.max(0, target.getTime() - now.getTime());
 
   const totalSeconds = Math.floor(diffMs / 1000);
+  const days = getDaysLeftJST(target, now);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
+
+  return { days, hours, minutes, seconds, diffMs };
+}
+
+export function getTimeLeftJST(targetDate, now = new Date()) {
+  const target = toDate(targetDate);
+  const { hours, minutes, seconds } = getCountdownParts(target, now);
 
   return { hours, minutes, seconds };
 }
@@ -79,8 +86,8 @@ export function formatTimePart(value) {
   return String(value).padStart(2, '0');
 }
 
-export function formatTimeLeftJST(targetDate) {
-  const { hours, minutes, seconds } = getTimeLeftJST(targetDate);
+export function formatTimeLeftJST(targetDate, now = new Date()) {
+  const { hours, minutes, seconds } = getTimeLeftJST(targetDate, now);
 
   return [
     formatTimePart(hours),
@@ -129,6 +136,32 @@ export function scheduleMidnightUpdate(onUpdate) {
   };
 
   schedule();
+
+  return () => {
+    cancelled = true;
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+  };
+}
+
+export function scheduleTargetTimeUpdate(targetDate, onUpdate) {
+  const target = toDate(targetDate);
+
+  if (typeof onUpdate !== 'function') {
+    throw new Error('scheduleTargetTimeUpdate には関数を渡してください。');
+  }
+
+  let timerId = 0;
+  let cancelled = false;
+
+  const delay = Math.max(1, target.getTime() - Date.now() + 50);
+
+  timerId = window.setTimeout(() => {
+    if (!cancelled) {
+      onUpdate();
+    }
+  }, delay);
 
   return () => {
     cancelled = true;

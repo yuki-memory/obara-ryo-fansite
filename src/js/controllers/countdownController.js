@@ -1,6 +1,6 @@
 import {
-  formatTimeLeftJST,
-  getDaysLeftJST,
+  formatTimePart,
+  getCountdownParts,
 } from '../utils/date.js';
 
 function getChangedCharIndexes(previousLines, nextLines) {
@@ -42,11 +42,15 @@ export function initCountdownController(options = {}) {
   let previousLines = null;
   let intervalId = null;
 
-  const getLiveDaysLeft = () => getDaysLeftJST(liveDate);
+  const getLiveDaysLeft = () => getCountdownParts(liveDate).days;
 
   const getCountdownLines = () => {
-    const days = getLiveDaysLeft();
-    const timeLeft = formatTimeLeftJST(liveDate);
+    const { days, hours, minutes, seconds } = getCountdownParts(liveDate);
+    const timeLeft = [
+      formatTimePart(hours),
+      formatTimePart(minutes),
+      formatTimePart(seconds),
+    ].join(':');
 
     return [
       `${days}DAYS`,

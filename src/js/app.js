@@ -11,10 +11,10 @@ import { FluidSimulation } from './webgl/fluid.js';
 import { ParticleSystem, PARTICLE_MOTION_MODES } from './webgl/particleSystem.js';
 import { Renderer } from './webgl/renderer.js';
 import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './webgl/targets.js';
-import { scheduleMidnightUpdate } from './utils/date.js';
+import { scheduleMidnightUpdate, scheduleTargetTimeUpdate } from './utils/date.js';
 import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
-const LIVE_DATE = new Date('2026-05-17T00:00:00+09:00');
+const LIVE_DATE = new Date('2026-05-17T17:00:00+09:00');
 const SITE_URL = window.location.origin;
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
@@ -108,6 +108,7 @@ const state = {
   loginSequenceId: 0,
   isLoginSequenceRunning: false,
   cancelMidnightUpdate: null,
+  cancelLiveDateUpdate: null,
   isRebuilding: false,
   rebuildQueued: false,
   width: 0,
@@ -433,6 +434,7 @@ function showDaysTarget() {
   setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
   applyTarget('days');
   setupJstMidnightUpdate();
+  setupLiveDateUpdate();
   startParticleCountdownTimer();
 }
 
@@ -442,6 +444,11 @@ function showPostLiveTarget() {
   if (state.cancelMidnightUpdate) {
     state.cancelMidnightUpdate();
     state.cancelMidnightUpdate = null;
+  }
+
+  if (state.cancelLiveDateUpdate) {
+    state.cancelLiveDateUpdate();
+    state.cancelLiveDateUpdate = null;
   }
 
   syncPostLiveDomState();
@@ -1252,6 +1259,26 @@ function setupJstMidnightUpdate() {
   });
 }
 
+function setupLiveDateUpdate() {
+  if (state.cancelLiveDateUpdate) {
+    state.cancelLiveDateUpdate();
+    state.cancelLiveDateUpdate = null;
+  }
+
+  if (isPostLiveMode()) {
+    showPostLiveTarget();
+    return;
+  }
+
+  state.cancelLiveDateUpdate = scheduleTargetTimeUpdate(LIVE_DATE, () => {
+    syncPostLiveDomState();
+
+    if (isPostLiveMode()) {
+      showPostLiveTarget();
+    }
+  });
+}
+
 function setupResizeHandler() {
   let resizeTimer = 0;
 
@@ -1560,6 +1587,11 @@ async function init() {
     if (state.cancelMidnightUpdate) {
       state.cancelMidnightUpdate();
       state.cancelMidnightUpdate = null;
+    }
+
+    if (state.cancelLiveDateUpdate) {
+      state.cancelLiveDateUpdate();
+      state.cancelLiveDateUpdate = null;
     }
 
     cancelAutoSequences();
