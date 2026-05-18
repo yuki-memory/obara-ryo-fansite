@@ -56,6 +56,20 @@ body {
   overflow-x: hidden;
 }
 
+html.is-app-preparing,
+body.is-app-preparing {
+  background: #1b111c;
+  overflow: hidden;
+}
+
+body.is-app-preparing > * {
+  visibility: hidden !important;
+}
+
+body.is-app-ready > * {
+  visibility: visible;
+}
+
 body.is-menu-open {
   overflow: hidden;
 }

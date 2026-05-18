@@ -15,6 +15,12 @@ export function applyPostLiveMode(isPostLive, options = {}) {
   root.classList.toggle(className, isPostLive);
 }
 
+export function applyPostLiveState(liveDate, now = new Date()) {
+  const postLive = now.getTime() >= liveDate.getTime();
+
+  document.body.classList.toggle('is-post-live', postLive);
+}
+
 export function initPostLiveController(options = {}) {
   const {
     liveDate,

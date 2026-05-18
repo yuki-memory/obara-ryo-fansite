@@ -2,7 +2,7 @@ import logoImageUrl from '../../assets/logos/logo.png';
 import { initCountdownController } from './controllers/countdownController.js';
 import { initMenuController } from './controllers/menuController.js';
 import { initNewsController } from './controllers/newsController.js';
-import { initPostLiveController } from './controllers/postLiveController.js';
+import { applyPostLiveState, initPostLiveController } from './controllers/postLiveController.js';
 import { fetchOfficialNews } from './api/newsApi.js';
 import { albums } from './data/albums.js';
 import { newsItems } from './data/news.js';
@@ -21,6 +21,12 @@ const PARTICLE_UPDATE_SUBSTEPS = 3;
 const POINTER_SMOOTHING = 0.16;
 const POINTER_RELEASE_HALF_LIFE_SEC = 0.12;
 const SWIPE_THRESHOLD = 48;
+const APP_PREPARING_CLASS = 'is-app-preparing';
+const APP_READY_CLASS = 'is-app-ready';
+
+let appReadyFallbackTimerId = window.setTimeout(() => {
+  markAppReady();
+}, 1500);
 
 const APP_STATES = Object.freeze({
   IDLE: 'idle',
@@ -134,6 +140,18 @@ const albumState = {
   thumbnailSwiper: null,
   elements: null,
 };
+
+function markAppReady() {
+  if (appReadyFallbackTimerId) {
+    window.clearTimeout(appReadyFallbackTimerId);
+    appReadyFallbackTimerId = 0;
+  }
+
+  document.documentElement.classList.remove(APP_PREPARING_CLASS);
+  document.body.classList.remove(APP_PREPARING_CLASS);
+  document.documentElement.classList.add(APP_READY_CLASS);
+  document.body.classList.add(APP_READY_CLASS);
+}
 
 function reportAppError(context, error) {
   console.error(`[app] ${context}`, error);
@@ -1551,6 +1569,8 @@ function setupControllers() {
 }
 
 async function init() {
+  applyPostLiveState(LIVE_DATE, new Date());
+
   const canvas = document.getElementById('webgl-canvas');
 
   if (!(canvas instanceof HTMLCanvasElement)) {
@@ -1575,6 +1595,7 @@ async function init() {
   initAlbumSection();
   setupPointerInput(canvas);
   setupScrollOverlayState();
+  markAppReady();
 
   window.playLoginSequence = () =>
     playLoginSequence().catch((error) => {
@@ -1633,6 +1654,15 @@ async function init() {
   }
 }
 
-init().catch((error) => {
-  reportAppError('init', error);
-});
+function startInit() {
+  init().catch((error) => {
+    reportAppError('init', error);
+    markAppReady();
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startInit, { once: true });
+} else {
+  startInit();
+}
