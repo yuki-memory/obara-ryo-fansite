@@ -1136,10 +1136,12 @@ function getCurrentAlbumSelection() {
   };
 }
 
-function buildTweetText({ albumTitle, trackTitle, shareUrl }) {
+function buildTweetText({ albumTitle, trackTitle, shareUrl, daysLeft }) {
   return [
     `収録アルバム: ${albumTitle}`,
     `お気に入り楽曲: 「${trackTitle}」`,
+    '',
+    `復活まで、残り${daysLeft}日！！`,
     '',
     shareUrl,
     '',
@@ -1169,6 +1171,7 @@ function openSelectedTrackTweet() {
     albumTitle: selection.currentAlbum.title,
     trackTitle: selection.selectedTrack,
     shareUrl,
+    daysLeft: countdownController?.getLiveDaysLeft() ?? 0,
   });
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
