@@ -14,7 +14,7 @@ import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './webgl
 import { scheduleMidnightUpdate, scheduleTargetTimeUpdate } from './utils/date.js';
 import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
-const LIVE_DATE = new Date('2026-05-17T17:00:00+09:00');
+const LIVE_DATE = new Date('2026-08-02T11:00:00+09:00');
 const SITE_URL = 'https://obara-ryo.sound-memory.com';
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 3;
@@ -1143,7 +1143,7 @@ function buildTweetText({ albumTitle, trackTitle, shareUrl }) {
     '',
     shareUrl,
     '',
-    `#小原涼 #小原涼生誕ワンマン2026`,
+    `#小原涼 #62日後に復活する小原涼`,
   ].join('\n');
 }
 
