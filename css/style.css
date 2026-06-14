@@ -508,24 +508,6 @@ body.is-menu-open .site-menu__close {
     0 8px 0 color-mix(in srgb, var(--color-accent) 22%, transparent);
 }
 
-.main__title-main::after {
-  content: "";
-  position: absolute;
-  left: 4%;
-  right: 4%;
-  bottom: 0;
-  z-index: -1;
-  height: 0.28em;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    var(--color-sub-yellow),
-    var(--color-sub-mint),
-    var(--color-accent-soft)
-  );
-  transform: rotate(-1.4deg);
-}
-
 .main__title-note {
   padding: 0.32em 1.35em 0.38em;
   background: var(--color-accent);
