@@ -8,18 +8,118 @@
     <link rel="stylesheet" href="../css/style.css" />
   </head>
   <body>
-    <main class="discography-page" id="top">
+    <div class="bg-overlay"></div>
+
+    <button
+      class="site-menu-button"
+      type="button"
+      aria-label="メニューを開く"
+      aria-controls="site-menu"
+      aria-expanded="false"
+    >
+      <span class="site-menu-button__bar"></span>
+      <span class="site-menu-button__bar"></span>
+      <span class="site-menu-button__bar"></span>
+    </button>
+
+    <nav class="site-menu" id="site-menu" aria-hidden="true" inert>
+      <div class="site-menu__panel">
+        <button
+          class="site-menu__close"
+          type="button"
+          aria-label="メニューを閉じる"
+        >
+          ×
+        </button>
+
+        <img
+          class="site-menu__decoration site-menu__decoration--top"
+          src="../assets/logos/logo.png"
+          alt="アーティストロゴ"
+          aria-hidden="true"
+        />
+        <img
+          class="site-menu__decoration site-menu__decoration--bottom"
+          src="../assets/images/characters/character_pose_smartphone.webp"
+          alt="イメージキャラクター"
+          aria-hidden="true"
+        />
+
+        <ul class="site-menu__list">
+          <li><a class="site-menu__link" href="../index.html">Home</a></li>
+          <li><a class="site-menu__link" href="../index.html#news">News</a></li>
+          <li>
+            <a class="site-menu__link" href="./discography.html">Music</a>
+          </li>
+          <li>
+            <a class="site-menu__link" href="./video.html">Video</a>
+          </li>
+          <li>
+            <a class="site-menu__link" href="./history.html">History</a>
+          </li>
+        </ul>
+
+        <div class="site-menu__sns" aria-label="公式SNS">
+          <a
+            class="site-menu__sns-link"
+            href="https://www.youtube.com/channel/UCLzG4j65zEa1_JCS8sbbLsg"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="YouTube"
+          >
+            <img src="../assets/icons/icon-youtube.svg" alt="YouTube" />
+          </a>
+          <a
+            class="site-menu__sns-link"
+            href="https://x.com/obararyou"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X"
+          >
+            <img src="../assets/icons/icon-x.svg" alt="Xアイコン" />
+          </a>
+          <a
+            class="site-menu__sns-link"
+            href="https://www.instagram.com/obararyou/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <img src="../assets/icons/icon-instagram.svg" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="history-page" id="top">
       <a class="back-button" href="../index.html">
         ← Back
       </a>
 
-      <header class="discography-page__hero">
-        <p class="discography-page__eyebrow">History</p>
-        <h1 class="discography-page__title">History</h1>
-        <p class="discography-page__lead">
-          活動履歴ページは準備中です。
+      <a class="top-button js-scroll-top" href="#" aria-label="ページ上部へ戻る">
+        Top
+      </a>
+
+      <header class="history-page__hero">
+        <p class="history-page__eyebrow">Activity Archive</p>
+        <h1 class="history-page__title">History</h1>
+        <p class="history-page__lead">
+          ファンと繋いだ活動の軌跡
         </p>
+        <p class="history-page__year-mark">2016 —</p>
       </header>
-    </main>
+
+      <main class="history-page__main">
+        <section class="history-timeline" aria-label="活動のアーカイブ">
+          <div
+            class="history-timeline__list"
+            id="history-timeline-list"
+            aria-live="polite"
+          ></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="../src/js/pages/history.js"></script>
   </body>
 </html>

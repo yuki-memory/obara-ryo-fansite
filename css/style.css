@@ -6,7 +6,7 @@
   - .is-active is used for JS-driven state.
 */
 
-@import url("https://fonts.googleapis.com/css2?family=Nikukyu&family=Noto+Sans+JP:wght@400;600;700&family=Patrick+Hand&family=Zen+Maru+Gothic:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Nikukyu&family=Noto+Sans+JP:wght@400;600;700&family=Patrick+Hand&family=Zen+Maru+Gothic:wght@400;700&display=swap");
 
 * {
   box-sizing: border-box;
@@ -35,6 +35,7 @@
   --font-body: "Noto Sans JP", sans-serif;
   --font-heading: "Zen Maru Gothic", "Noto Sans JP", sans-serif;
   --font-decorative: "Nikukyu", "Zen Maru Gothic", sans-serif;
+  --font-archive: "Cormorant Garamond", "Times New Roman", serif;
 }
 
 html,
@@ -2453,6 +2454,237 @@ body.is-post-live .post-live-hero {
   color: var(--color-accent);
 }
 
+.history-page {
+  min-height: 100svh;
+  padding: clamp(24px, 3vw, 40px) 24px clamp(88px, 10vw, 140px);
+  background:
+    radial-gradient(
+      circle at 18% 10%,
+      color-mix(in srgb, var(--color-main) 16%, transparent),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 84% 18%,
+      color-mix(in srgb, var(--color-bg-sub) 58%, transparent),
+      transparent 32%
+    ),
+    var(--color-bg);
+}
+
+.history-page__hero,
+.history-page__main {
+  width: min(92vw, 1040px);
+  margin-inline: auto;
+}
+
+.history-page__hero {
+  padding: clamp(46px, 5vw, 64px) 0 clamp(18px, 2.4vw, 28px);
+  text-align: center;
+}
+
+.history-page__eyebrow,
+.history-timeline__label {
+  color: var(--color-accent);
+  font-family: var(--font-decorative);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+}
+
+.history-page__eyebrow {
+  margin: 0 0 10px;
+  font-size: clamp(16px, 1.6vw, 22px);
+  opacity: 0.78;
+}
+
+.history-page__title {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+  font-family: var(--font-archive);
+  font-size: clamp(48px, 7vw, 78px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: 0.045em;
+}
+
+.history-page__lead {
+  max-width: 520px;
+  margin: 18px auto 0;
+  color: color-mix(in srgb, var(--color-text) 68%, transparent);
+  font-size: clamp(15px, 1.7vw, 19px);
+  font-weight: 600;
+  line-height: 1.8;
+  letter-spacing: 0.08em;
+}
+
+.history-page__year-mark {
+  margin: 10px 0 0;
+  color: color-mix(in srgb, var(--color-text) 24%, transparent);
+  font-family: var(--font-archive);
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.history-timeline {
+  margin-top: 0;
+}
+
+.history-timeline__label {
+  margin: 0 0 10px;
+  font-size: clamp(22px, 3vw, 38px);
+}
+
+.history-timeline__title {
+  margin: 0 0 clamp(16px, 2.4vw, 28px);
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  font-size: clamp(12px, 1.2vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.history-timeline__list {
+  display: grid;
+  gap: clamp(42px, 7vw, 72px);
+}
+
+.history-timeline__year-section {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(22px, 4vw, 52px);
+}
+
+.history-timeline__year {
+  position: sticky;
+  top: 24px;
+  margin: 0;
+  color: var(--color-accent);
+  font-family: var(--font-archive);
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.history-timeline__items {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  padding-left: clamp(18px, 3vw, 28px);
+}
+
+.history-timeline__items::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--color-accent-soft) 42%, transparent);
+}
+
+.history-timeline__item {
+  position: relative;
+  display: grid;
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--color-bg-sub) 82%, transparent);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--color-text) 6%, transparent);
+  padding: clamp(18px, 3vw, 26px);
+}
+
+.history-timeline__item::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: calc(clamp(18px, 3vw, 28px) * -1 - 5px);
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--color-bg);
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-main) 18%, transparent);
+}
+
+.history-timeline__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.history-timeline__tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 20%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-main) 16%, var(--color-bg-sub));
+  color: color-mix(in srgb, var(--color-accent) 86%, var(--color-text));
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  padding: 0 10px;
+}
+
+.history-timeline__tag--live {
+  background: color-mix(in srgb, #ff79c9 14%, var(--color-bg-sub));
+}
+
+.history-timeline__tag--release {
+  background: color-mix(in srgb, #ffc8dc 30%, var(--color-bg-sub));
+}
+
+.history-timeline__tag--tour {
+  background: color-mix(in srgb, var(--color-sub-mint) 20%, var(--color-bg-sub));
+}
+
+.history-timeline__tag--event {
+  background: color-mix(in srgb, #ffddeb 36%, var(--color-bg-sub));
+}
+
+.history-timeline__tag--activity {
+  background: color-mix(in srgb, var(--color-accent-soft) 18%, var(--color-bg-sub));
+}
+
+.history-timeline__item-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.history-timeline__description {
+  margin: 12px 0 0;
+  color: color-mix(in srgb, var(--color-text) 64%, transparent);
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1.5vw, 16px);
+  font-weight: 600;
+  line-height: 1.9;
+}
+
+.history-timeline__media {
+  margin: 18px 0 0;
+  aspect-ratio: 16 / 9;
+  background: color-mix(in srgb, var(--color-main) 14%, var(--color-bg-sub));
+  overflow: hidden;
+}
+
+.history-timeline__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .video-page {
   min-height: 100svh;
   padding: clamp(72px, 8vw, 112px) 24px clamp(80px, 10vw, 140px);
@@ -3470,6 +3702,73 @@ body.is-post-live .post-live-hero {
     padding: 0 16px 18px;
   }
 
+  .history-page {
+    padding: 24px 18px 88px;
+  }
+
+  .history-page__hero,
+  .history-page__main {
+    width: 100%;
+  }
+
+  .history-page__hero {
+    padding-top: 56px;
+    padding-bottom: 18px;
+  }
+
+  .history-page__eyebrow {
+    font-size: 18px;
+  }
+
+  .history-page__title {
+    font-size: clamp(44px, 14vw, 58px);
+  }
+
+  .history-page__year-mark {
+    margin-top: 8px;
+    font-size: 19px;
+  }
+
+  .history-page__lead br {
+    display: none;
+  }
+
+  .history-timeline {
+    margin-top: 0;
+  }
+
+  .history-timeline__title {
+    margin-bottom: 18px;
+  }
+
+  .history-timeline__list {
+    gap: 44px;
+  }
+
+  .history-timeline__year-section {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .history-timeline__year {
+    position: static;
+    font-size: 38px;
+  }
+
+  .history-timeline__items {
+    gap: 14px;
+    padding-left: 18px;
+  }
+
+  .history-timeline__item {
+    padding: 18px;
+  }
+
+  .history-timeline__item::before {
+    top: 26px;
+    left: -22px;
+  }
+
   .video-page {
     padding: 88px 18px;
   }
@@ -3558,6 +3857,7 @@ body.is-post-live .post-live-hero {
 .discography-section__card,
 .discography-page__card,
 .discography-detail-page__article,
+.history-timeline__item,
 .links-section__card {
   border-radius: 0;
   border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
