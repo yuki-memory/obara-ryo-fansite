@@ -7,17 +7,19 @@ import { fetchOfficialNews } from './api/newsApi.js';
 import { albums } from './data/albums.js';
 import { newsItems } from './data/news.js';
 import { getVideoItems } from './data/video-data.js';
-import { FluidSimulation } from './webgl/fluid.js';
-import { ParticleSystem, PARTICLE_MOTION_MODES } from './webgl/particleSystem.js';
-import { Renderer } from './webgl/renderer.js';
-import { buildDaysTargetPoints, buildLogoTargetPoints, loadImage } from './webgl/targets.js';
+import {
+  ThreeParticleCountdownScene,
+  THREE_PARTICLE_MOTION_MODES as PARTICLE_MOTION_MODES,
+} from './webgl/threeParticleCountdown.js';
+import { buildThreeCountdownTargetPoints } from './webgl/threeTextTargets.js';
+import { buildLogoTargetPoints, loadImage } from './webgl/targets.js';
 import { scheduleMidnightUpdate, scheduleTargetTimeUpdate } from './utils/date.js';
 import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
 const LIVE_DATE = new Date('2026-08-02T11:00:00+09:00');
 const SITE_URL = 'https://obara-ryo.sound-memory.com';
 const RESIZE_DEBOUNCE_MS = 120;
-const PARTICLE_UPDATE_SUBSTEPS = 3;
+const PARTICLE_UPDATE_SUBSTEPS = 1;
 const POINTER_SMOOTHING = 0.16;
 const POINTER_RELEASE_HALF_LIFE_SEC = 0.12;
 const SWIPE_THRESHOLD = 48;
@@ -92,7 +94,7 @@ const POST_LIVE_BACKGROUND_COLORS = Object.freeze({
 });
 const LIVE_COUNTDOWN_BACKGROUND_COLORS = Object.freeze({
   clear: [1.0, 0.91, 0.91, 1],
-  particle: [0.91, 0.31, 0.96],
+  particle: [1.0, 0.44, 0.72],
 });
 
 let countdownController = null;
@@ -104,7 +106,7 @@ const state = {
   renderer: null,
   fluid: null,
   logoImage: null,
-  particleSystem: new ParticleSystem(),
+  particleSystem: null,
   appState: APP_STATES.IDLE,
   particleMotionMode: PARTICLE_MOTION_MODES.IDLE,
   activeTarget: 'logo',
@@ -166,6 +168,16 @@ function readViewport() {
     width: window.innerWidth,
     height: window.innerHeight,
     dpr: Math.min(window.devicePixelRatio || 1, 2),
+  };
+}
+
+function createPointerInputAdapter() {
+  return {
+    update() {},
+    resize() {},
+    setPointerDown() {},
+    addPointerInput() {},
+    dispose() {},
   };
 }
 
@@ -269,9 +281,9 @@ function disposeWebglResources() {
 }
 
 function initializeWebglResources(canvas) {
-  state.renderer = new Renderer(canvas);
-  state.fluid = new FluidSimulation(state.renderer.getContext());
-  state.particleSystem = new ParticleSystem();
+  state.renderer = new ThreeParticleCountdownScene(canvas);
+  state.fluid = createPointerInputAdapter();
+  state.particleSystem = state.renderer;
   state.width = 0;
   state.height = 0;
   state.dpr = 1;
@@ -354,7 +366,7 @@ function getCountdownLines() {
 }
 
 function buildDaysTargetFromLines(lines) {
-  return buildDaysTargetPoints({
+  return buildThreeCountdownTargetPoints({
     lines: [
       {
         text: lines[0],
