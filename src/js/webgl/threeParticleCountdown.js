@@ -16,6 +16,20 @@ const MIN_PARTICLES_PER_TIME_ONE_GROUP = 195;
 const MIN_PARTICLES_PER_PUNCTUATION_GROUP = 86;
 const MIN_PARTICLES_PER_TEXT_GROUP = 210;
 const CHANGED_GROUP_VELOCITY = 0.34;
+const POINTER_REPULSION_RADIUS_DESKTOP = 220;
+const POINTER_REPULSION_RADIUS_MOBILE = 180;
+const POINTER_REPULSION_FORCE = 1.35;
+const POINTER_SWIRL_FORCE = 0.22;
+const POINTER_DRAG_FORCE = 0.018;
+const POINTER_MAX_DISPLACEMENT_DESKTOP = 42;
+const POINTER_MAX_DISPLACEMENT_MOBILE = 36;
+const POINTER_INTERACTION_DAMPING = 0.92;
+const TARGET_SPRING = 0.108;
+const RETURN_DAMPING = 0.88;
+const RETURN_MAX_SPEED = 12;
+const INTERACTION_MAX_SPEED = 18;
+const DEBUG_POINTER_REPULSION = Boolean(import.meta.env?.DEV);
+const DEBUG_POINTER_INTERVAL_MS = 500;
 
 export const THREE_PARTICLE_MOTION_MODES = Object.freeze({
   IDLE: 'IDLE',
@@ -110,6 +124,7 @@ export class ThreeParticleCountdownScene {
     this.dpr = 1;
     this.sizeScale = 1;
     this.pointerDown = false;
+    this.lastPointerDebugTime = 0;
   }
 
   resize(width, height, dpr = 1) {
@@ -388,7 +403,10 @@ export class ThreeParticleCountdownScene {
     }
 
     const isMobile = this.width < MOBILE_BREAKPOINT;
-    const radius = Math.max(46, Math.min(this.width, this.height) * (isMobile ? 0.18 : 0.12));
+    const radius = isMobile ? POINTER_REPULSION_RADIUS_MOBILE : POINTER_REPULSION_RADIUS_DESKTOP;
+    const maxDisplacement = isMobile
+      ? POINTER_MAX_DISPLACEMENT_MOBILE
+      : POINTER_MAX_DISPLACEMENT_DESKTOP;
 
     return {
       x: pointer.x,
@@ -397,7 +415,73 @@ export class ThreeParticleCountdownScene {
       dy: pointer.smoothDy || 0,
       influence: pointer.influence,
       radius,
+      maxDisplacement,
     };
+  }
+
+  applyPointerRepulsion(particle, interaction) {
+    const px = particle.x - interaction.x;
+    const py = particle.y - interaction.y;
+    const distance = Math.hypot(px, py);
+
+    if (distance >= interaction.radius) {
+      return { ax: 0, ay: 0, energy: 0, affected: false };
+    }
+
+    const t = 1 - distance / interaction.radius;
+    const smooth = t * t * (3 - 2 * t);
+    const invDistance = distance > 0.0001 ? 1 / distance : 0;
+    const nx = px * invDistance;
+    const ny = py * invDistance;
+    const tangentX = -ny;
+    const tangentY = nx;
+    const pointerSpeed = Math.min(12, Math.hypot(interaction.dx, interaction.dy));
+    const push = smooth * POINTER_REPULSION_FORCE * interaction.influence;
+    const swirl = smooth * POINTER_SWIRL_FORCE * interaction.influence;
+    const drag = smooth * POINTER_DRAG_FORCE;
+
+    return {
+      ax: nx * push + tangentX * swirl + interaction.dx * drag,
+      ay: ny * push + tangentY * swirl + interaction.dy * drag,
+      energy: Math.min(1, smooth * (0.55 + pointerSpeed * 0.035)),
+      affected: true,
+    };
+  }
+
+  debugPointerInteraction(time, interaction, affectedCount) {
+    if (!DEBUG_POINTER_REPULSION || !interaction) {
+      return;
+    }
+
+    const now = time * 1000;
+    if (now - this.lastPointerDebugTime < DEBUG_POINTER_INTERVAL_MS) {
+      return;
+    }
+
+    this.lastPointerDebugTime = now;
+    console.debug('[three-particle-countdown] pointer', {
+      x: Math.round(interaction.x),
+      y: Math.round(interaction.y),
+      influence: Number(interaction.influence.toFixed(2)),
+      radius: interaction.radius,
+      affectedCount,
+    });
+  }
+
+  limitPointerDisplacement(particle, interaction) {
+    const dx = particle.x - particle.tx;
+    const dy = particle.y - particle.ty;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance <= interaction.maxDisplacement || distance <= 0.0001) {
+      return;
+    }
+
+    const scale = interaction.maxDisplacement / distance;
+    particle.x = particle.tx + dx * scale;
+    particle.y = particle.ty + dy * scale;
+    particle.vx *= 0.64;
+    particle.vy *= 0.64;
   }
 
   update(dt, time = 0, _flowField = null, options = {}) {
@@ -409,46 +493,36 @@ export class ThreeParticleCountdownScene {
 
     this.material.uniforms.uTime.value = time;
     this.material.uniforms.uOpacity.value = motionMode === THREE_PARTICLE_MOTION_MODES.AMBIENT ? 0.72 : 1;
+    let affectedCount = 0;
 
     this.particles.forEach((particle) => {
       const dx = particle.tx - particle.x;
       const dy = particle.ty - particle.y;
-      let ax = dx * 0.105;
-      let ay = dy * 0.105;
-      let damping = 0.86;
+      let ax = dx * TARGET_SPRING;
+      let ay = dy * TARGET_SPRING;
+      let damping = RETURN_DAMPING;
 
       if (motionMode === THREE_PARTICLE_MOTION_MODES.AMBIENT) {
         ax = dx * 0.012 + Math.sin(time * 0.7 + particle.random * 10.0) * 0.014;
         ay = dy * 0.012 + Math.cos(time * 0.62 + particle.random * 11.0) * 0.014;
         damping = 0.965;
       } else if (interaction) {
-        const px = particle.x - interaction.x;
-        const py = particle.y - interaction.y;
-        const distance = Math.hypot(px, py);
-
-        if (distance < interaction.radius) {
-          const t = 1 - distance / interaction.radius;
-          const smooth = t * t * (3 - 2 * t);
-          const invDistance = distance > 0.0001 ? 1 / distance : 0;
-          const nx = px * invDistance;
-          const ny = py * invDistance;
-          const tangentX = -ny;
-          const tangentY = nx;
-          const pointerSpeed = Math.min(18, Math.hypot(interaction.dx, interaction.dy));
-          const push = smooth * (0.42 + pointerSpeed * 0.018) * interaction.influence;
-          const swirl = smooth * (0.32 + pointerSpeed * 0.012) * interaction.influence;
-
-          ax += nx * push + tangentX * swirl + interaction.dx * 0.014 * smooth;
-          ay += ny * push + tangentY * swirl + interaction.dy * 0.014 * smooth;
-          particle.energy = Math.max(particle.energy, smooth);
+        const repulsion = this.applyPointerRepulsion(particle, interaction);
+        ax += repulsion.ax;
+        ay += repulsion.ay;
+        particle.energy = Math.max(particle.energy, repulsion.energy);
+        if (repulsion.affected) {
+          affectedCount += 1;
         }
-        damping = 0.875;
+        damping = POINTER_INTERACTION_DAMPING;
       }
 
       particle.vx = (particle.vx + ax * step) * Math.pow(damping, step);
       particle.vy = (particle.vy + ay * step) * Math.pow(damping, step);
       const speed = Math.hypot(particle.vx, particle.vy);
-      const maxSpeed = motionMode === THREE_PARTICLE_MOTION_MODES.INTERACT ? 16 : 12;
+      const maxSpeed = motionMode === THREE_PARTICLE_MOTION_MODES.INTERACT
+        ? INTERACTION_MAX_SPEED
+        : RETURN_MAX_SPEED;
       if (speed > maxSpeed) {
         const scale = maxSpeed / speed;
         particle.vx *= scale;
@@ -457,9 +531,13 @@ export class ThreeParticleCountdownScene {
 
       particle.x += particle.vx * step;
       particle.y += particle.vy * step;
+      if (interaction) {
+        this.limitPointerDisplacement(particle, interaction);
+      }
       particle.energy += (0 - particle.energy) * Math.min(1, 0.08 * step);
     });
 
+    this.debugPointerInteraction(time, interaction, affectedCount);
     this.syncDynamicAttributes();
   }
 

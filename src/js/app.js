@@ -22,6 +22,8 @@ const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 1;
 const POINTER_SMOOTHING = 0.16;
 const POINTER_RELEASE_HALF_LIFE_SEC = 0.12;
+const POINTER_HOVER_INFLUENCE = 0.9;
+const POINTER_ACTIVE_INFLUENCE = 1.35;
 const SWIPE_THRESHOLD = 48;
 const APP_PREPARING_CLASS = 'is-app-preparing';
 const APP_READY_CLASS = 'is-app-ready';
@@ -203,6 +205,14 @@ function animate(timeMs) {
       state.pointer.influence *= decay;
       state.pointer.smoothDx = lerp(state.pointer.smoothDx, 0, 0.24);
       state.pointer.smoothDy = lerp(state.pointer.smoothDy, 0, 0.24);
+
+      if (
+        state.pointer.influence < 0.02 &&
+        state.particleMotionMode === PARTICLE_MOTION_MODES.INTERACT &&
+        !state.isLoginSequenceRunning
+      ) {
+        setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
+      }
     }
 
     // Update simulation modules and keep app.js as the orchestrator.
@@ -1338,6 +1348,33 @@ function setupPointerInput(canvas) {
   let lastX = 0;
   let lastY = 0;
 
+  const getCanvasPoint = (clientX, clientY) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+      return null;
+    }
+
+    return { x, y };
+  };
+
+  const updatePointerPosition = (x, y, influence) => {
+    const rawDx = hasLast ? x - lastX : 0;
+    const rawDy = hasLast ? y - lastY : 0;
+
+    state.pointer.smoothDx = lerp(state.pointer.smoothDx, rawDx, POINTER_SMOOTHING);
+    state.pointer.smoothDy = lerp(state.pointer.smoothDy, rawDy, POINTER_SMOOTHING);
+    state.pointer.x = x;
+    state.pointer.y = y;
+    state.pointer.influence = Math.max(state.pointer.influence, influence);
+
+    lastX = x;
+    lastY = y;
+    hasLast = true;
+  };
+
   const beginPointer = (x, y) => {
     if (isPostLiveMode()) {
       return;
@@ -1348,27 +1385,17 @@ function setupPointerInput(canvas) {
     if (!state.isLoginSequenceRunning) {
       setParticleMotionMode(PARTICLE_MOTION_MODES.INTERACT);
     }
-    state.pointer.x = x;
-    state.pointer.y = y;
     state.pointer.smoothDx = 0;
     state.pointer.smoothDy = 0;
-    state.pointer.influence = 1;
-    lastX = x;
-    lastY = y;
-    hasLast = true;
+    state.pointer.influence = POINTER_ACTIVE_INFLUENCE;
+    updatePointerPosition(x, y, POINTER_ACTIVE_INFLUENCE);
   };
 
   const movePointer = (x, y) => {
-    if (hasLast && state.pointerDown) {
-      const rawDx = x - lastX;
-      const rawDy = y - lastY;
+    const influence = state.pointerDown ? POINTER_ACTIVE_INFLUENCE : POINTER_HOVER_INFLUENCE;
 
-      state.pointer.smoothDx = lerp(state.pointer.smoothDx, rawDx, POINTER_SMOOTHING);
-      state.pointer.smoothDy = lerp(state.pointer.smoothDy, rawDy, POINTER_SMOOTHING);
-      state.pointer.x = x;
-      state.pointer.y = y;
-      state.pointer.influence = 1;
-
+    updatePointerPosition(x, y, influence);
+    if (state.pointerDown) {
       state.fluid.addPointerInput({
         x,
         y,
@@ -1377,9 +1404,9 @@ function setupPointerInput(canvas) {
       });
     }
 
-    lastX = x;
-    lastY = y;
-    hasLast = true;
+    if (!state.isLoginSequenceRunning) {
+      setParticleMotionMode(PARTICLE_MOTION_MODES.INTERACT);
+    }
   };
 
   const endPointer = () => {
@@ -1394,18 +1421,31 @@ function setupPointerInput(canvas) {
     }
   };
 
-  canvas.addEventListener('mousedown', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    beginPointer(event.clientX - rect.left, event.clientY - rect.top);
-  });
-
-  canvas.addEventListener('mousemove', (event) => {
-    if (!state.pointerDown) {
+  window.addEventListener('mousedown', (event) => {
+    const point = getCanvasPoint(event.clientX, event.clientY);
+    if (!point) {
       return;
     }
 
-    const rect = canvas.getBoundingClientRect();
-    movePointer(event.clientX - rect.left, event.clientY - rect.top);
+    beginPointer(point.x, point.y);
+  });
+
+  window.addEventListener('mousemove', (event) => {
+    const point = getCanvasPoint(event.clientX, event.clientY);
+    if (!point) {
+      if (!state.pointerDown && hasLast) {
+        hasLast = false;
+        state.pointer.influence = 0;
+        state.pointer.smoothDx = 0;
+        state.pointer.smoothDy = 0;
+        if (!state.isLoginSequenceRunning) {
+          setParticleMotionMode(PARTICLE_MOTION_MODES.RETURN);
+        }
+      }
+      return;
+    }
+
+    movePointer(point.x, point.y);
   });
 
   window.addEventListener('mouseup', () => {
@@ -1414,30 +1454,32 @@ function setupPointerInput(canvas) {
     }
   });
 
-  canvas.addEventListener('mouseleave', () => {
-    if (!state.pointerDown) {
-      hasLast = false;
-    }
-  });
-
-  canvas.addEventListener('touchstart', (event) => {
+  window.addEventListener('touchstart', (event) => {
     const touch = event.touches[0];
     if (!touch) {
       return;
     }
 
-    const rect = canvas.getBoundingClientRect();
-    beginPointer(touch.clientX - rect.left, touch.clientY - rect.top);
+    const point = getCanvasPoint(touch.clientX, touch.clientY);
+    if (!point) {
+      return;
+    }
+
+    beginPointer(point.x, point.y);
   }, { passive: true });
 
-  canvas.addEventListener('touchmove', (event) => {
+  window.addEventListener('touchmove', (event) => {
     const touch = event.touches[0];
     if (!touch || !state.pointerDown) {
       return;
     }
 
-    const rect = canvas.getBoundingClientRect();
-    movePointer(touch.clientX - rect.left, touch.clientY - rect.top);
+    const point = getCanvasPoint(touch.clientX, touch.clientY);
+    if (!point) {
+      return;
+    }
+
+    movePointer(point.x, point.y);
   }, { passive: true });
 
   window.addEventListener('touchend', () => {
