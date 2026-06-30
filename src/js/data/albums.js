@@ -313,6 +313,12 @@ export const albums = [
       'My Live Life -STORY-',
     ],
     links: {},
-    videos: [],
+    videos: [
+      {
+        title: 'ピンクのキャリー(mv)',
+        kind: 'Music Video',
+        url: 'https://www.youtube.com/watch?v=OKdVQ_A7c0E',
+      },
+    ],
   },
 ];
