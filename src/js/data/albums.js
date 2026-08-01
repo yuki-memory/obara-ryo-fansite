@@ -315,10 +315,16 @@ export const albums = [
     links: {},
     videos: [
       {
+        title: 'Days(mv)',
+        kind: 'Music Video',
+        url: 'https://www.youtube.com/watch?v=4d5Ot2vnL4Q',
+      },
+      {
         title: 'ピンクのキャリー(mv)',
         kind: 'Music Video',
         url: 'https://www.youtube.com/watch?v=OKdVQ_A7c0E',
       },
+      
     ],
   },
 ];
