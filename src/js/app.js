@@ -1163,11 +1163,11 @@ function buildTweetText({ albumTitle, trackTitle, shareUrl, daysLeft }) {
     `収録アルバム: ${albumTitle}`,
     `お気に入り楽曲: 「${trackTitle}」`,
     '',
-    `復活まで、残り${daysLeft}日！！`,
+    // `復活まで、残り${daysLeft}日！！`,
     '',
     shareUrl,
     '',
-    `#小原涼 #62日後に復活する小原涼`,
+    `#小原涼`,
   ].join('\n');
 }
 
