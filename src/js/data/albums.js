@@ -260,7 +260,7 @@ export const albums = [
     links: {
       tunecore: 'https://www.tunecore.co.jp/artists/obararyo',
       spotify: 'https://open.spotify.com/intl-ja/album/4aTuq3U62fHtEsjsMbYUjm',
-      appleMusic: 'https://music.apple.com/jp/album/flower-single/1826035445',
+      // appleMusic: 'https://music.apple.com/jp/album/flower-single/1826035445',
       amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0FH9MZJ1G',
     },
     videos: [
@@ -282,7 +282,11 @@ export const albums = [
     jacket: albumImagePath('album__012.webp'),
     characterImage: characterImagePath('character_pose_point.webp'),
     tracks: ['STORY'],
-    links: {},
+    links: {tunecore: 'https://linkco.re/Q1m8E5vx?lang=ja',
+            spotify: 'https://open.spotify.com/intl-ja/album/4pRNjZQiydTXEYwmVBJ5Zw',
+            appleMusic:'https://music.apple.com/jp/album/story-single/1858482515',
+            amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0G51Z9NNG',
+    },
     videos: [
       {
         title: 'STORY live映像',
@@ -312,7 +316,11 @@ export const albums = [
       'STORY',
       'My Live Life -STORY-',
     ],
-    links: {},
+    links: {
+      linkcore: 'https://linkco.re/huuGTn7t?lang=ja',
+      spotify: 'https://open.spotify.com/intl-ja/album/5nxktJrQb49U43Qp22DhZJ',
+      appleMusic:'https://music.apple.com/jp/album/my-life-live-story/6794605147',
+      amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0HBKMRVR7'},
     videos: [
       {
         title: 'Days(mv)',

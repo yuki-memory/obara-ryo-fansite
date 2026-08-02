@@ -4,7 +4,7 @@ import { setupScrollTopLinks } from '../utils/scroll.js';
 const LINK_LABELS = {
   linkcore: 'LinkCore',
   tunecore: 'TuneCore',
-  spotify: 'Listen',
+  spotify: 'Spotify',
   appleMusic: 'Apple Music',
   amazonMusic: 'Amazon Music',
   youtubeMusic: 'YouTube Music',
