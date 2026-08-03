@@ -177,12 +177,6 @@ export const historyYears = [
         image: null,
       },
       {
-        category: 'release',
-        title: 'メロディー',
-        description: '2026年1月18日、赤坂navey floorで初披露。',
-        image: null,
-      },
-      {
         category: 'anniversary',
         title: '10周年記念ワンマン',
         description: '赤羽ReNYαで開催。',
