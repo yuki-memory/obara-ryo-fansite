@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://obara-ryo.sound-memory.com/sitemap.xml
