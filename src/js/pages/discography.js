@@ -1,4 +1,8 @@
 import { albums } from '../data/albums.js';
+import {
+  initOutboundLinkTracking,
+  trackPageViewEvent,
+} from '../utils/analytics.js';
 import { setupScrollTopLinks } from '../utils/scroll.js';
 
 const LINK_LABELS = {
@@ -145,4 +149,6 @@ function renderDiscographyPage() {
 }
 
 renderDiscographyPage();
+trackPageViewEvent('discography');
+initOutboundLinkTracking();
 setupScrollTopLinks();

@@ -11,6 +11,10 @@ import {
   ThreeParticleCountdownScene,
   THREE_PARTICLE_MOTION_MODES as PARTICLE_MOTION_MODES,
 } from './webgl/threeParticleCountdown.js';
+import {
+  initOutboundLinkTracking,
+  trackShareButtonClick,
+} from './utils/analytics.js';
 import { buildThreeCountdownTargetPoints } from './webgl/threeTextTargets.js';
 import { buildLogoTargetPoints, loadImage } from './webgl/targets.js';
 import { scheduleMidnightUpdate, scheduleTargetTimeUpdate } from './utils/date.js';
@@ -1197,6 +1201,13 @@ function openSelectedTrackTweet() {
   });
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
+  trackShareButtonClick({
+    album_id: selection.currentAlbum.id,
+    album_title: selection.currentAlbum.title,
+    track_title: selection.selectedTrack,
+    share_url: shareUrl,
+  });
+
   window.open(tweetUrl, '_blank', 'noopener,noreferrer');
 }
 
@@ -1656,6 +1667,7 @@ async function init() {
   setupTargetControls();
   setupScrollTopLinks();
   setupSiteMenu();
+  initOutboundLinkTracking();
   initNews();
   renderDiscographyPreview();
   renderVideoPreview();

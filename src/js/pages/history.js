@@ -1,5 +1,9 @@
 import { historyCategoryLabels, historyYears } from '../data/history.js';
 import { initMenuController } from '../controllers/menuController.js';
+import {
+  initOutboundLinkTracking,
+  trackPageViewEvent,
+} from '../utils/analytics.js';
 import { setupScrollTopLinks } from '../utils/scroll.js';
 
 function createTextElement(tagName, className, text) {
@@ -96,5 +100,7 @@ function renderHistoryTimeline() {
 }
 
 renderHistoryTimeline();
+trackPageViewEvent('history');
+initOutboundLinkTracking();
 initMenuController();
 setupScrollTopLinks();

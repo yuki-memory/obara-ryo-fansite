@@ -1,4 +1,8 @@
 import { getVideoItems } from '../data/video-data.js';
+import {
+  initOutboundLinkTracking,
+  trackPageViewEvent,
+} from '../utils/analytics.js';
 import { setupScrollTopLinks } from '../utils/scroll.js';
 
 function createVideoCard(video) {
@@ -52,4 +56,6 @@ function renderVideoPage() {
 }
 
 renderVideoPage();
+trackPageViewEvent('video');
+initOutboundLinkTracking();
 setupScrollTopLinks();

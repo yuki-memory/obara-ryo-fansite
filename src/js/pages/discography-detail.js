@@ -1,4 +1,8 @@
 import { albums } from '../data/albums.js';
+import {
+  initOutboundLinkTracking,
+  trackPageViewEvent,
+} from '../utils/analytics.js';
 import { setupScrollTopLinks } from '../utils/scroll.js';
 
 const LINK_LABELS = {
@@ -168,6 +172,11 @@ function renderDiscographyDetail() {
   }
 
   document.title = `${album.title} | Discography | 小原涼`;
+  trackPageViewEvent('album_detail', {
+    album_id: album.id,
+    album_title: album.title,
+    album_type: album.type,
+  });
 
   const article = document.createElement('article');
   article.className = 'discography-detail-page__article';
@@ -216,4 +225,5 @@ function renderDiscographyDetail() {
 }
 
 renderDiscographyDetail();
+initOutboundLinkTracking();
 setupScrollTopLinks();
