@@ -162,7 +162,7 @@ export const historyYears = [
       {
         category: 'live',
         title: 'bouquet toss💐',
-        description: '初の全曲ワンマンライブを開催。',
+        description: '初の全曲ワンマンライブを開催。STORYを初披露。',
         image: null,
       },
     ],
@@ -177,6 +177,12 @@ export const historyYears = [
         image: null,
       },
       {
+        category: 'release',
+        title: 'メロディー',
+        description: '2026年1月18日、赤坂navey floorで初披露。',
+        image: null,
+      },
+      {
         category: 'anniversary',
         title: '10周年記念ワンマン',
         description: '赤羽ReNYαで開催。',
@@ -186,6 +192,25 @@ export const historyYears = [
         category: 'release',
         title: 'My Live Life -STORY-',
         description: '10周年記念フルアルバムを発売。',
+        image: null,
+      },
+      {
+        category: 'activity',
+        title: '喉の手術のため活動休止',
+        description: '2026年6月1日より、喉の手術のため活動休止。',
+        image: null,
+      },
+      {
+        category: 'live',
+        title: '小原涼活休明け復活主催ライブ『ただいま！！！！』',
+        description:
+          '2026年8月2日、青山RizMで開催。新曲『あなた』を初披露。',
+        image: null,
+      },
+      {
+        category: 'release',
+        title: 'あなた',
+        description: '2026年8月13日、サブスク配信予定。',
         image: null,
       },
     ],
