@@ -137,6 +137,11 @@ body.is-scrolled .bg-overlay {
   -webkit-backdrop-filter: blur(2px);
 }
 
+body.is-post-live.is-scrolled .bg-overlay {
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+}
+
 .site-menu-button {
   position: fixed;
   top: 32px;
@@ -166,7 +171,10 @@ body.is-menu-open .site-menu-button {
   height: 3px;
   margin: 9px 0;
   border-radius: 999px;
-  background: var(--color-text);
+  background: #f28cb1;
+  box-shadow:
+    0 0 1px rgba(255, 240, 247, 0.45),
+    0 0 7px rgba(242, 140, 177, 0.35);
 }
 
 .site-menu {
@@ -553,99 +561,172 @@ body.is-post-live .main__controls {
   position: relative;
   z-index: 3;
   display: none;
-  width: min(1120px, calc(100% - 48px));
+  width: min(1180px, calc(100% - 64px));
   margin: 0 auto;
   min-height: 100svh;
-  padding: clamp(96px, 12vh, 132px) 0 clamp(64px, 8vh, 96px);
+  padding: clamp(88px, 10vh, 120px) 0 clamp(56px, 8vh, 88px);
   color: #fff7fb;
-  text-align: center;
-  pointer-events: none;
+  text-align: left;
+  pointer-events: auto;
 }
 
 body.is-post-live .post-live-hero {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.post-live-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 0.86fr);
+  align-items: center;
+  gap: clamp(48px, 7vw, 96px);
+  width: 100%;
+}
+
+.post-live-hero__content {
+  width: min(100%, 520px);
+  justify-self: end;
 }
 
 .post-live-hero__date {
-  margin: 0 0 18px;
-  color: color-mix(in srgb, #fff7fb 68%, transparent);
+  margin: 0 0 22px;
+  color: color-mix(in srgb, #fff7fb 70%, transparent);
   font-family: var(--font-heading);
-  font-size: clamp(15px, 1.25vw, 18px);
+  font-size: clamp(14px, 1.15vw, 17px);
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
 }
 
 .post-live-hero__title {
-  max-width: 980px;
   margin: 0;
-  color: #fff7fb;
+  color: #fff0f7;
   font-family: var(--font-heading);
-  font-size: clamp(36px, 5vw, 72px);
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  line-height: 1.05;
-  text-align: center;
-  text-shadow: 0 12px 36px color-mix(in srgb, #000 42%, transparent);
+  font-size: clamp(56px, 6vw, 92px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-shadow:
+    0 0 2px rgba(255, 255, 255, 0.95),
+    0 0 9px rgba(255, 190, 222, 0.85),
+    0 0 22px rgba(255, 115, 185, 0.4);
 }
 
-.post-live-hero__lead {
-  margin: 22px 0 0;
-  color: color-mix(in srgb, #fff7fb 78%, transparent);
-  font-size: clamp(14px, 1.3vw, 17px);
+.post-live-hero__message {
+  margin: 32px 0 0;
+  color: color-mix(in srgb, #fff7fb 70%, transparent);
+  font-size: clamp(14px, 1.1vw, 16px);
   font-weight: 600;
   letter-spacing: 0.08em;
-  line-height: 1.9;
+  line-height: 2.15;
+  text-shadow: none;
 }
 
-.post-live-hero__photos {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 32px;
-  width: 100%;
-  margin-top: 20px;
-}
-
-.post-live-hero__photo {
-  position: relative;
-  width: min(42vw, 520px);
-  margin: 0;
-  border-radius: 20px;
-  overflow: hidden;
-  background:
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, #fff7fb 12%, transparent),
-      color-mix(in srgb, var(--color-accent) 16%, transparent)
-    ),
-    #21161e;
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.35),
-    0 0 24px rgba(235, 110, 249, 0.12);
-  transition:
-    transform 0.4s ease,
-    box-shadow 0.4s ease;
-}
-
-.post-live-hero__photo:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 18px 60px rgba(0, 0, 0, 0.45),
-    0 0 40px rgba(235, 110, 249, 0.22);
-}
-
-.post-live-hero__photo img {
+.post-live-hero__line {
   display: block;
+  width: 54px;
+  height: 2px;
+  margin-top: 34px;
+  background: color-mix(in srgb, var(--color-accent) 76%, #fff7fb);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--color-accent) 36%, transparent);
+}
+
+.post-live-hero__visual {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   width: 100%;
+}
+
+.post-live-hero__main-photo {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: min(100%, 520px);
+  max-height: none;
+  aspect-ratio: auto;
+  margin: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+.post-live-hero__main-photo.is-changing {
+  opacity: 1;
+  transform: none;
+}
+
+.post-live-hero__main-photo::after {
+  display: none;
+}
+
+.post-live-hero__photo-frame {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.post-live-hero__main-photo-image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: auto;
+  max-width: 100%;
   height: auto;
-  object-fit: cover;
+  max-height: min(76svh, 760px);
+  border-radius: 18px;
+  box-shadow: none;
+  clip-path: inset(0 round 18px);
+  object-fit: contain;
+  object-position: center center;
   image-rendering: auto;
   transform: translateZ(0);
   backface-visibility: hidden;
+}
+
+.post-live-hero__main-photo-image--next {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  opacity: 0;
+  transition: opacity 1.08s ease;
+}
+
+.post-live-hero__photo-frame.is-changing .post-live-hero__main-photo-image--next {
+  opacity: 1;
+}
+
+.post-live-hero__slides {
+  display: none;
+}
+
+.post-live-hero__credit {
+  align-self: stretch;
+  margin: 8px 0 0;
+  color: rgba(255, 170, 210, 0.8);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.post-live-hero__credit[hidden] {
+  display: none;
+}
+
+.post-live-hero__credit a {
+  color: inherit;
+  text-decoration: none;
 }
 
 @keyframes heroFloat {
@@ -1151,7 +1232,7 @@ body.is-post-live .post-live-hero {
 
 .artist__image {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   height: 100%;
   border-radius: var(--radius-card);
@@ -1176,28 +1257,46 @@ body.is-post-live .post-live-hero {
 }
 
 .artist__profile-photo--1 {
-  background-image: url("../assets/images/artists/artist__001.webp");
   animation-delay: 0s;
 }
 
 .artist__profile-photo--2 {
-  background-image: url("../assets/images/artists/artist__002.webp");
   animation-delay: 5s;
 }
 
 .artist__profile-photo--3 {
-  background-image: url("../assets/images/artists/artist__003.webp");
   animation-delay: 10s;
 }
 
 .artist__profile-photo--4 {
-  background-image: url("../assets/images/artists/artist__004.webp");
   animation-delay: 15s;
 }
 
 .artist__profile-photo--5 {
-  background-image: url("../assets/images/artists/artist__005.webp");
   animation-delay: 20s;
+}
+
+.artist__profile-credit {
+  position: absolute;
+  right: 10px;
+  bottom: -18px;
+  z-index: 1;
+  margin: 0;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-align: right;
+  pointer-events: auto;
+}
+
+.artist__profile-credit[hidden] {
+  display: none;
+}
+
+.artist__profile-credit a {
+  color: inherit;
+  text-decoration: none;
 }
 
 @keyframes artistProfileImageSwitch {
@@ -3237,43 +3336,74 @@ body.is-post-live .post-live-hero {
   .post-live-hero {
     width: min(100% - 32px, 520px);
     min-height: auto;
-    padding: 34px 0 48px;
+    padding: 40px 0 54px;
   }
 
   body.is-post-live .post-live-hero {
     justify-content: flex-start;
   }
 
+  .post-live-hero__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .post-live-hero__content {
+    width: 100%;
+    justify-self: auto;
+    text-align: left;
+  }
+
   .post-live-hero__date {
-    margin-bottom: 14px;
-    font-size: 14px;
-    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+    font-size: 13px;
+    letter-spacing: 0.2em;
   }
 
   .post-live-hero__title {
-    max-width: 340px;
-    font-size: clamp(30px, 10vw, 42px);
-    letter-spacing: 0.06em;
-    line-height: 1.08;
+    font-size: clamp(40px, 12vw, 56px);
+    letter-spacing: 0.09em;
+    line-height: 1.16;
   }
 
-  .post-live-hero__lead {
-    max-width: 320px;
-    margin-top: 18px;
+  .post-live-hero__message {
+    margin-top: 24px;
     font-size: 13px;
-    letter-spacing: 0.04em;
-    line-height: 1.8;
+    line-height: 2;
+    letter-spacing: 0.06em;
   }
 
-  .post-live-hero__photos {
-    gap: 18px;
-    margin-top: 16px;
+  .post-live-hero__line {
+    width: 48px;
+    margin-top: 26px;
   }
 
-  .post-live-hero__photo {
-    width: min(92vw, 520px);
+  .post-live-hero__visual {
+    align-items: center;
+    justify-content: center;
   }
 
+  .post-live-hero__main-photo {
+    width: fit-content;
+    max-width: min(100%, 390px);
+    max-height: none;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+
+  .post-live-hero__main-photo-image {
+    position: relative;
+    z-index: 1;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    border-radius: 12px;
+    box-shadow: none;
+    clip-path: inset(0 round 12px);
+    object-fit: contain;
+  }
   .album-section {
     margin-top: 0;
     padding: 14vh 16px 0;
@@ -3374,13 +3504,18 @@ body.is-post-live .post-live-hero {
     margin: 0 auto;
   }
 
+  .artist__profile-credit {
+    right: 8px;
+    bottom: -16px;
+  }
+
   .artist__visual {
     align-items: center;
   }
 
   .artist__image-bg {
-    top: 10px;
-    left: 10px;
+    top: 14px;
+    left: 14px;
   }
 
   .artist__profile-content {

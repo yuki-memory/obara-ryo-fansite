@@ -209,30 +209,47 @@
       </div>
 
       <section class="post-live-hero" aria-label="ライブアーカイブ">
-        <p class="post-live-hero__date">2026.08.02</p>
+        <div class="post-live-hero__inner">
+          <div class="post-live-hero__content">
+            <p class="post-live-hero__date">2026.08.02</p>
 
-        <p class="post-live-hero__title">THANK YOU FOR THE LIVE</p>
+            <h2 class="post-live-hero__title">
+              THANK<br />
+              YOU FOR<br />
+              THE LIVE
+            </h2>
 
-        <!-- この下はライブが終わって写真が集まり次第更新する -->
+            <p class="post-live-hero__message">
+              おかえりなさい！<br />
+              最高の時間をありがとう！！<br />
+              これからも素敵な歌声を沢山聴かせてね！<br />
+              「大事なものならいつも、<br>
+              　　　　　LIVEで生まれるから✨」
+            </p>
 
-        <!-- <p class="post-live-hero__lead">
-          この日の余韻を、少しずつここに残していきます。
-        </p> -->
+            <span class="post-live-hero__line" aria-hidden="true"></span>
+          </div>
 
-        <div class="post-live-hero__photos">
-          <figure class="post-live-hero__photo">
-            <img
-              src="./assets/lives/2026-05-17_oneman/photos/HIiNP_aaQAA2ALz.jpeg"
-              alt="ライブ写真"
-            />
-          </figure>
-
-          <figure class="post-live-hero__photo">
-            <img
-              src="./assets/lives/2026-05-17_oneman/photos/HIiNP_ZbkAAsDzO.jpeg"
-              alt="ライブ写真"
-            />
-          </figure>
+          <div class="post-live-hero__visual">
+            <figure class="post-live-hero__main-photo" data-post-live-gallery>
+              <span class="post-live-hero__photo-frame">
+                <img
+                  class="post-live-hero__main-photo-image"
+                  src="./assets/lives/2026-08-02_comeback-live/2026-08-02-comeback-live-001.png"
+                  alt="マイクを手にステージで歌う小原涼のクローズアップ"
+                  data-post-live-main-image
+                />
+                <img
+                  class="post-live-hero__main-photo-image post-live-hero__main-photo-image--next"
+                  src="./assets/lives/2026-08-02_comeback-live/2026-08-02-comeback-live-001.png"
+                  alt=""
+                  aria-hidden="true"
+                  data-post-live-next-image
+                />
+              </span>
+              <p class="post-live-hero__credit" data-post-live-credit></p>
+            </figure>
+          </div>
         </div>
       </section>
 
@@ -274,8 +291,9 @@
 
         <div class="artist__profile-inner">
           <div class="artist__visual">
-            <div class="artist__image-wrapper" aria-hidden="true">
+            <div class="artist__image-wrapper">
               <div class="artist__image-bg"></div>
+              <p class="artist__profile-credit" data-artist-profile-credit></p>
               <div class="artist__image">
                 <div class="artist__profile-photo-slider">
                   <div

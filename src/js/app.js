@@ -6,6 +6,8 @@ import { applyPostLiveState, initPostLiveController } from './controllers/postLi
 import { fetchOfficialNews } from './api/newsApi.js';
 import { albums } from './data/albums.js';
 import { newsItems } from './data/news.js';
+import artistProfilePhotos from '../data/artist-profile-photos.json';
+import postLivePhotos from '../data/post-live-photos.json';
 import { getVideoItems } from './data/video-data.js';
 import {
   ThreeParticleCountdownScene,
@@ -31,6 +33,22 @@ const POINTER_ACTIVE_INFLUENCE = 1.35;
 const SWIPE_THRESHOLD = 48;
 const APP_PREPARING_CLASS = 'is-app-preparing';
 const APP_READY_CLASS = 'is-app-ready';
+const POST_LIVE_PHOTO_ASSETS = import.meta.glob(
+  '../../assets/lives/2026-08-02_comeback-live/*.{jpg,jpeg,png}',
+  {
+    eager: true,
+    import: 'default',
+    query: '?url',
+  },
+);
+const ARTIST_PROFILE_PHOTO_ASSETS = import.meta.glob(
+  '../../assets/images/artists/*.{jpg,jpeg,png,webp}',
+  {
+    eager: true,
+    import: 'default',
+    query: '?url',
+  },
+);
 
 let appReadyFallbackTimerId = window.setTimeout(() => {
   markAppReady();
@@ -1600,6 +1618,219 @@ function setupSiteMenu() {
   cleanupMenuController = initMenuController();
 }
 
+function setupPostLiveGallery() {
+  const gallery = document.querySelector('[data-post-live-gallery]');
+  const credit = document.querySelector('[data-post-live-credit]');
+
+  if (!gallery) {
+    return;
+  }
+
+  const mainPhoto = gallery;
+  const photoFrame = gallery.querySelector('.post-live-hero__photo-frame');
+  const mainImage = gallery.querySelector('[data-post-live-main-image]');
+  const nextImage = gallery.querySelector('[data-post-live-next-image]');
+
+  if (
+    !(mainPhoto instanceof HTMLElement) ||
+    !(photoFrame instanceof HTMLElement) ||
+    !(mainImage instanceof HTMLImageElement) ||
+    !(nextImage instanceof HTMLImageElement) ||
+    !(credit instanceof HTMLElement)
+  ) {
+    return;
+  }
+
+  const resolvePhotoSrc = (src) => {
+    const assetKey = src.replace(/^\.\//, '../../');
+    return POST_LIVE_PHOTO_ASSETS[assetKey] || src;
+  };
+
+  const photos = postLivePhotos
+    .map((photo) => ({
+      ...photo,
+      src: resolvePhotoSrc(photo.src || ''),
+      alt: photo.alt || '',
+    }))
+    .filter((photo) => photo.src);
+  const preloadedImages = new Map();
+  let activeIndex = 0;
+  let changeToken = 0;
+
+  if (photos.length === 0) {
+    return;
+  }
+
+  const preloadImage = (src) => {
+    if (preloadedImages.has(src)) {
+      return preloadedImages.get(src);
+    }
+
+    const image = new Image();
+    image.src = src;
+
+    const ready = image.decode
+      ? image.decode().catch(() => undefined)
+      : new Promise((resolve) => {
+          image.onload = resolve;
+          image.onerror = resolve;
+        });
+
+    preloadedImages.set(src, ready);
+    return ready;
+  };
+
+  photos.forEach((photo) => {
+    preloadImage(photo.src);
+  });
+
+  const updateCredit = (photo) => {
+    const photographer = photo.photographer;
+
+    credit.replaceChildren();
+
+    if (!photographer?.name) {
+      credit.hidden = true;
+      return;
+    }
+
+    credit.hidden = false;
+
+    if (photographer.url) {
+      const link = document.createElement('a');
+      link.href = photographer.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = `Photo by ${photographer.name}`;
+      credit.append(link);
+      return;
+    }
+
+    credit.textContent = `Photo by ${photographer.name}`;
+  };
+
+  updateCredit(photos[activeIndex]);
+
+  const showPhoto = async (nextIndex) => {
+    const normalizedIndex = (nextIndex + photos.length) % photos.length;
+
+    if (normalizedIndex === activeIndex) {
+      return;
+    }
+
+    const photo = photos[normalizedIndex];
+    const token = changeToken + 1;
+    changeToken = token;
+
+    await preloadImage(photo.src);
+
+    if (token !== changeToken) {
+      return;
+    }
+
+    nextImage.src = photo.src;
+    nextImage.alt = '';
+    photoFrame.classList.add('is-changing');
+
+    window.setTimeout(() => {
+      if (token !== changeToken) {
+        return;
+      }
+
+      mainImage.src = photo.src;
+      mainImage.alt = photo.alt;
+      activeIndex = normalizedIndex;
+      updateCredit(photo);
+
+      window.requestAnimationFrame(() => {
+        if (token === changeToken) {
+          photoFrame.classList.remove('is-changing');
+        }
+      });
+    }, 1080);
+  };
+
+  if (photos.length > 1) {
+    window.setInterval(() => {
+      showPhoto(activeIndex + 1);
+    }, 6800);
+  }
+}
+
+function setupArtistProfilePhotos() {
+  const slider = document.querySelector('.artist__profile-photo-slider');
+  const credit = document.querySelector('[data-artist-profile-credit]');
+
+  if (!(slider instanceof HTMLElement) || !(credit instanceof HTMLElement)) {
+    return;
+  }
+
+  const slides = Array.from(slider.querySelectorAll('.artist__profile-photo'));
+
+  if (slides.length === 0) {
+    return;
+  }
+
+  const resolvePhotoSrc = (src) => {
+    const assetKey = src.replace(/^\.\//, '../../');
+    return ARTIST_PROFILE_PHOTO_ASSETS[assetKey] || src;
+  };
+
+  const photos = artistProfilePhotos
+    .map((photo) => ({
+      ...photo,
+      src: resolvePhotoSrc(photo.src || ''),
+    }))
+    .filter((photo) => photo.src);
+
+  if (photos.length === 0) {
+    return;
+  }
+
+  slides.forEach((slide, slideIndex) => {
+    const photo = photos[slideIndex];
+
+    if (photo) {
+      slide.style.backgroundImage = `url("${photo.src}")`;
+    }
+  });
+
+  const updateCredit = (photo) => {
+    const photographer = photo.photographer;
+
+    credit.replaceChildren();
+
+    if (!photographer?.name) {
+      credit.hidden = true;
+      return;
+    }
+
+    credit.hidden = false;
+
+    if (photographer.url) {
+      const link = document.createElement('a');
+      link.href = photographer.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = `Photo by ${photographer.name}`;
+      credit.append(link);
+      return;
+    }
+
+    credit.textContent = `Photo by ${photographer.name}`;
+  };
+
+  let activeIndex = 0;
+  updateCredit(photos[activeIndex]);
+
+  if (photos.length > 1) {
+    window.setInterval(() => {
+      activeIndex = (activeIndex + 1) % photos.length;
+      updateCredit(photos[activeIndex]);
+    }, 5000);
+  }
+}
+
 async function initNews() {
   try {
     initNewsController({
@@ -1667,6 +1898,8 @@ async function init() {
   setupTargetControls();
   setupScrollTopLinks();
   setupSiteMenu();
+  setupPostLiveGallery();
+  setupArtistProfilePhotos();
   initOutboundLinkTracking();
   initNews();
   renderDiscographyPreview();

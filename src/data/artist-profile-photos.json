@@ -1,0 +1,42 @@
+[
+  {
+    "src": "./assets/images/artists/artist__001.webp",
+    "alt": "小原涼プロフィール写真 1",
+    "photographer": {
+      "name": "",
+      "url": null
+    }
+  },
+  {
+    "src": "./assets/images/artists/artist__002.webp",
+    "alt": "小原涼プロフィール写真 2",
+    "photographer": {
+      "name": "ハイド",
+      "url": null
+    }
+  },
+  {
+    "src": "./assets/images/artists/artist__003.webp",
+    "alt": "小原涼プロフィール写真 3",
+    "photographer": {
+      "name": "ハイド",
+      "url": null
+    }
+  },
+  {
+    "src": "./assets/images/artists/artist__004.webp",
+    "alt": "小原涼プロフィール写真 4",
+    "photographer": {
+      "name": "スダ",
+      "url": null
+    }
+  },
+  {
+    "src": "./assets/images/artists/artist__005.webp",
+    "alt": "小原涼プロフィール写真 5",
+    "photographer": {
+      "name": "スダ",
+      "url": null
+    }
+  }
+]
