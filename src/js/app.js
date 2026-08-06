@@ -1661,6 +1661,8 @@ function setupPostLiveGallery() {
     return;
   }
 
+  nextImage.setAttribute('aria-hidden', 'true');
+
   const preloadImage = (src) => {
     if (preloadedImages.has(src)) {
       return preloadedImages.get(src);
@@ -1730,6 +1732,7 @@ function setupPostLiveGallery() {
 
     nextImage.src = photo.src;
     nextImage.alt = '';
+    nextImage.setAttribute('aria-hidden', 'true');
     photoFrame.classList.add('is-changing');
 
     window.setTimeout(() => {

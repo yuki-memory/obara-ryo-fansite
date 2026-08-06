@@ -645,8 +645,8 @@ body.is-post-live .post-live-hero {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: fit-content;
-  max-width: min(100%, 520px);
+  width: min(100%, 520px, calc(min(76svh, 760px) * 0.8));
+  max-width: 100%;
   max-height: none;
   aspect-ratio: auto;
   margin: 0;
@@ -668,42 +668,47 @@ body.is-post-live .post-live-hero {
 
 .post-live-hero__photo-frame {
   position: relative;
-  display: inline-flex;
-  width: fit-content;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
   max-width: 100%;
+  flex-shrink: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
 }
 
 .post-live-hero__main-photo-image {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
   display: block;
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: min(76svh, 760px);
-  border-radius: 18px;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  border-radius: inherit;
   box-shadow: none;
-  clip-path: inset(0 round 18px);
-  object-fit: contain;
+  clip-path: none;
+  object-fit: cover;
   object-position: center center;
   image-rendering: auto;
+  pointer-events: none;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
 .post-live-hero__main-photo-image--next {
-  position: absolute;
-  inset: 0;
   z-index: 2;
-  width: 100%;
-  height: 100%;
-  max-height: none;
   opacity: 0;
+  visibility: hidden;
   transition: opacity 1.08s ease;
 }
 
 .post-live-hero__photo-frame.is-changing .post-live-hero__main-photo-image--next {
   opacity: 1;
+  visibility: visible;
 }
 
 .post-live-hero__slides {
@@ -1883,7 +1888,7 @@ body.is-post-live .post-live-hero {
 
 .live-info__article-image {
   width: 100%;
-  max-width: 560px;
+  max-width: 500px;
 }
 
 .live-info__article-image img {
@@ -3385,24 +3390,27 @@ body.is-post-live .post-live-hero {
   }
 
   .post-live-hero__main-photo {
-    width: fit-content;
-    max-width: min(100%, 390px);
+    width: min(100%, 390px);
+    max-width: 100%;
     max-height: none;
     aspect-ratio: auto;
     border-radius: 0;
   }
 
-  .post-live-hero__main-photo-image {
-    position: relative;
-    z-index: 1;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: none;
+  .post-live-hero__photo-frame {
+    width: 100%;
     border-radius: 12px;
+  }
+
+  .post-live-hero__main-photo-image {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    border-radius: inherit;
     box-shadow: none;
-    clip-path: inset(0 round 12px);
-    object-fit: contain;
+    clip-path: none;
+    object-fit: cover;
   }
   .album-section {
     margin-top: 0;
@@ -3684,7 +3692,8 @@ body.is-post-live .post-live-hero {
   }
 
   .live-info__article-image {
-    max-width: none;
+    max-width: min(100%, 460px);
+    margin-inline: auto;
   }
 
   .live-info__article-body {
