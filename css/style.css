@@ -1293,6 +1293,12 @@ body.is-post-live .post-live-hero {
   line-height: 1.5;
   text-align: right;
   pointer-events: auto;
+  opacity: 1;
+  transition: opacity 1.5s ease;
+}
+
+.artist__profile-credit.is-fading {
+  opacity: 0;
 }
 
 .artist__profile-credit[hidden] {

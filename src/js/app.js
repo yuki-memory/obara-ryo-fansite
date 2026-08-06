@@ -1827,10 +1827,48 @@ function setupArtistProfilePhotos() {
   updateCredit(photos[activeIndex]);
 
   if (photos.length > 1) {
-    window.setInterval(() => {
-      activeIndex = (activeIndex + 1) % photos.length;
-      updateCredit(photos[activeIndex]);
-    }, 5000);
+    let creditToken = 0;
+    const creditSwapDelay = 180;
+    const syncCreditToSlide = (slide) => {
+      const slideIndex = slides.indexOf(slide);
+
+      if (slideIndex < 0 || !photos[slideIndex]) {
+        return;
+      }
+
+      const token = creditToken + 1;
+      creditToken = token;
+
+      credit.classList.add('is-fading');
+
+      window.setTimeout(() => {
+        if (token !== creditToken) {
+          return;
+        }
+
+        activeIndex = slideIndex;
+        updateCredit(photos[activeIndex]);
+
+        if (credit.hidden) {
+          return;
+        }
+
+        window.requestAnimationFrame(() => {
+          if (token === creditToken) {
+            credit.classList.remove('is-fading');
+          }
+        });
+      }, creditSwapDelay);
+    };
+
+    slides.forEach((slide) => {
+      slide.addEventListener('animationstart', () => {
+        syncCreditToSlide(slide);
+      });
+      slide.addEventListener('animationiteration', () => {
+        syncCreditToSlide(slide);
+      });
+    });
   }
 }
 
