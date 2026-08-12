@@ -335,4 +335,24 @@ export const albums = [
       
     ],
   },
+  {
+    id: 'album-placeholder-13',
+    slug: 'anata',
+    type: '4th Digital Single',
+    title: 'あなた',
+    releaseDate: '2026-08-13',
+    jacketImage: '/assets/albums/album__014.webp',
+    image: albumImagePath('album__014.webp'),
+    jacket: albumImagePath('album__014.webp'),
+    tracks: [
+      'あなた',
+    ],
+    links: {
+      // linkcore: 'https://linkco.re/huuGTn7t?lang=ja',
+      // spotify: 'https://open.spotify.com/intl-ja/album/5nxktJrQb49U43Qp22DhZJ',
+      appleMusic:'https://music.apple.com/jp/album/you-single/6800176415',
+      amazonMusic: 'https://www.amazon.co.jp/music/player/albums/B0HDS7H16Y'},
+    videos: [
+    ],
+  },
 ];
