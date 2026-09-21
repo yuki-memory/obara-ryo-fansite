@@ -34,7 +34,7 @@ const SWIPE_THRESHOLD = 48;
 const APP_PREPARING_CLASS = 'is-app-preparing';
 const APP_READY_CLASS = 'is-app-ready';
 const POST_LIVE_PHOTO_ASSETS = import.meta.glob(
-  '../../assets/lives/2026-08-02_comeback-live/*.{jpg,jpeg,png}',
+  '../../assets/lives/2026-08-02_comeback-live/*.webp',
   {
     eager: true,
     import: 'default',
