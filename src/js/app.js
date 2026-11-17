@@ -22,7 +22,7 @@ import { buildLogoTargetPoints, loadImage } from './webgl/targets.js';
 import { scheduleMidnightUpdate, scheduleTargetTimeUpdate } from './utils/date.js';
 import { setupScrollTopLinks as setupScrollTopLinkHandlers } from './utils/scroll.js';
 
-const LIVE_DATE = new Date('2026-08-02T11:00:00+09:00');
+const LIVE_DATE = new Date('2027-05-08T18:00:00+09:00');
 const SITE_URL = 'https://obara-ryo.sound-memory.com';
 const RESIZE_DEBOUNCE_MS = 120;
 const PARTICLE_UPDATE_SUBSTEPS = 1;
